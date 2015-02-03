@@ -4,11 +4,11 @@ function SocketHelper(sockets){
   socketsIO = sockets;
 }
 
-SocketHelper.prototype.FindRoomInRange = function(rooms, mylat,mylon)
+SocketHelper.prototype.FindRoomInRange = function(mylat,mylon)
 {
     var existingRooms = socketsIO.adapter.rooms;
     var roomNameFound='';
-    
+
     if(existingRooms.length < 1)
     {
         return roomNameFound;

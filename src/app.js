@@ -21,14 +21,28 @@ io.sockets.on('connection', function (socket) {
 	 io.to(RoomName).emit('joined', UserName);
 
      socket.on('findFriends', function (gps) {
-		 RoomName = "Latitude: "+gps.Lat.toFixed(2) + " Longitude: " + gps.Lon.toFixed(2);
-		 socket.join(RoomName);
-		 socket.emit('title', RoomName);
-     })
+    		 RoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
+
+         //check if room exists
+         var foundRoom = FindRoomInRange(gps.Lat.toFixed(2),gps.Lon.toFixed(2))
+         console.log("Found Room name is:"+foundRoom);
+         if(foundRoom != '')
+         {
+            console.log('Joining existing room')
+    		    socket.join(foundRoom);
+         }
+         else //no room close enough, create
+         {
+          console.log('Creating new room')
+          socket.join(RoomName);
+         }
+
+    		 socket.emit('title', RoomName);
+     });
 
     socket.on('message', function(data) {
         io.to(RoomName).emit('message',data);
-    })
+    });
 
     socket.on('leave', function(data) {
        	socket.leave(RoomName);
@@ -37,3 +51,27 @@ io.sockets.on('connection', function (socket) {
     })
  });
 
+function FindRoomInRange(mylat,mylon)
+{
+    var existingRooms = io.sockets.adapter.rooms;
+    var roomNameFound='';
+    if(existingRooms.length < 1)
+    {
+        return roomNameFound;
+    }
+
+   Object.keys(existingRooms).forEach(function(roomName){
+
+       var roomTokens = roomName.split(" ");
+
+        if(!isNaN(parseFloat(roomTokens[0])) && !isNaN(parseFloat(roomTokens[1])))
+        { 
+          if(Math.abs(parseFloat(roomTokens[0]).toFixed(2) - mylat) < .03 && Math.abs(parseFloat(roomTokens[1]).toFixed(2) - mylon) < .03)
+          {
+            roomNameFound = roomName;
+          }
+        }
+    });
+
+    return roomNameFound;
+}

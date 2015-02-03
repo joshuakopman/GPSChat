@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var path = require('path');
-var RoomName='';
+var CurrentRoomName='';
 var UserName='';
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -18,36 +18,37 @@ app.get('/', function(req, res){
 
 io.sockets.on('connection', function (socket) {
 	 UserName = socket.handshake.query.UserName;
-	 io.to(RoomName).emit('joined', UserName);
 
      socket.on('findFriends', function (gps) {
-    		 RoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
+    		 CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
 
          //check if room exists
          var foundRoom = FindRoomInRange(gps.Lat.toFixed(2),gps.Lon.toFixed(2))
-         console.log("Found Room name is:"+foundRoom);
          if(foundRoom != '')
          {
-            console.log('Joining existing room')
     		    socket.join(foundRoom);
+            CurrentRoomName = foundRoom;
+
          }
          else //no room close enough, create
          {
-          console.log('Creating new room')
-          socket.join(RoomName);
+            socket.join(CurrentRoomName);
          }
 
-    		 socket.emit('title', RoomName);
+         io.to(CurrentRoomName).emit('joined', UserName);
+         socket.emit('title', CurrentRoomName);
+
      });
 
     socket.on('message', function(data) {
-        io.to(RoomName).emit('message',data);
+        io.to(CurrentRoomName).emit('message',data);
     });
 
     socket.on('leave', function(data) {
-       	socket.leave(RoomName);
-       	io.to(RoomName).emit('left',data);
-       	socket.emit('selfLeft');
+       console.log('leaving '+CurrentRoomName);
+       	socket.leave(CurrentRoomName); //leave room
+       	io.to(CurrentRoomName).emit('left',data); //tell everyone i left
+       	socket.emit('selfLeft'); //let myself know i left
     })
  });
 

@@ -1,5 +1,6 @@
 function SocketHandler(){
     navigator.geolocation.getCurrentPosition(this.GetLocation);
+    domHandler = new DOMHandler();
 }
 
 SocketHandler.prototype.GetLocation = function(location){

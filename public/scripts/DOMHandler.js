@@ -19,7 +19,7 @@ DOMHandler.prototype.setTitle = function(title){
 DOMHandler.prototype.messageBoxEventHandler = function(){
   $("#msgbox").keypress( function(event) {
          if (event.which == '13') {
-            domHandler.sendMsg(socket);
+            DOMHandler.prototype.sendMsg(socket);
             event.preventDefault();
         }
     });   

@@ -3,7 +3,6 @@ var app = express();
 var path = require('path');
 var SocketHandler = require('./handlers/SocketHandler');
 
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 var server = app.listen(3000, function() {

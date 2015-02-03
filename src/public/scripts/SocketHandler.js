@@ -1,3 +1,6 @@
+var lat;
+var lon;
+
 function SocketHandler(){
     navigator.geolocation.getCurrentPosition(this.GetLocation);
     domHandler = new DOMHandler();
@@ -11,14 +14,14 @@ SocketHandler.prototype.GetLocation = function(location){
 
 SocketHandler.prototype.Connect = function(){
   domHandler.startChat(function(userName){
-        socket = io.connect('http://54.68.158.109:3000',{ query : 'UserName=' +  userName });
+        socket = io.connect('http://' + window.location.hostname +':3000',{ query : 'UserName=' +  userName });
 
         domHandler.HideUserName();
 
         SocketHandler.prototype.RegisterEvents(socket);
 
         domHandler.handleDisconnect(function(){
-            socket.emit('leave',{userName : userName});
+            socket.emit('leave', {Lat : lat, Lon : lon});
         });
     });
   }
@@ -46,7 +49,7 @@ SocketHandler.prototype.RegisterEvents = function(socket){
       });
 
       socket.on('left', function (data) {
-        domHandler.addMessage(data.userName +" has left the room");
+        domHandler.addMessage(data +" has left the room");
       });
 
       socket.on('selfLeft', function (data) {

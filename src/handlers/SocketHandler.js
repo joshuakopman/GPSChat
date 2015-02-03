@@ -1,19 +1,14 @@
 var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
 var io;
-var CurrentRoomName='';
-var UserName='';
 var rooms=[];
-var currentRoomNameKey='';
 
 function SocketHandler(IO){
     io = IO;
 }
 
-SocketHandler.prototype.RegisterEvents = function()
-{
+SocketHandler.prototype.RegisterEvents = function(){
     io.sockets.on('connection', function (socket) {
-    	 UserName = socket.handshake.query.UserName;
 
          socket.on('findFriends', function (gps) {
         	HandleFindFriends(socket,gps);
@@ -23,17 +18,23 @@ SocketHandler.prototype.RegisterEvents = function()
             io.to(CurrentRoomName).emit('message',data);
         });
 
-        socket.on('leave', function(data) {
-           	HandleLeave(socket,data,rooms);
+        socket.on('leave', function(gps) {
+           	HandleLeave(socket,rooms,gps);
+        })
+
+         socket.on('disconnect', function(data) {
+            HandleLeave(socket,data,rooms);
         })
      });
 }
 
 function HandleFindFriends(socket,gps){
-     CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
-
+     var UserName = socket.handshake.query.UserName;
+     var CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
+     var currentRoomNameKey='';
      //check if room exists
      var foundRoom = new SocketHelper(io.sockets).FindRoomInRange(gps.Lat.toFixed(2),gps.Lon.toFixed(2))
+
      if(foundRoom != '')
      {
         socket.join(foundRoom);
@@ -57,15 +58,22 @@ function HandleFindFriends(socket,gps){
      }
 }
 
-function HandleLeave(socket,data,rooms){
-    socket.leave(CurrentRoomName); //leave room
-    io.to(CurrentRoomName).emit('left',data); //tell everyone i left
-    socket.emit('selfLeft'); //let myself know i left
-    var removeIndex = rooms[currentRoomNameKey].Clients.indexOf(UserName);
-    rooms[currentRoomNameKey].Clients.splice(removeIndex,1);
-    io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from room for everyone in it
-    socket.emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from dead room list
+function HandleLeave(socket,rooms,gps){
+    if(typeof gps.Lat != 'undefined' && typeof gps.Lon != 'undefined')
+    {
+        var CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
+        socket.leave(CurrentRoomName); //leave room
+        io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName); //tell everyone i left
+        socket.emit('selfLeft'); //let myself know i left
+        currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
+        if(typeof rooms[currentRoomNameKey] != 'undefined')
+        {
+            var removeIndex = rooms[currentRoomNameKey].Clients.indexOf(socket.handshake.query.UserName);
+            rooms[currentRoomNameKey].Clients.splice(removeIndex,1);
+            io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from room for everyone in it
+            socket.emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from dead room list
+        }
+    }
 }
-
 
 module.exports = SocketHandler;

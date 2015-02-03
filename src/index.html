@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Yosaaaa.ly</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.2.js"></script>
+  </head>
+<body>
+<h2></h2>
+<div id="userDiv">
+    <input type="Text" id="txtUserName"/>
+    <input type="Button" id="btnSendUser" value="Join Chat"/>
+</div>
+<div id="chat" style="height: 200px; width: 200px; border: 1px solid grey;">
+  <div id="chatlog" style="height: 178px; width: 200px; overflow-y: scroll;"></div>
+  <input type="text" id="msgbox" style="margin-left: 2px; width: 193px;">
+  <input type="button" id="btnDisconnect" style="display:none" value="Leave Room"/>
+</div>
+<script>
+var userName;
+$(document).ready(function(){ 
+      sockerHandler = new SocketHandler();
+});
+</script>
+<script src="/scripts/SocketHandler.js"></script>
+<script src="/scripts/DOMHandler.js"></script>
+</body>
+</html> 

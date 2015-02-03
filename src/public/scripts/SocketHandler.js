@@ -11,7 +11,7 @@ SocketHandler.prototype.GetLocation = function(location){
 
 SocketHandler.prototype.Connect = function(){
   domHandler.startChat(function(userName){
-        socket = io.connect('http://localhost:3000',{ query : 'UserName=' +  userName });
+        socket = io.connect('http://54.68.158.109:3000',{ query : 'UserName=' +  userName });
 
         domHandler.HideUserName();
 

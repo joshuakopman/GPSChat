@@ -9,7 +9,7 @@ function DOMHandler(lat,lon){
 
 DOMHandler.prototype.sendMsg = function(socket){
     var r = $("#msgbox").val();
-    socket.emit('message', userName + " : " + r ,Lat,Lon);
+    socket.emit('message', userName + ": " + r ,Lat,Lon);
     $("#msgbox").val('');
 } 
 

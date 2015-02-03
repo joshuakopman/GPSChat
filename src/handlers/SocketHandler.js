@@ -2,6 +2,7 @@ var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
 var io;
 var rooms=[];
+var ServiceHandler = require('./ServiceHandler');
 
 function SocketHandler(IO){
     io = IO;
@@ -40,23 +41,27 @@ function HandleFindFriends(socket,gps){
         socket.join(foundRoom);
         CurrentRoomName = foundRoom;
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
+        socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
+        PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
      }
      else //no room close enough, create
      {
         socket.join(CurrentRoomName);
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
-        rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString());
+        new ServiceHandler().GetNeighborhoodByCoords(gps.Lat.toFixed(2),gps.Lon.toFixed(2), function(neighborhood){
+           rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
+           socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
+           PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
+        });
      }
 
-     socket.emit('title', CurrentRoomName);
      socket.broadcast.to(CurrentRoomName).emit('joined', UserName);
      socket.emit('selfjoined',UserName+" (You)");
+}
 
-     if(typeof rooms[currentRoomNameKey] != 'undefined')
-     {
-         rooms[currentRoomNameKey].Clients.push(UserName);
-         io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients);
-     }
+function PushUpdatedMemberList(roomName,userName,existingClients){
+    existingClients.push(userName);
+    io.to(roomName).emit('usersInRoomUpdate',existingClients);
 }
 
 function HandleLeave(socket,rooms,gps){

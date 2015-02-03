@@ -14,8 +14,8 @@ SocketHandler.prototype.RegisterEvents = function(){
         	HandleFindFriends(socket,gps);
          });
 
-        socket.on('message', function(data) {
-            io.to(CurrentRoomName).emit('message',data);
+        socket.on('message', function(data,Lat,Lon) {
+            io.to(Lat.toFixed(2) + " " + Lon.toFixed(2)).emit('message',data);
         });
 
         socket.on('leave', function(gps) {
@@ -39,6 +39,7 @@ function HandleFindFriends(socket,gps){
      {
         socket.join(foundRoom);
         CurrentRoomName = foundRoom;
+        currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
      }
      else //no room close enough, create
      {

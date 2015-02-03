@@ -1,14 +1,15 @@
 var lat;
 var lon;
+var domHandler;
 
 function SocketHandler(){
     navigator.geolocation.getCurrentPosition(this.GetLocation);
-    domHandler = new DOMHandler();
 }
 
 SocketHandler.prototype.GetLocation = function(location){
     lat = location.coords.latitude;
     lon = location.coords.longitude;
+    domHandler = new DOMHandler(lat,lon);
     SocketHandler.prototype.Connect();
 }
 
@@ -40,20 +41,20 @@ SocketHandler.prototype.RegisterEvents = function(socket){
       });
 
       socket.on('joined', function (data) {
-        domHandler.addMessage(data + " has joined");
+        domHandler.addMessage(data + " has joined",'roomMessage');
       });
 
       socket.on('selfjoined', function (data) {
-        domHandler.addMessage("You have joined");
+        domHandler.addMessage("You have joined",'roomMessage');
 
       });
 
       socket.on('left', function (data) {
-        domHandler.addMessage(data +" has left the room");
+        domHandler.addMessage(data +" has left the room",'roomMessage');
       });
 
       socket.on('selfLeft', function (data) {
-        domHandler.addMessage("You have left the room");
+        domHandler.addMessage("You have left the room",'roomMessage');
         domHandler.resetState();
       });
 

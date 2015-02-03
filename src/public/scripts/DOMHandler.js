@@ -1,19 +1,24 @@
-function DOMHandler(){
+var Lat;
+var Lon;
+
+function DOMHandler(lat,lon){
+    Lat = lat;
+    Lon = lon;
     DOMHandler.prototype.messageBoxEventHandler();
 }
 
 DOMHandler.prototype.sendMsg = function(socket){
     var r = $("#msgbox").val();
-    socket.emit('message', userName + " : " + r );
+    socket.emit('message', userName + " : " + r ,Lat,Lon);
     $("#msgbox").val('');
 } 
 
-DOMHandler.prototype.addMessage = function(m) {
-    $("#chatlog").append(m).append("<BR>");
+DOMHandler.prototype.addMessage = function(m,className) {
+    $("#chatlog").append('<div class="' + className + '">' + m + '</div>');
 }
  
 DOMHandler.prototype.addMember = function(m) {
-    $("#memberList").append("<BR>").append(m);
+    $("#memberList").append(m).append("<br>");
 }
 
 DOMHandler.prototype.setTitle = function(title){
@@ -55,7 +60,7 @@ DOMHandler.prototype.HideUserName = function(){
 }
 
 DOMHandler.prototype.refreshUserList = function(data){
-    $("#memberList").html('Members');
+    $("#memberList").html('<div id="MemberHeader">Members</div>');
     $.each(data,function(key,val){
        DOMHandler.prototype.addMember(val);
     });

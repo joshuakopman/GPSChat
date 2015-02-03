@@ -55,8 +55,8 @@ DOMHandler.prototype.HideUserName = function(){
 }
 
 DOMHandler.prototype.refreshUserList = function(data){
-    $(data).each(key,val)
-    {
-      console.log(key+" "+val);
-    }
+    $("#memberList").html('Members');
+    $.each(data,function(key,val){
+       DOMHandler.prototype.addMember(val);
+    });
 }

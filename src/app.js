@@ -4,6 +4,7 @@ var path = require('path');
 var CurrentRoomName='';
 var UserName='';
 var rooms=[];
+var currentRoomNameKey='';
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -21,28 +22,31 @@ io.sockets.on('connection', function (socket) {
 	 UserName = socket.handshake.query.UserName;
 
      socket.on('findFriends', function (gps) {
-    		 CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
+    	 CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
 
          //check if room exists
          var foundRoom = FindRoomInRange(gps.Lat.toFixed(2),gps.Lon.toFixed(2))
          if(foundRoom != '')
          {
-    		    socket.join(foundRoom);
+    		socket.join(foundRoom);
             CurrentRoomName = foundRoom;
-
          }
          else //no room close enough, create
          {
             socket.join(CurrentRoomName);
-            var newRoom = new Room(CurrentRoomName.toString());
-            rooms.push(newRoom);
+            currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
+            rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString());
          }
+
          socket.emit('title', CurrentRoomName);
          socket.broadcast.to(CurrentRoomName).emit('joined', UserName);
          socket.emit('selfjoined',UserName+" (You)");
 
-         rooms[CurrentRoomName.toString()].Clients.push(UserName);
-         io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[CurrentRoomName.toString()].Clients);
+         if(typeof rooms[currentRoomNameKey] != 'undefined')
+         {
+             rooms[currentRoomNameKey].Clients.push(UserName);
+             io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients);
+         }
 
      });
 
@@ -51,10 +55,13 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('leave', function(data) {
-        console.log('leaving '+CurrentRoomName);
        	socket.leave(CurrentRoomName); //leave room
        	io.to(CurrentRoomName).emit('left',data); //tell everyone i left
        	socket.emit('selfLeft'); //let myself know i left
+        var removeIndex = rooms[currentRoomNameKey].Clients.indexOf(UserName);
+        rooms[currentRoomNameKey].Clients.splice(removeIndex,1);
+        io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from room for everyone in it
+        socket.emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from dead room list
     })
  });
 

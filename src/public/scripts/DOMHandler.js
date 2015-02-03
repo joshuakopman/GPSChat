@@ -12,6 +12,10 @@ DOMHandler.prototype.addMessage = function(m) {
     $("#chatlog").append(m).append("<BR>");
 }
  
+DOMHandler.prototype.addMember = function(m) {
+    $("#memberList").append("<BR>").append(m);
+}
+
 DOMHandler.prototype.setTitle = function(title){
     $("h2").show().html('You are now in room: ' + title);
 }  
@@ -24,9 +28,12 @@ DOMHandler.prototype.messageBoxEventHandler = function(){
         }
     });   
 }
+
 DOMHandler.prototype.startChat = function(callback){
    $("#btnSendUser").on('click',function(){
       userName = $("#txtUserName").val();
+      $("#chat").show();
+      $("#msgbox").show();
       callback(userName);
    });
 }
@@ -40,8 +47,16 @@ DOMHandler.prototype.handleDisconnect = function(callback){
 DOMHandler.prototype.resetState = function(){
     $("#btnDisconnect").hide();
     $("#userDiv").show();
+    $("#msgbox").hide();
 }
 
 DOMHandler.prototype.HideUserName = function(){
     $("#userDiv").hide();
+}
+
+DOMHandler.prototype.refreshUserList = function(data){
+    $(data).each(key,val)
+    {
+      console.log(key+" "+val);
+    }
 }

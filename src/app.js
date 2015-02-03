@@ -3,6 +3,7 @@ var app = express();
 var path = require('path');
 var CurrentRoomName='';
 var UserName='';
+var rooms=[];
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -33,10 +34,15 @@ io.sockets.on('connection', function (socket) {
          else //no room close enough, create
          {
             socket.join(CurrentRoomName);
+            var newRoom = new Room(CurrentRoomName.toString());
+            rooms.push(newRoom);
          }
-
-         io.to(CurrentRoomName).emit('joined', UserName);
          socket.emit('title', CurrentRoomName);
+         socket.broadcast.to(CurrentRoomName).emit('joined', UserName);
+         socket.emit('selfjoined',UserName+" (You)");
+
+         rooms[CurrentRoomName.toString()].Clients.push(UserName);
+         io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[CurrentRoomName.toString()].Clients);
 
      });
 
@@ -45,12 +51,17 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('leave', function(data) {
-       console.log('leaving '+CurrentRoomName);
+        console.log('leaving '+CurrentRoomName);
        	socket.leave(CurrentRoomName); //leave room
        	io.to(CurrentRoomName).emit('left',data); //tell everyone i left
        	socket.emit('selfLeft'); //let myself know i left
     })
  });
+
+var Room = function (name){
+    this.Name = name;
+    this.Clients = [];
+}
 
 function FindRoomInRange(mylat,mylon)
 {

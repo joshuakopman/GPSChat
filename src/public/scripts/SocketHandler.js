@@ -38,6 +38,12 @@ SocketHandler.prototype.RegisterEvents = function(socket){
 
       socket.on('joined', function (data) {
         domHandler.addMessage(data + " has joined");
+        domHandler.addMember(data);
+      });
+
+      socket.on('selfjoined', function (data) {
+        domHandler.addMessage("You have joined");
+        domHandler.addMember(data);
       });
 
       socket.on('left', function (data) {
@@ -48,4 +54,9 @@ SocketHandler.prototype.RegisterEvents = function(socket){
         domHandler.addMessage("You have left the room");
         domHandler.resetState();
       });
+
+      socket.on('usersInRoomUpdate', function (data) {
+        domHandler.refreshUserList(data);
+      });
+
 }

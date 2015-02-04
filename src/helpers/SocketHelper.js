@@ -20,7 +20,7 @@ SocketHelper.prototype.FindRoomInRange = function(mylat,mylon)
 
         if(!isNaN(parseFloat(roomTokens[0])) && !isNaN(parseFloat(roomTokens[1])))
         { 
-          if(Math.abs(parseFloat(roomTokens[0]).toFixed(2) - mylat) < .03 && Math.abs(parseFloat(roomTokens[1]).toFixed(2) - mylon) < .03)
+          if(Math.abs(parseFloat(roomTokens[0]).toFixed(2) - mylat) < .09 && Math.abs(parseFloat(roomTokens[1]).toFixed(2) - mylon) < .09)
           {
             roomNameFound = roomName;
           }

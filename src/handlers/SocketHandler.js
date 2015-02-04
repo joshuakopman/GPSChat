@@ -15,10 +15,6 @@ SocketHandler.prototype.RegisterEvents = function(){
         	HandleFindFriends(socket,gps);
          });
 
-        socket.on('message', function(data,Lat,Lon) {
-            io.to(Lat.toFixed(2) + " " + Lon.toFixed(2)).emit('message',data);
-        });
-
         socket.on('leave', function(gps) {
            	HandleLeave(socket,rooms,gps);
         })
@@ -57,6 +53,10 @@ function HandleFindFriends(socket,gps){
 
      socket.broadcast.to(CurrentRoomName).emit('joined', UserName);
      socket.emit('selfjoined',UserName+" (You)");
+     
+     socket.on('message', function(data) {
+            io.to(CurrentRoomName).emit('message',data);
+        });
 }
 
 function PushUpdatedMemberList(roomName,userName,existingClients){

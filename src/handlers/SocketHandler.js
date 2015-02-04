@@ -15,13 +15,6 @@ SocketHandler.prototype.RegisterEvents = function(){
         	HandleFindFriends(socket,gps);
          });
 
-        socket.on('leave', function(gps) {
-           	HandleLeave(socket,rooms,gps);
-        })
-
-         socket.on('disconnect', function(data) {
-            HandleLeave(socket,data,rooms);
-        })
      });
 }
 
@@ -53,10 +46,18 @@ function HandleFindFriends(socket,gps){
 
      socket.broadcast.to(CurrentRoomName).emit('joined', UserName);
      socket.emit('selfjoined',UserName+" (You)");
-     
+
      socket.on('message', function(data) {
-            io.to(CurrentRoomName).emit('message',data);
-        });
+        io.to(CurrentRoomName).emit('message',data);
+     });
+
+     socket.on('leave', function(gps) {
+            HandleLeave(socket,rooms,CurrentRoomName);
+        })
+
+     socket.on('disconnect', function(data) {
+            HandleLeave(socket,data,CurrentRoomName);
+        })
 }
 
 function PushUpdatedMemberList(roomName,userName,existingClients){
@@ -64,10 +65,9 @@ function PushUpdatedMemberList(roomName,userName,existingClients){
     io.to(roomName).emit('usersInRoomUpdate',existingClients);
 }
 
-function HandleLeave(socket,rooms,gps){
+function HandleLeave(socket,rooms,CurrentRoomName){
     if(typeof gps.Lat != 'undefined' && typeof gps.Lon != 'undefined')
     {
-        var CurrentRoomName = gps.Lat.toFixed(2) + " " + gps.Lon.toFixed(2);
         socket.leave(CurrentRoomName); //leave room
         io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName); //tell everyone i left
         socket.emit('selfLeft'); //let myself know i left

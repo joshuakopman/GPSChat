@@ -66,19 +66,16 @@ function PushUpdatedMemberList(roomName,userName,existingClients){
 }
 
 function HandleLeave(socket,rooms,CurrentRoomName){
-    if(typeof gps.Lat != 'undefined' && typeof gps.Lon != 'undefined')
+    socket.leave(CurrentRoomName); //leave room
+    io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName); //tell everyone i left
+    socket.emit('selfLeft'); //let myself know i left
+    currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
+    if(typeof rooms[currentRoomNameKey] != 'undefined')
     {
-        socket.leave(CurrentRoomName); //leave room
-        io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName); //tell everyone i left
-        socket.emit('selfLeft'); //let myself know i left
-        currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
-        if(typeof rooms[currentRoomNameKey] != 'undefined')
-        {
-            var removeIndex = rooms[currentRoomNameKey].Clients.indexOf(socket.handshake.query.UserName);
-            rooms[currentRoomNameKey].Clients.splice(removeIndex,1);
-            io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from room for everyone in it
-            socket.emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from dead room list
-        }
+        var removeIndex = rooms[currentRoomNameKey].Clients.indexOf(socket.handshake.query.UserName);
+        rooms[currentRoomNameKey].Clients.splice(removeIndex,1);
+        io.to(CurrentRoomName).emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from room for everyone in it
+        socket.emit('usersInRoomUpdate',rooms[currentRoomNameKey].Clients); //remove me from dead room list
     }
 }
 

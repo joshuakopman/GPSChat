@@ -25,7 +25,10 @@ RUN npm config set registry http://registry.npmjs.org/
 #Install node modules
 RUN npm install
 
+#Install global forever module
+RUN npm install forever -g
+
 #Expose port and run app
 EXPOSE 3000
 
-CMD ["node", "./app.js"]
+CMD ["forever", "./app.js"]

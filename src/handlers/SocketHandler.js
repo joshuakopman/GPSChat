@@ -51,12 +51,12 @@ function HandleFindFriends(socket,gps){
         io.to(CurrentRoomName).emit('message',data);
      });
 
-     socket.on('leave', function(gps) {
+     socket.on('leave', function() {
             HandleLeave(socket,rooms[currentRoomNameKey], CurrentRoomName);
         })
 
-     socket.on('disconnect', function(data) {
-            HandleLeave(socket,data,CurrentRoomName);
+     socket.on('disconnect', function() {
+            HandleLeave(socket,rooms[currentRoomNameKey], CurrentRoomName);
         })
 }
 

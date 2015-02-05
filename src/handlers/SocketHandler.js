@@ -21,6 +21,8 @@ function FindAndJoinChatRoom(socket){
      var UserName = SocketQuery.UserName;
      var latNum = parseFloat(SocketQuery.Lat).toFixed(2);
      var lonNum = parseFloat(SocketQuery.Lon).toFixed(2);
+     console.log(latNum);
+     console.log(lonNum);
      var CurrentRoomName = latNum + " " + lonNum;
      var currentRoomNameKey = '';
 

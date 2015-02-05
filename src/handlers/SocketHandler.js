@@ -74,17 +74,17 @@ function RegisterMessageEvent(socket,RoomName){
      });
 }
 
-function RegisterLeaveEvent(socket,existingRooms,currentRoomName){
+function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
      socket.on('leave', function() {
-            HandleLeave(socket,existingRooms, currentRoomName);
+            HandleLeave(socket,existingRoom, currentRoomName);
         })
 }
 
-function RegisterDisconnectEvent(socket,room,currentRoomName){
+function RegisterDisconnectEvent(socket,existingRoom,currentRoomName){
      socket.on('disconnect', function() {
-        if(typeof room.Clients != 'undefined' && room.Clients.indexOf(socket.handshake.query.UserName) > -1)
+        if(typeof existingRoom.Clients != 'undefined' && existingRoom.Clients.indexOf(socket.handshake.query.UserName) > -1)
         {
-            io.to(currentRoomName).emit('left',socket.handshake.query.UserName);
+            HandleLeave(socket,existingRoom, currentRoomName);
         }
     })
 }

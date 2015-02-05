@@ -35,7 +35,7 @@ function HandleFindFriends(socket,gps){
         socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
         PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
         RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
-        RegisterDisconnectEvent(socket,rooms[currentRoomNameKey]);
+        RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
      }
      else //no room close enough, create
      {

@@ -10,11 +10,9 @@ function SocketHandler(IO){
 
 SocketHandler.prototype.RegisterEvents = function(){
     io.sockets.on('connection', function (socket) {
-
          socket.on('findFriends', function (gps) {
         	HandleFindFriends(socket,gps);
          });
-
      });
 }
 
@@ -56,7 +54,14 @@ function HandleFindFriends(socket,gps){
      socket.emit('selfjoined',UserName+" (You)");
 
      socket.on('message', function(data) {
-        io.to(CurrentRoomName).emit('message',data);
+        if(data.indexOf('<script>') < 0)
+        {
+            io.to(CurrentRoomName).emit('message',data);
+        }
+        else
+        {
+            io.to(CurrentRoomName).emit('message',socket.handshake.query.UserName +" tried to inject javascript and FAILED");
+        }
      });
 
 }

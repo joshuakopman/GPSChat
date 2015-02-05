@@ -32,6 +32,7 @@ function HandleFindFriends(socket,gps){
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
         socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
         PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
+        RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName)
      }
      else //no room close enough, create
      {
@@ -41,6 +42,7 @@ function HandleFindFriends(socket,gps){
            rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
            socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
            PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
+           RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName)
         });
      }
 
@@ -51,12 +53,14 @@ function HandleFindFriends(socket,gps){
         io.to(CurrentRoomName).emit('message',data);
      });
 
-     socket.on('leave', function() {
-            HandleLeave(socket,rooms[currentRoomNameKey], CurrentRoomName);
-        })
-
      socket.on('disconnect', function() {
-            HandleLeave(socket,rooms[currentRoomNameKey], CurrentRoomName);
+            io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName);
+        })
+}
+
+function RegisterLeaveEvent(mySocket,existingRooms,currentRoomName)){
+     mySocket.on('leave', function() {
+            HandleLeave(mySocket,existingRooms, currentRoomName);
         })
 }
 

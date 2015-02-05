@@ -62,7 +62,8 @@ function AlertMemberJoined(socket,RoomName){
 
 function RegisterMessageEvent(socket,RoomName){
      socket.on('message', function(data){
-        if(data.indexOf('<script>') < 0)
+        data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        if(data.indexOf('&lt;script') < 0)
         {
             io.to(RoomName).emit('message',data);
         }

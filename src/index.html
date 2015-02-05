@@ -23,10 +23,12 @@
 var userName;
 $(document).ready(function(){ 
       sockerHandler = new SocketHandler();
-      window.setInterval(function() {
-      var elem = document.getElementById('chatlog');
-      elem.scrollTop = elem.scrollHeight;
-    }, 200);
+      var $chatLog = $("#chatlog");
+        $chatLog.bind("DOMSubtreeModified",function() {
+        $chatLog.animate({
+            scrollTop: $chatLog[0].scrollHeight
+          });
+      });
 });
 </script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>

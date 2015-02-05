@@ -8,6 +8,7 @@ function DOMHandler(lat,lon){
 }
 
 DOMHandler.prototype.sendMsg = function(socket){
+    console.log('trying to send message');
     var r = $("#msgbox").val();
     socket.emit('message', userName + ": " + r ,Lat,Lon);
     $("#msgbox").val('');
@@ -35,6 +36,7 @@ DOMHandler.prototype.messageBoxEventHandler = function(){
 }
 
 DOMHandler.prototype.startChat = function(callback){
+  // $("#btnSendUser").unbind("click");
    $("#btnSendUser").on('click',function(){
       userName = $("#txtUserName").val();
       $("#chat").show();
@@ -49,11 +51,6 @@ DOMHandler.prototype.handleDisconnect = function(callback){
   });
 }
 
-DOMHandler.prototype.resetState = function(){
-    $("#btnDisconnect").hide();
-    $("#userDiv").show();
-    $("#msgbox").hide();
-}
 
 DOMHandler.prototype.HideUserName = function(){
     $("#userDiv").hide();

@@ -54,8 +54,7 @@ SocketHandler.prototype.RegisterEvents = function(socket){
       });
 
       socket.on('selfLeft', function (data) {
-        domHandler.addMessage("You have left the room",'roomMessage');
-        domHandler.resetState();
+           location.reload();
       });
 
       socket.on('usersInRoomUpdate', function (data) {

@@ -18,8 +18,10 @@ SocketHandler.prototype.HandleSocketConnect = function(){
 
 function FindAndJoinChatRoom(socket){
      var SocketQuery = socket.handshake.query;
-     console.log(SocketQuery);
      var UserName = SocketQuery.UserName;
+
+     UserName = UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
      var latNum = parseFloat(SocketQuery.Lat).toFixed(2);
      var lonNum = parseFloat(SocketQuery.Lon).toFixed(2);
      var CurrentRoomName = latNum + " " + lonNum;
@@ -52,15 +54,19 @@ function FindAndJoinChatRoom(socket){
         });
      }
 
+     console.log("User Joined | Name: '" + socket.handshake.query.UserName + "' | IP: '" + socket.handshake.address + "'");
+
      return CurrentRoomName;
 }
 
 function AlertMemberJoined(socket,RoomName){
-    socket.broadcast.to(RoomName).emit('joined', socket.handshake.query.UserName);
-    socket.emit('selfjoined',socket.handshake.query.UserName + " (You)");
+    UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    socket.broadcast.to(RoomName).emit('joined', UserName);
+    socket.emit('selfjoined',UserName + " (You)");
 }
 
 function RegisterMessageEvent(socket,RoomName){
+     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      socket.on('message', function(data){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if(data.indexOf('&lt;script') < 0)
@@ -69,7 +75,7 @@ function RegisterMessageEvent(socket,RoomName){
         }
         else
         {
-            io.to(RoomName).emit('message',socket.handshake.query.UserName +" tried to inject javascript and FAILED");
+            io.to(RoomName).emit('message',UserName +" tried to inject javascript and FAILED");
         }
      });
 }
@@ -81,10 +87,11 @@ function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
 }
 
 function RegisterDisconnectEvent(socket,existingRoom,currentRoomName){
+     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      socket.on('disconnect', function() {
-        if(typeof existingRoom.Clients != 'undefined' && existingRoom.Clients.indexOf(socket.handshake.query.UserName) > -1)
+        if(typeof existingRoom.Clients != 'undefined' && existingRoom.Clients.indexOf(UserName) > -1)
         {
-            HandleLeave(socket,existingRoom, currentRoomName);
+            HandleLeave(socket, existingRoom, currentRoomName);
         }
     })
 }
@@ -95,12 +102,13 @@ function PushUpdatedMemberList(roomName,userName,clients){
 }
 
 function HandleLeave(socket,CurrentRoom,CurrentRoomName){
+    UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     socket.leave(CurrentRoomName); //leave room
-    io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName); //tell everyone i left
+    io.to(CurrentRoomName).emit('left',UserName); //tell everyone i left
     socket.emit('selfLeft'); //let myself know i left
     if(typeof CurrentRoom.Clients != 'undefined')
     {
-        var removeIndex = CurrentRoom.Clients.indexOf(socket.handshake.query.UserName);
+        var removeIndex = CurrentRoom.Clients.indexOf(UserName);
         CurrentRoom.Clients.splice(removeIndex,1);
         io.to(CurrentRoomName).emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from room for everyone in it
         socket.emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from dead room list

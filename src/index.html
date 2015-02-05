@@ -7,15 +7,16 @@
 <body>
   <h2></h2>
   <div id="userDiv">
-      <input type="Text" id="txtUserName" placeholder="Enter your name.."/>
+      <input type="Text" id="txtUserName" placeholder="Enter your name.." />
       <input type="Button" id="btnSendUser" value="Join Chat"/>
+      <div id="error">User name is required.</div>
   </div>
   <div id="chat">
    <div id="chatWindow" >
         <div id="chatlog"></div>
         <div id="memberList">Members</div>
     </div>
-    <input type="text" id="msgbox">
+    <input type="text" id="msgbox" placeholder="Enter your message..">
     <br/>
     <input type="button" id="btnDisconnect" value="Leave Room"/>
   </div>
@@ -24,7 +25,6 @@
   <script src="/scripts/SocketHandler.js"></script>
   <script src="/scripts/DOMHandler.js"></script>
   <script>
-  var userName;
   $(document).ready(function(){ 
         sockerHandler = new SocketHandler();
   });

@@ -42,11 +42,27 @@ DOMHandler.prototype.startChat = function(callback){
      });
    });
 
+  $("#txtUserName").on('focus',function(){
+    $("#error").hide();
+    $("#txtUserName").removeClass("invalid").addClass("valid");
+  });
+
    $("#btnSendUser").on('click',function(){
       userName = $("#txtUserName").val();
-      $("#chat").show();
-      $("#msgbox").show();
-      callback(userName);
+
+      if(userName)
+      {            
+          $("#txtUserName").removeClass("invalid").addClass("valid");
+          $("#error").hide();
+          $("#chat").show();
+          $("#msgbox").show();
+          callback(userName);
+      }
+      else
+      {
+         $("#error").show();
+         $("#txtUserName").removeClass("valid").addClass("invalid");
+      }
    });
 }
 

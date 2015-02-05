@@ -1,9 +1,6 @@
 #userDiv {
 }
 
-#txtUserName {
-}
-
 #btnSendUser {
     display:none;
 }
@@ -38,7 +35,8 @@
 }
 
 #msgbox {
-    margin-left: 2px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     width: 193px;
 }
 
@@ -51,5 +49,28 @@
 }
 .roomMessage{
     color: red;
+}
+.invalid{
+    border : 3px solid red;
+}
+.valid{
+    -webkit-appearance: textfield;
+    padding: 1px;
+    background-color: white;
+    border: 2px inset;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+    -webkit-rtl-ordering: logical;
+    -webkit-user-select: text;
+    cursor: auto;
+}
+
+#error{
+    display:none;
+    color: red;
+    font-size:12px;
 }
 

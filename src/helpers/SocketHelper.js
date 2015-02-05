@@ -14,7 +14,7 @@ SocketHelper.prototype.FindRoomInRange = function(mylat,mylon)
         return roomNameFound;
     }
 
-   Object.keys(existingRooms).forEach(function(roomName){
+    Object.keys(existingRooms).forEach(function(roomName){
 
        var roomTokens = roomName.split(" ");
 

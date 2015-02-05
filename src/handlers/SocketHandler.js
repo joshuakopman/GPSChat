@@ -1,34 +1,36 @@
 var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
+var ServiceHandler = require('./ServiceHandler');
 var io;
 var rooms=[];
-var ServiceHandler = require('./ServiceHandler');
 
 function SocketHandler(IO){
     io = IO;
 }
 
-SocketHandler.prototype.RegisterEvents = function(){
-    io.sockets.on('connection', function (socket) {
-         socket.on('findFriends', function (gps) {
-        	HandleFindFriends(socket,gps);
-         });
-     });
+SocketHandler.prototype.HandleSocketConnect = function(){
+    io.sockets.on('connection', function (socket){
+    	currentRoomName = FindAndJoinChatRoom(socket);
+        AlertMemberJoined(socket,currentRoomName);
+        RegisterMessageEvent(socket,currentRoomName);
+    });
 }
 
-function HandleFindFriends(socket,gps){
-     var UserName = socket.handshake.query.UserName;
-     var latNum = gps.Lat.toFixed(2);
-     var lonNum = gps.Lon.toFixed(2);
+function FindAndJoinChatRoom(socket){
+     var SocketQuery = socket.handshake.query;
+     var UserName = SocketQuery.UserName;
+     var latNum = parseFloat(SocketQuery.Lat).toFixed(2);
+     var lonNum = parseFloat(SocketQuery.Lon).toFixed(2);
      var CurrentRoomName = latNum + " " + lonNum;
-     var currentRoomNameKey='';
-     //check if room exists
-     var foundRoom = new SocketHelper(io.sockets).FindRoomInRange(latNum,lonNum)
+     var currentRoomNameKey = '';
 
-     if(foundRoom != '')
+     //check if room exists
+     var foundRoomName = new SocketHelper(io.sockets).FindRoomInRange(latNum,lonNum)
+
+     if(foundRoomName != '')
      {
-        socket.join(foundRoom);
-        CurrentRoomName = foundRoom;
+        socket.join(foundRoomName);
+        CurrentRoomName = foundRoomName;
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
         socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
         PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
@@ -49,21 +51,25 @@ function HandleFindFriends(socket,gps){
         });
      }
 
-     socket.broadcast.to(CurrentRoomName).emit('joined', UserName);
-    
-     socket.emit('selfjoined',UserName+" (You)");
+     return CurrentRoomName;
+}
 
-     socket.on('message', function(data) {
+function AlertMemberJoined(socket,RoomName){
+    socket.broadcast.to(RoomName).emit('joined', socket.handshake.query.UserName);
+    socket.emit('selfjoined',socket.handshake.query.UserName + " (You)");
+}
+
+function RegisterMessageEvent(socket,RoomName){
+     socket.on('message', function(data){
         if(data.indexOf('<script>') < 0)
         {
-            io.to(CurrentRoomName).emit('message',data);
+            io.to(RoomName).emit('message',data);
         }
         else
         {
-            io.to(CurrentRoomName).emit('message',socket.handshake.query.UserName +" tried to inject javascript and FAILED");
+            io.to(RoomName).emit('message',socket.handshake.query.UserName +" tried to inject javascript and FAILED");
         }
      });
-
 }
 
 function RegisterLeaveEvent(socket,existingRooms,currentRoomName){
@@ -74,7 +80,6 @@ function RegisterLeaveEvent(socket,existingRooms,currentRoomName){
 
 function RegisterDisconnectEvent(socket,room,currentRoomName){
      socket.on('disconnect', function() {
-        //check if leave event was already fired...
         if(typeof room.Clients != 'undefined' && room.Clients.indexOf(socket.handshake.query.UserName) > -1)
         {
             io.to(currentRoomName).emit('left',socket.handshake.query.UserName);
@@ -82,9 +87,9 @@ function RegisterDisconnectEvent(socket,room,currentRoomName){
     })
 }
 
-function PushUpdatedMemberList(roomName,userName,existingClients){
-    existingClients.push(userName);
-    io.to(roomName).emit('usersInRoomUpdate',existingClients);
+function PushUpdatedMemberList(roomName,userName,clients){
+    clients.push(userName);
+    io.to(roomName).emit('usersInRoomUpdate',clients);
 }
 
 function HandleLeave(socket,CurrentRoom,CurrentRoomName){

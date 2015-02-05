@@ -2,10 +2,9 @@ var https = require('https');
 function ServiceHandler(){
 
 }
+
 ServiceHandler.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
-
         var url = 'https://api.flickr.com/services/rest/?method=flickr.places.findByLatLon&api_key=58c6594cbce90ae5daaa7ae687e1149f&lat='+lat+'&lon='+lon+'&format=json&nojsoncallback=1';
-
         https.get(url, function(res) {
             var body = '';
 

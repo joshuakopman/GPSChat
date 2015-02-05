@@ -17,5 +17,5 @@ app.get('/', function(req, res){
 
 var socketHandler = new SocketHandler(io);
 
-socketHandler.RegisterEvents();
+socketHandler.HandleSocketConnect();
 

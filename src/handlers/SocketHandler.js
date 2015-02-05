@@ -18,11 +18,10 @@ SocketHandler.prototype.HandleSocketConnect = function(){
 
 function FindAndJoinChatRoom(socket){
      var SocketQuery = socket.handshake.query;
+     console.log(SocketQuery);
      var UserName = SocketQuery.UserName;
      var latNum = parseFloat(SocketQuery.Lat).toFixed(2);
      var lonNum = parseFloat(SocketQuery.Lon).toFixed(2);
-     console.log(latNum);
-     console.log(lonNum);
      var CurrentRoomName = latNum + " " + lonNum;
      var currentRoomNameKey = '';
 

@@ -34,19 +34,20 @@ function HandleFindFriends(socket,gps){
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
         socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
         PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
-        RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName)
+        RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
+        RegisterDisconnectEvent(socket,rooms[currentRoomNameKey]);
      }
      else //no room close enough, create
      {
         socket.join(CurrentRoomName);
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
         var serviceHandler = new ServiceHandler();
-        serviceHandler.GetNeighborhoodByCoords(latNum,lonNum, 
-           function(neighborhood){
+        serviceHandler.GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
                rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
                socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
                PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
-               RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName) //needs to be in callback so you leave correct room
+               RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName); //needs to be in callback so you leave correct room
+               RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
         });
      }
 
@@ -58,15 +59,22 @@ function HandleFindFriends(socket,gps){
         io.to(CurrentRoomName).emit('message',data);
      });
 
-     socket.on('disconnect', function() {
-            io.to(CurrentRoomName).emit('left',socket.handshake.query.UserName);
-    })
 }
 
-function RegisterLeaveEvent(mySocket,existingRooms,currentRoomName){
-     mySocket.on('leave', function() {
-            HandleLeave(mySocket,existingRooms, currentRoomName);
+function RegisterLeaveEvent(socket,existingRooms,currentRoomName){
+     socket.on('leave', function() {
+            HandleLeave(socket,existingRooms, currentRoomName);
         })
+}
+
+function RegisterDisconnectEvent(socket,room,currentRoomName){
+     socket.on('disconnect', function() {
+        //check if leave event was already fired...
+        if(typeof room.Clients != 'undefined' && room.Clients.indexOf(socket.handshake.query.UserName) > -1)
+        {
+            io.to(currentRoomName).emit('left',socket.handshake.query.UserName);
+        }
+    })
 }
 
 function PushUpdatedMemberList(roomName,userName,existingClients){

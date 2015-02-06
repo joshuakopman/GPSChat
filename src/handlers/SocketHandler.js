@@ -81,7 +81,7 @@ function CheckIfNameTaken(roomList,user){
 function AlertMemberJoined(socket,RoomName){
     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     socket.broadcast.to(RoomName).emit('joined', UserName);
-    socket.emit('selfjoined',UserName + " (You)");
+    socket.emit('selfjoined',RoomName);
 }
 
 function RegisterMessageEvent(socket,RoomName){
@@ -124,7 +124,7 @@ function HandleLeave(socket,CurrentRoom,CurrentRoomName){
     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     socket.leave(CurrentRoomName); //leave room
     io.to(CurrentRoomName).emit('left',UserName); //tell everyone i left
-    socket.emit('selfLeft'); //let myself know i left
+    socket.emit('selfLeft',CurrentRoomName); //let myself know i left
     if(typeof CurrentRoom.Clients != 'undefined')
     {
         var removeIndex = CurrentRoom.Clients.indexOf(UserName);

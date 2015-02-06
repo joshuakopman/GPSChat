@@ -24,7 +24,8 @@ SocketHandler.prototype.GetLocation = function(location){
 
 SocketHandler.prototype.Connect = function(){
   domHandler.startChat(function(userName){
-        socket = io.connect('http://' + window.location.hostname +':3000',{ 
+        socket = io.connect('http://' + window.location.hostname +':3000',
+                 { 
                     query : 'UserName=' +  userName + "&Lat=" + lat + "&Lon=" + lon , 
                     forceNew : true 
                   });
@@ -53,7 +54,7 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     socket.on('selfjoined', function (data) {
-      domHandler.addMessage("You have joined",'roomMessage','');
+      domHandler.addMessage("You have joined the room '" + data + "'",'roomMessage','');
     });
 
     socket.on('left', function (data) {
@@ -61,7 +62,7 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     socket.on('selfLeft', function (data) {
-      domHandler.addMessage("You have left the room",'roomMessage','');
+      domHandler.addMessage("You have left the room " + data,'roomMessage','');
       domHandler.resetState();
     });
 

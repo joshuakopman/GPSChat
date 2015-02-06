@@ -6,23 +6,15 @@
   </head>
 <body>
   <h2></h2>
-  <div id="userDiv">
-      <input type="Text" id="txtUserName" placeholder="Enter your name.." />
-      <input type="Button" id="btnSendUser" value="Join Chat"/>
-      <div id="error">User name is required.</div>
-      <div id="userExistsError"></div>
-  </div>
-  <div id="chat">
-   <div id="chatWindow" >
-        <div id="chatlog"></div>
-        <div id="memberList">Members</div>
-    </div>
-    <input type="text" id="msgbox" placeholder="Enter your message..">
-    <br/>
-    <input type="button" id="btnDisconnect" value="Leave Room"/>
-  </div>
+  <div id="userDiv"></div>
+  <div id="chat"></div>
+
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
   <script src="https://cdn.socket.io/socket.io-1.3.2.js"></script>
+  <script src="/views/NameEntryView.js"></script>
+  <script src="/views/ChatView.js"></script>
   <script src="/scripts/SocketHandler.js"></script>
   <script src="/scripts/DOMHandler.js"></script>
   <script>

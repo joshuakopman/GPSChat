@@ -83,4 +83,9 @@
     font-weight:normal;
     display:inline;
 }
+#userExistsError{
+    display:none;
+    color: red;
+    font-size:12px;
+}
 

@@ -10,9 +10,13 @@ function SocketHandler(IO){
 
 SocketHandler.prototype.HandleSocketConnect = function(){
     io.sockets.on('connection', function (socket){
+        console.log('socket connected');
     	currentRoomName = FindAndJoinChatRoom(socket);
-        AlertMemberJoined(socket,currentRoomName);
-        RegisterMessageEvent(socket,currentRoomName);
+        if(currentRoomName)
+        {
+            AlertMemberJoined(socket,currentRoomName);
+            RegisterMessageEvent(socket,currentRoomName);
+        }
     });
 }
 
@@ -29,24 +33,31 @@ function FindAndJoinChatRoom(socket){
 
      //check if room exists
      var foundRoomName = new SocketHelper(io.sockets).FindRoomInRange(latNum,lonNum)
-
      if(foundRoomName != '')
      {
-        socket.join(foundRoomName);
         CurrentRoomName = foundRoomName;
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
-        socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
-        PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
-        RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
-        RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
+        if(!CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName))
+        {
+            socket.join(foundRoomName);
+            socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
+            PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
+            RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
+            RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
+        }
+        else
+        {
+            socket.emit('userError','A user with that name is already in the room.');
+            return '';
+        }
      }
      else //no room close enough, create
      {
-        socket.join(CurrentRoomName);
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
         var serviceHandler = new ServiceHandler();
         serviceHandler.GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
                rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
+               socket.join(CurrentRoomName);
                socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
                PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
                RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName); //needs to be in callback so you leave correct room
@@ -57,6 +68,15 @@ function FindAndJoinChatRoom(socket){
      console.log("User Joined | Name: '" + socket.handshake.query.UserName + "' | IP: '" + socket.handshake.address + "'");
 
      return CurrentRoomName;
+}
+
+function CheckIfNameTaken(roomList,user){
+
+    if(roomList.indexOf(user) > -1)
+    {
+        return true;
+    }
+    return false;
 }
 
 function AlertMemberJoined(socket,RoomName){

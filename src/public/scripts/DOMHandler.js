@@ -51,13 +51,17 @@ DOMHandler.prototype.startChat = function(callback){
        });
      });
 
-    $("#txtUserName").on('focus',function(){
-      $("#error").hide();
-      $("#txtUserName").removeClass("invalid").addClass("valid");
+   $("#txtUserName").on('focus',function(){
+         $("#error").hide();
+         $("#userExistsError").hide();
+         $("#txtUserName").removeClass("invalid").addClass("valid");
     }).keypress( function(event) {
          if (event.which == '13') {
             event.preventDefault();
-            EnterChat(callback);
+            if(!$("#userExistsError").is(':visible'))
+            {
+                EnterChat(callback);
+            }
          }
     });
 
@@ -70,12 +74,13 @@ function EnterChat(callback){
       var $txtUserName = $("#txtUserName");
       userName = $txtUserName.val();
       if(userName)
-      {            
+      {                 
           $txtUserName.removeClass("invalid").addClass("valid");
           $("#error").hide();
           $("#chat").show();
           $("#msgbox").show();
           callback(userName);
+          console.log('attempting to connect to server socket..')
       }
       else
       {
@@ -94,6 +99,10 @@ DOMHandler.prototype.HideUserName = function(){
     $("#userDiv").hide();
 }
 
+DOMHandler.prototype.ShowUserName = function(){
+    $("#userDiv").show();
+}
+
 DOMHandler.prototype.ShowStartButton = function(){
    $("#btnSendUser").show();
 }
@@ -103,4 +112,18 @@ DOMHandler.prototype.refreshUserList = function(data){
     $.each(data,function(key,val){
        DOMHandler.prototype.addMember(val);
     });
+}
+
+DOMHandler.prototype.displayUserError = function(err){
+  $("#chat").hide();
+  DOMHandler.prototype.ShowUserName();
+  $("#userExistsError").show().html(err);
+  $("#txtUserName").removeClass("valid").addClass("invalid");
+}
+
+DOMHandler.prototype.resetState = function(){
+    $("#btnDisconnect").hide();
+    $("#userDiv").show();
+    $("#msgbox").hide();
+    $("h2").hide();
 }

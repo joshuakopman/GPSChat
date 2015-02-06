@@ -24,7 +24,10 @@ SocketHandler.prototype.GetLocation = function(location){
 
 SocketHandler.prototype.Connect = function(){
   domHandler.startChat(function(userName){
-        socket = io.connect('http://' + window.location.hostname +':3000',{ query : 'UserName=' +  userName + "&Lat=" + lat + "&Lon=" + lon  });
+        socket = io.connect('http://' + window.location.hostname +':3000',{ 
+                    query : 'UserName=' +  userName + "&Lat=" + lat + "&Lon=" + lon , 
+                    forceNew : true 
+                  });
 
         domHandler.HideUserName();
 
@@ -58,10 +61,15 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     socket.on('selfLeft', function (data) {
-      location.reload();
+      domHandler.addMessage("You have left the room",'roomMessage','');
+      domHandler.resetState();
     });
 
     socket.on('usersInRoomUpdate', function (data) {
       domHandler.refreshUserList(data);
+    });
+
+    socket.on('userError', function (data) {
+      domHandler.displayUserError(data);
     });
 }

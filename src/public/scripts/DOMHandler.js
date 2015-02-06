@@ -13,8 +13,17 @@ DOMHandler.prototype.sendMsg = function(socket){
     $("#msgbox").val('');
 } 
 
-DOMHandler.prototype.addMessage = function(m,className) {
-    $("#chatlog").append('<div class="' + className + '">' + m + '</div>');
+DOMHandler.prototype.addMessage = function(m,messageClassName,userClassName) {
+  if(m.indexOf(':') > -1)
+  {
+    messSplit  = m.split(':',2);
+    user = messSplit[0];  
+    m = m.replace(':','');
+    $("#chatlog").append('<div class="' + userClassName + '">' + user + ': <div class="' + messageClassName + '">' + m + '</div></div><br/>');
+  }
+  else{
+    $("#chatlog").append('<div class="' + messageClassName + '">' + m + '</div>');
+  }
 }
  
 DOMHandler.prototype.addMember = function(m) {
@@ -35,17 +44,17 @@ DOMHandler.prototype.messageBoxEventHandler = function(){
 }
 
 DOMHandler.prototype.startChat = function(callback){
-   var $chatLog = $("#chatlog");
-   $chatLog.bind("DOMSubtreeModified",function() {
-      $chatLog.animate({
-        scrollTop: $chatLog[0].scrollHeight
+     var $chatLog = $("#chatlog");
+     $chatLog.bind("DOMSubtreeModified",function() {
+        $chatLog.animate({
+          scrollTop: $chatLog[0].scrollHeight
+       });
      });
-   });
 
-  $("#txtUserName").on('focus',function(){
-    $("#error").hide();
-    $("#txtUserName").removeClass("invalid").addClass("valid");
-  });
+    $("#txtUserName").on('focus',function(){
+      $("#error").hide();
+      $("#txtUserName").removeClass("invalid").addClass("valid");
+    });
 
    $("#btnSendUser").on('click',function(){
       userName = $("#txtUserName").val();

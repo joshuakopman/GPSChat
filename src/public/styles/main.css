@@ -74,3 +74,13 @@
     font-size:12px;
 }
 
+.userNameMessage{
+    font-weight: bold;
+    display:inline;
+}
+
+.message{
+    font-weight:normal;
+    display:inline;
+}
+

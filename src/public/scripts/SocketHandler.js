@@ -3,7 +3,15 @@ var lon;
 var domHandler;
 
 function SocketHandler(){
-  navigator.geolocation.getCurrentPosition(this.GetLocation);
+  navigator.geolocation.getCurrentPosition(this.GetLocation,this.errorCallback,{timeout:10000});
+}
+
+SocketHandler.prototype.errorCallback =function(err){
+ if(err.code == 1) {
+    alert("Error: Access is denied!");
+  }else if( err.code == 2) {
+    alert("Error: Position is unavailable!");
+  }
 }
 
 SocketHandler.prototype.GetLocation = function(location){
@@ -30,7 +38,7 @@ SocketHandler.prototype.Connect = function(){
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
     socket.on('message', function (data) {
-      domHandler.addMessage(data);
+      domHandler.addMessage(data,'message','userNameMessage');
     });
 
     socket.on('title', function (data) {
@@ -38,15 +46,15 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     socket.on('joined', function (data) {
-      domHandler.addMessage(data + " has joined",'roomMessage');
+      domHandler.addMessage(data + " has joined",'roomMessage','');
     });
 
     socket.on('selfjoined', function (data) {
-      domHandler.addMessage("You have joined",'roomMessage');
+      domHandler.addMessage("You have joined",'roomMessage','');
     });
 
     socket.on('left', function (data) {
-      domHandler.addMessage(data +" has left the room",'roomMessage');
+      domHandler.addMessage(data +" has left the room",'roomMessage','');
     });
 
     socket.on('selfLeft', function (data) {

@@ -5,6 +5,12 @@ function DOMHandler(lat,lon){
     Lat = lat;
     Lon = lon;
     DOMHandler.prototype.messageBoxEventHandler();
+     var $chatLog = $("#chatlog");
+         $chatLog.bind("DOMSubtreeModified",function() {
+         $chatLog.animate({
+            scrollTop: $chatLog[0].scrollHeight
+         });
+    });
 }
 
 DOMHandler.prototype.sendMsg = function(socket){
@@ -44,14 +50,7 @@ DOMHandler.prototype.messageBoxEventHandler = function(){
 }
 
 DOMHandler.prototype.startChat = function(callback){
-     var $chatLog = $("#chatlog");
-     $chatLog.bind("DOMSubtreeModified",function() {
-        $chatLog.animate({
-          scrollTop: $chatLog[0].scrollHeight
-       });
-     });
-
-   $("#txtUserName").on('focus',function(){
+   $("#txtUserName").unbind('focus').on('focus',function(){
          $("#error").hide();
          $("#userExistsError").hide();
          $("#txtUserName").removeClass("invalid").addClass("valid");
@@ -65,7 +64,7 @@ DOMHandler.prototype.startChat = function(callback){
          }
     });
 
-   $("#btnSendUser").on('click',function(){
+   $("#btnSendUser").unbind('click').on('click',function(){
        EnterChat(callback);
    });
 }
@@ -90,7 +89,7 @@ function EnterChat(callback){
 }
 
 DOMHandler.prototype.OnDisconnect = function(callback){
-  $("#btnDisconnect").show().on('click',function(){
+  $("#btnDisconnect").show().unbind( "click" ).on('click',function(){
       callback();
   });
 }

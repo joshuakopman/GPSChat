@@ -10,7 +10,6 @@ function SocketHandler(IO){
 
 SocketHandler.prototype.HandleSocketConnect = function(){
     io.sockets.on('connection', function (socket){
-        console.log('socket connected');
     	currentRoomName = FindAndJoinChatRoom(socket);
         if(currentRoomName)
         {

@@ -14,15 +14,15 @@ DOMHandler.prototype.sendMsg = function(socket){
 } 
 
 DOMHandler.prototype.addMessage = function(m,messageClassName,userClassName) {
-  if(m.indexOf(':') > -1)
-  {
+  var $chatLog =  $("#chatlog");
+  if(m.indexOf(':') > -1){
     messSplit  = m.split(':',2);
     user = messSplit[0];  
-    m = m.replace(':','');
-    $("#chatlog").append('<div class="' + userClassName + '">' + user + ': <div class="' + messageClassName + '">' + m + '</div></div><br/>');
+    m = m.replace(/^[^:]*:/,'');
+    $chatLog.append('<div class="' + userClassName + '">' + user + ': <div class="' + messageClassName + '">' + m + '</div></div><br/>');
   }
   else{
-    $("#chatlog").append('<div class="' + messageClassName + '">' + m + '</div>');
+    $chatLog.append('<div class="' + messageClassName + '">' + m + '</div>');
   }
 }
  
@@ -54,14 +54,24 @@ DOMHandler.prototype.startChat = function(callback){
     $("#txtUserName").on('focus',function(){
       $("#error").hide();
       $("#txtUserName").removeClass("invalid").addClass("valid");
+    }).keypress( function(event) {
+         if (event.which == '13') {
+            event.preventDefault();
+            EnterChat(callback);
+         }
     });
 
    $("#btnSendUser").on('click',function(){
-      userName = $("#txtUserName").val();
+       EnterChat(callback);
+   });
+}
 
+function EnterChat(callback){
+      var $txtUserName = $("#txtUserName");
+      userName = $txtUserName.val();
       if(userName)
       {            
-          $("#txtUserName").removeClass("invalid").addClass("valid");
+          $txtUserName.removeClass("invalid").addClass("valid");
           $("#error").hide();
           $("#chat").show();
           $("#msgbox").show();
@@ -70,9 +80,8 @@ DOMHandler.prototype.startChat = function(callback){
       else
       {
          $("#error").show();
-         $("#txtUserName").removeClass("valid").addClass("invalid");
+         $txtUserName.removeClass("valid").addClass("invalid");
       }
-   });
 }
 
 DOMHandler.prototype.OnDisconnect = function(callback){

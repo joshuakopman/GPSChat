@@ -83,6 +83,19 @@
     font-weight:normal;
     display:inline;
 }
+
+.userNameMissedMessage{
+    font-weight: bold;
+    display:inline;
+    color:grey;
+}
+
+.missedMessage{
+    font-weight:normal;
+    display:inline;
+    color:grey;
+}
+
 #userExistsError{
     display:none;
     color: red;

@@ -1,3 +1,5 @@
+
+
 function SocketHandler(){
   navigator.geolocation.getCurrentPosition(this.GetLocation,this.errorCallback,{timeout:10000});
 }
@@ -27,11 +29,12 @@ SocketHandler.prototype.Connect = function(lat,lon){
                         forceNew : true 
                      });
 
-        self.RegisterSocketEvents(socket,lat,lon);
+        self.RegisterSocketEvents(socket);
+        EventHandler.trigger('getMessageHistory');
     });
   }
 
-SocketHandler.prototype.RegisterSocketEvents = function(socket,lat,lon){
+SocketHandler.prototype.RegisterSocketEvents = function(socket){
     socket.on('message', function (data) {
       EventHandler.trigger('message',data);
     });
@@ -64,11 +67,19 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket,lat,lon){
       EventHandler.trigger('userError',data);
     });
 
+    socket.on('messageHistory', function (data) {
+       EventHandler.trigger('messageHistory',data);
+    });
+
     EventHandler.on('sendMessage', function (mess) {  
       socket.emit('message', mess);
     });
     
     EventHandler.on('leave', function () {  
        socket.emit('leave');
+    });
+
+    EventHandler.on('getMessageHistory',function(){
+      socket.emit('getMessageHistory',eventManager.GetLastDisconnect());
     });
 }

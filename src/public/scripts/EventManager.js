@@ -15,3 +15,7 @@ EventManager.prototype.StartChat = function(callback){
 EventManager.prototype.OnDisconnect = function(callback){
   domManager.OnDisconnect(callback);
 }
+
+EventManager.prototype.GetLastDisconnect = function(){
+	return domManager.GetLastDisconnect();
+}

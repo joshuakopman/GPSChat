@@ -1,5 +1,6 @@
 var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
+var Message = require('../models/Message');
 var ServiceHandler = require('./ServiceHandler');
 var io;
 var rooms=[];
@@ -15,6 +16,7 @@ SocketHandler.prototype.HandleSocketConnect = function(){
         {
             AlertMemberJoined(socket,currentRoomName);
             RegisterMessageEvent(socket,currentRoomName);
+            RegisterMessageHistoryEvent(socket,currentRoomName);
         }
     });
 }
@@ -91,12 +93,33 @@ function RegisterMessageEvent(socket,RoomName){
         if(data.indexOf('&lt;script') < 0)
         {
             io.to(RoomName).emit('message',data);
+            var mess = new Message();
+            mess.Content = data;
+            mess.Timestamp = Date.now();
+            rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
         }
         else
         {
             io.to(RoomName).emit('message',UserName +" tried to inject javascript and FAILED");
         }
      });
+}
+
+function RegisterMessageHistoryEvent(socket,RoomName){
+    socket.on('getMessageHistory', function(timestamp) {
+        if(typeof rooms[RoomName.replace(/[\s\-\.]/g, '').toString()] != 'undefined')
+        {
+            var allMessages = rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages;
+            var recentMessages=[];
+            allMessages.forEach( function (mess){
+              if(mess.Timestamp > timestamp){
+                recentMessages.push(mess);
+              }
+            });
+
+           socket.emit('messageHistory',recentMessages);
+        }
+    });
 }
 
 function RegisterLeaveEvent(socket,existingRoom,currentRoomName){

@@ -32,3 +32,11 @@ EventHandler.on('usersInRoomUpdate', function (data) {
 EventHandler.on('userError', function (data) {
   domManager.displayUserError(data);
 });
+
+EventHandler.on('messageHistory', function(data){
+	data.forEach(function(mess){
+		console.log(mess);
+		domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage');
+	});
+});
+	

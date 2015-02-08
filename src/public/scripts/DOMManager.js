@@ -1,5 +1,6 @@
 var Lat;
 var Lon;
+var disconnectTime;
 
 function DOMManager(lat,lon){
     Lat = lat;
@@ -69,6 +70,10 @@ DOMManager.prototype.startChat = function(callback){
    $("#btnSendUser").unbind('click').on('click',function(){
        EnterChat(callback,self);
    });
+
+   $("#btnMissed").unbind('click').on('click',function(){
+      EventHandler.trigger('getMessageHistory');
+   })
 }
 
 function EnterChat(callback,self){
@@ -93,6 +98,7 @@ function EnterChat(callback,self){
 DOMManager.prototype.OnDisconnect = function(data){
   $("#btnDisconnect").show().unbind( "click" ).on('click',function(){
       EventHandler.trigger('leave',data);
+      disconnectTime = Date.now();
   });
 }
 
@@ -128,6 +134,10 @@ DOMManager.prototype.resetState = function(){
     $("#userDiv").show();
     $("#msgbox").hide();
     $("h2").hide();
+}
+
+DOMManager.prototype.GetLastDisconnect = function(){
+  return disconnectTime;
 }
 
 

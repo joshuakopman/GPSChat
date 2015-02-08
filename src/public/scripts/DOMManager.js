@@ -1,10 +1,10 @@
 var Lat;
 var Lon;
 
-function DOMHandler(lat,lon){
+function DOMManager(lat,lon){
     Lat = lat;
     Lon = lon;
-    DOMHandler.prototype.messageBoxEventHandler();
+    this.messageBoxEventHandler();
      var $chatLog = $("#chatlog");
          $chatLog.bind("DOMSubtreeModified",function() {
          $chatLog.animate({
@@ -13,13 +13,13 @@ function DOMHandler(lat,lon){
     });
 }
 
-DOMHandler.prototype.sendMsg = function(socket){
+DOMManager.prototype.sendMsg = function(){
     var r = $("#msgbox").val();
-    socket.emit('message', userName + ": " + r ,Lat,Lon);
+    EventHandler.trigger('sendMessage',userName + ": " + r ,Lat,Lon);
     $("#msgbox").val('');
 } 
 
-DOMHandler.prototype.addMessage = function(m,messageClassName,userClassName) {
+DOMManager.prototype.addMessage = function(m,messageClassName,userClassName) {
   var $chatLog =  $("#chatlog");
   if(m.indexOf(':') > -1){
     messSplit  = m.split(':',2);
@@ -32,24 +32,26 @@ DOMHandler.prototype.addMessage = function(m,messageClassName,userClassName) {
   }
 }
  
-DOMHandler.prototype.addMember = function(m) {
+DOMManager.prototype.addMember = function(m) {
     $("#memberList").append(m).append("<br>");
 }
 
-DOMHandler.prototype.setTitle = function(title){
+DOMManager.prototype.setTitle = function(title){
     $("h2").show().html('You are now in room: ' + title);
 }  
 
-DOMHandler.prototype.messageBoxEventHandler = function(){
+DOMManager.prototype.messageBoxEventHandler = function(){
+  var self = this;
   $("#msgbox").keypress( function(event) {
          if (event.which == '13') {
-            DOMHandler.prototype.sendMsg(socket);
+            self.sendMsg();
             event.preventDefault();
         }
     });   
 }
 
-DOMHandler.prototype.startChat = function(callback){
+DOMManager.prototype.startChat = function(callback){
+  var self = this;
    $("#txtUserName").unbind('focus').on('focus',function(){
          $("#error").hide();
          $("#userExistsError").hide();
@@ -59,17 +61,17 @@ DOMHandler.prototype.startChat = function(callback){
             event.preventDefault();
             if(!$("#userExistsError").is(':visible'))
             {
-                EnterChat(callback);
+                EnterChat(callback,self);
             }
          }
     });
 
    $("#btnSendUser").unbind('click').on('click',function(){
-       EnterChat(callback);
+       EnterChat(callback,self);
    });
 }
 
-function EnterChat(callback){
+function EnterChat(callback,self){
       var $txtUserName = $("#txtUserName");
       userName = $txtUserName.val();
       if(userName)
@@ -78,8 +80,8 @@ function EnterChat(callback){
           $("#error").hide();
           $("#chat").show();
           $("#msgbox").show();
+          self.HideUserName();
           callback(userName);
-          console.log('attempting to connect to server socket..')
       }
       else
       {
@@ -88,41 +90,44 @@ function EnterChat(callback){
       }
 }
 
-DOMHandler.prototype.OnDisconnect = function(callback){
+DOMManager.prototype.OnDisconnect = function(data){
   $("#btnDisconnect").show().unbind( "click" ).on('click',function(){
-      callback();
+      EventHandler.trigger('leave',data);
   });
 }
 
-DOMHandler.prototype.HideUserName = function(){
+DOMManager.prototype.HideUserName = function(){
     $("#userDiv").hide();
 }
 
-DOMHandler.prototype.ShowUserName = function(){
+DOMManager.prototype.ShowUserName = function(){
     $("#userDiv").show();
 }
 
-DOMHandler.prototype.ShowStartButton = function(){
+DOMManager.prototype.ShowStartButton = function(){
    $("#btnSendUser").show();
 }
 
-DOMHandler.prototype.refreshUserList = function(data){
+DOMManager.prototype.refreshUserList = function(data){
+    var self = this;
     $("#memberList").html('<div id="MemberHeader">Members</div>');
     $.each(data,function(key,val){
-       DOMHandler.prototype.addMember(val);
+       self.addMember(val);
     });
 }
 
-DOMHandler.prototype.displayUserError = function(err){
+DOMManager.prototype.displayUserError = function(err){
   $("#chat").hide();
-  DOMHandler.prototype.ShowUserName();
+  this.ShowUserName();
   $("#userExistsError").show().html(err);
   $("#txtUserName").removeClass("valid").addClass("invalid");
 }
 
-DOMHandler.prototype.resetState = function(){
+DOMManager.prototype.resetState = function(){
     $("#btnDisconnect").hide();
     $("#userDiv").show();
     $("#msgbox").hide();
     $("h2").hide();
 }
+
+

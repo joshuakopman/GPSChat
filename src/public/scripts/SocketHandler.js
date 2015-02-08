@@ -1,12 +1,8 @@
-var lat;
-var lon;
-var domHandler;
-
 function SocketHandler(){
   navigator.geolocation.getCurrentPosition(this.GetLocation,this.errorCallback,{timeout:10000});
 }
 
-SocketHandler.prototype.errorCallback =function(err){
+SocketHandler.prototype.errorCallback = function(err){
  if(err.code == 1) {
     alert("Error: Access is denied!");
   }else if( err.code == 2) {
@@ -15,62 +11,64 @@ SocketHandler.prototype.errorCallback =function(err){
 }
 
 SocketHandler.prototype.GetLocation = function(location){
-  lat = location.coords.latitude;
-  lon = location.coords.longitude;
-  domHandler = new DOMHandler(lat,lon);
-  domHandler.ShowStartButton(); //can't join chat until coords are calculated
-  SocketHandler.prototype.Connect();
+  var lat = location.coords.latitude;
+  var lon = location.coords.longitude;
+  SocketHandler.prototype.Connect(lat,lon);
 }
 
-SocketHandler.prototype.Connect = function(){
-  domHandler.startChat(function(userName){
-        socket = io.connect('http://' + window.location.hostname +':3000',
-                 { 
-                    query : 'UserName=' +  userName + "&Lat=" + lat + "&Lon=" + lon , 
-                    forceNew : true 
-                  });
+SocketHandler.prototype.Connect = function(lat,lon){
+  var self = this;
+  eventManager = new EventManager(lat,lon);
 
-        domHandler.HideUserName();
+  eventManager.StartChat(function(userName){
+        var socket = io.connect('http://' + window.location.hostname +':3000',
+                     { 
+                        query : 'UserName=' +  userName + "&Lat=" + lat + "&Lon=" + lon , 
+                        forceNew : true 
+                     });
 
-        SocketHandler.prototype.RegisterSocketEvents(socket);
-
-        domHandler.OnDisconnect(function(){
-            socket.emit('leave', {Lat : lat, Lon : lon});
-        });
+        self.RegisterSocketEvents(socket,lat,lon);
     });
   }
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
     socket.on('message', function (data) {
-      domHandler.addMessage(data,'message','userNameMessage');
+      EventHandler.trigger('message',data);
     });
 
     socket.on('title', function (data) {
-      domHandler.setTitle(data);
+      EventHandler.trigger('title',data);
     });
 
     socket.on('joined', function (data) {
-      domHandler.addMessage(data + " has joined",'roomMessage','');
+      EventHandler.trigger('joined',data);
     });
 
     socket.on('selfjoined', function (data) {
-      domHandler.addMessage("You have joined the room '" + data + "'",'roomMessage','');
+      EventHandler.trigger('selfjoined',data);
     });
 
     socket.on('left', function (data) {
-      domHandler.addMessage(data +" has left the room",'roomMessage','');
+       EventHandler.trigger('left',data);
     });
 
     socket.on('selfLeft', function (data) {
-      domHandler.addMessage("You have left the room " + data,'roomMessage','');
-      domHandler.resetState();
+      EventHandler.trigger('selfLeft',data);
     });
 
     socket.on('usersInRoomUpdate', function (data) {
-      domHandler.refreshUserList(data);
+     EventHandler.trigger('usersInRoomUpdate',data);
     });
 
     socket.on('userError', function (data) {
-      domHandler.displayUserError(data);
+      EventHandler.trigger('userError',data);
+    });
+
+    EventHandler.on('sendMessage', function (mess,lat,lon) {  
+      socket.emit('message', mess,lat,lon);
+    });
+    
+    EventHandler.on('leave', function (mess,lat,lon) {  
+       socket.emit('leave', {Lat : lat, Lon : lon});
     });
 }

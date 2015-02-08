@@ -31,7 +31,7 @@ SocketHandler.prototype.Connect = function(lat,lon){
     });
   }
 
-SocketHandler.prototype.RegisterSocketEvents = function(socket){
+SocketHandler.prototype.RegisterSocketEvents = function(socket,lat,lon){
     socket.on('message', function (data) {
       EventHandler.trigger('message',data);
     });
@@ -64,11 +64,11 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
       EventHandler.trigger('userError',data);
     });
 
-    EventHandler.on('sendMessage', function (mess,lat,lon) {  
-      socket.emit('message', mess,lat,lon);
+    EventHandler.on('sendMessage', function (mess) {  
+      socket.emit('message', mess);
     });
     
-    EventHandler.on('leave', function (mess,lat,lon) {  
-       socket.emit('leave', {Lat : lat, Lon : lon});
+    EventHandler.on('leave', function () {  
+       socket.emit('leave');
     });
 }

@@ -107,9 +107,11 @@ function RegisterMessageEvent(socket,RoomName){
 
 function RegisterMessageHistoryEvent(socket,RoomName){
     socket.on('getMessageHistory', function(timestamp) {
-        if(typeof rooms[RoomName.replace(/[\s\-\.]/g, '').toString()] != 'undefined')
+        var key = RoomName.replace(/[\s\-\.]/g, '').toString();
+        if(typeof rooms[key] != 'undefined')
         {
-            var allMessages = rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages;
+            rooms[key].Messages = rooms[key].Messages.slice(-100); //make sure to not store more than 100 messages back
+            var allMessages = rooms[key].Messages;
             var recentMessages=[];
             allMessages.forEach( function (mess){
               if(mess.Timestamp > timestamp){

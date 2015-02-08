@@ -71,15 +71,15 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
        EventHandler.trigger('messageHistory',data);
     });
 
-    EventHandler.on('sendMessage', function (mess) {  
+    EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess);
     });
     
-    EventHandler.on('leave', function () {  
+    EventHandler.unbind('leave').on('leave', function () {  
        socket.emit('leave');
     });
 
-    EventHandler.on('getMessageHistory',function(){
+    EventHandler.unbind('getMessageHistory').on('getMessageHistory',function(){
       socket.emit('getMessageHistory',eventManager.GetLastDisconnect());
     });
 }

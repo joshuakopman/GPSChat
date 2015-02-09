@@ -14,7 +14,6 @@ SocketHandler.prototype.HandleSocketConnect = function(){
     	currentRoomName = FindAndJoinChatRoom(socket);
         if(currentRoomName)
         {
-            console.log('alerting')
             AlertMemberJoined(socket,currentRoomName);
             RegisterMessageEvent(socket,currentRoomName);
             RegisterMessageHistoryEvent(socket,currentRoomName);
@@ -101,7 +100,7 @@ function RegisterMessageEvent(socket,RoomName){
         }
         else
         {
-            io.to(RoomName).emit('message',UserName +" tried to inject javascript and FAILED");
+            io.to(RoomName).emit('injectMessage',UserName +" tried to inject javascript and FAILED");
         }
      });
 }

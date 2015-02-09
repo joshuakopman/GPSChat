@@ -4,6 +4,10 @@ EventHandler.unbind('message').on('message', function (data) {
   domManager.addMessage(data,'message','userNameMessage');
 });
 
+EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
+  domManager.addMessage(data,'roomMessage','');
+});
+
 EventHandler.unbind('title').on('title', function (data) {
   domManager.displayChatRoom(data);
 });

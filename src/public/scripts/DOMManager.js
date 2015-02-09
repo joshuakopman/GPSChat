@@ -27,16 +27,23 @@ DOMManager.prototype.sendMsg = function(){
     $("#msgbox").val('');
 } 
 
-DOMManager.prototype.addMessage = function(m,messageClassName,userClassName) {
+DOMManager.prototype.addMessage = function(m,messageClassName,userClassName,timestamp) {
   var $chatLog =  $("#chatlog");
+  var messTimestamp = "<div class=\"timestamp\">(" + new Date().toString("hh:mm tt") + ") </div>";
+
+  if(timestamp)
+  {
+    messTimestamp = "<div class=\"timestamp\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
+  }
+
   if(m.indexOf(':') > -1){
     messSplit  = m.split(':',2);
     user = messSplit[0];  
     m = m.replace(/^[^:]*:/,'');
-    $chatLog.append('<div class="' + userClassName + '">' + user + ': <div class="' + messageClassName + '">' + m + '</div></div><br/>');
+    $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + user + ':<div class="' + messageClassName + '">' + m + '</div></div><br/>');
   }
   else{
-    $chatLog.append('<div class="' + messageClassName + '">' + m + '</div>');
+    $chatLog.append('<div class="' + messageClassName + '">' + messTimestamp + ' ' + m + '</div>');
   }
 }
  

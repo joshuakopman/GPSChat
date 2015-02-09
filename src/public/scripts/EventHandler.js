@@ -44,6 +44,7 @@ EventHandler.unbind('userError').on('userError', function (data) {
 
 EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 	data.forEach(function(mess){
-		domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage');
+    console.log(mess.timestamp);
+		domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
 	});
 });

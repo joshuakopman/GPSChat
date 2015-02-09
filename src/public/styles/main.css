@@ -69,6 +69,7 @@ h2{
 }
 .roomMessage{
     color: red;
+    font-weight: bold;
 }
 .invalid{
     border : 3px solid red;
@@ -172,4 +173,7 @@ h2{
 }
 .title{
     color:grey;
+}
+.timestamp{
+    display:inline;
 }

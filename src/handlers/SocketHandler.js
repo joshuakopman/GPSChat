@@ -14,9 +14,9 @@ SocketHandler.prototype.HandleSocketConnect = function(){
     	currentRoomName = FindAndJoinChatRoom(socket);
         if(currentRoomName)
         {
-            AlertMemberJoined(socket,currentRoomName);
-            RegisterMessageEvent(socket,currentRoomName);
             RegisterMessageHistoryEvent(socket,currentRoomName);
+            RegisterNewMemberJoinedEvent(socket,currentRoomName);
+            RegisterMessageEvent(socket,currentRoomName);
         }
     });
 }
@@ -80,10 +80,9 @@ function CheckIfNameTaken(roomList,user){
     return false;
 }
 
-function AlertMemberJoined(socket,RoomName){
+function RegisterNewMemberJoinedEvent(socket,RoomName){
     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     socket.broadcast.to(RoomName).emit('joined', UserName);
-    socket.emit('selfjoined',RoomName);
 }
 
 function RegisterMessageEvent(socket,RoomName){
@@ -122,6 +121,7 @@ function RegisterMessageHistoryEvent(socket,RoomName){
 
            socket.emit('messageHistory',recentMessages);
         }
+        socket.emit('selfjoined',RoomName);
     });
 }
 

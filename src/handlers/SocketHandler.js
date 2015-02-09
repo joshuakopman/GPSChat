@@ -112,6 +112,7 @@ function RegisterMessageHistoryEvent(socket,RoomName){
         {
             rooms[key].Messages = rooms[key].Messages.slice(-100); //make sure to not store more than 100 messages back
             var allMessages = rooms[key].Messages;
+            console.log(allMessages);
             var recentMessages=[];
             allMessages.forEach( function (mess){
               if(mess.Timestamp > timestamp){

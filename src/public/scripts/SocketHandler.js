@@ -51,6 +51,7 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     EventHandler.unbind('getMessageHistory').on('getMessageHistory',function(){
+      console.log('getting missed messages from server...');
       socket.emit('getMessageHistory',eventManager.GetLastDisconnect());
     });
 }

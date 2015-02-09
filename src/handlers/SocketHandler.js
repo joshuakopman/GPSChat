@@ -41,7 +41,7 @@ function FindAndJoinChatRoom(socket){
         if(!CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName))
         {
             socket.join(CurrentRoomName);
-            socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
+            socket.emit('title',rooms[currentRoomNameKey].Neighborhood + ' (' + CurrentRoomName + ')');
             PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
             RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
             RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);

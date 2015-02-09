@@ -6,10 +6,10 @@ function DOMManager(lat,lon){
     Lat = lat;
     Lon = lon;
     this.messageBoxEventHandler();
-     var $chatLog = $("#chatlog");
-         $chatLog.bind("DOMSubtreeModified",function() {
-         $chatLog.animate({
-            scrollTop: $chatLog[0].scrollHeight
+     var chatLog = $("#chatlog");
+         chatLog.bind("DOMSubtreeModified",function() {
+         chatLog.animate({
+            scrollTop: chatLog[0].scrollHeight
          });
     });
 }
@@ -39,7 +39,7 @@ DOMManager.prototype.addMember = function(m) {
 
 DOMManager.prototype.displayChatRoom = function(title){
     $("#chatLoader").hide();
-    $("h2").show().html('You are now in room: ' + title);
+    $("h2").show().html('<div class="title">Current Room </div>' + title);
     $("#chat").show();
     $("#msgbox").show();
     $("#btnDisconnect").show();
@@ -145,5 +145,3 @@ DOMManager.prototype.resetState = function(){
 DOMManager.prototype.GetLastDisconnect = function(){
   return disconnectTime;
 }
-
-

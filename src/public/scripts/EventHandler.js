@@ -42,4 +42,3 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 		domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage');
 	});
 });
-	

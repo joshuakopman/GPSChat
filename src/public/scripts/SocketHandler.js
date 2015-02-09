@@ -1,5 +1,3 @@
-
-
 function SocketHandler(){
   navigator.geolocation.getCurrentPosition(this.GetLocation,this.errorCallback,{timeout:10000});
 }

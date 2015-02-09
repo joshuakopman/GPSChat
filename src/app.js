@@ -4,6 +4,7 @@ var path = require('path');
 var SocketHandler = require('./handlers/SocketHandler');
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.disable('etag');
 
 var server = app.listen(3000, function() {
     console.log("server started on port 3000");

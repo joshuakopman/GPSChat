@@ -3,6 +3,7 @@
   <head>
     <title>Yosaaaa.ly</title>    
     <link rel="stylesheet" type="text/css"  href="/styles/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 <body>
   <div id="userDiv"></div>
@@ -13,13 +14,13 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-  <script src="https://cdn.socket.io/socket.io-1.3.2.js"></script>
-  <script src="/views/NameEntryView.js"></script>
-  <script src="/views/ChatView.js"></script>
-  <script src="/scripts/DOMManager.js"></script>
-  <script src="/scripts/EventManager.js"></script>
-  <script src="/scripts/SocketHandler.js"></script>
-  <script src="/scripts/EventHandler.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.3/socket.io.min.js"></script>
+  <script type="text/javascript" src="/views/NameEntryView.js"></script>
+  <script type="text/javascript" src="/views/ChatView.js"></script>
+  <script type="text/javascript" src="/scripts/DOMManager.js"></script>
+  <script type="text/javascript" src="/scripts/EventManager.js"></script>
+  <script type="text/javascript" src="/scripts/SocketHandler.js"></script>
+  <script type="text/javascript" src="/scripts/EventHandler.js"></script>
   <script>
   $(document).ready(function(){ 
         sockerHandler = new SocketHandler();

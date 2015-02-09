@@ -35,41 +35,14 @@ SocketHandler.prototype.Connect = function(lat,lon){
   }
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
-    socket.on('message', function (data) {
-      EventHandler.trigger('message',data);
-    });
+     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError','messageHistory'];
+    
+     receivedSocketEvents.forEach(function(eventType){
+      socket.on(eventType, function (data) {
+        EventHandler.trigger(eventType,data);
+      });
+     });
 
-    socket.on('title', function (data) {
-      EventHandler.trigger('title',data);
-    });
-
-    socket.on('joined', function (data) {
-      EventHandler.trigger('joined',data);
-    });
-
-    socket.on('selfjoined', function (data) {
-      EventHandler.trigger('selfjoined',data);
-    });
-
-    socket.on('left', function (data) {
-       EventHandler.trigger('left',data);
-    });
-
-    socket.on('selfLeft', function (data) {
-      EventHandler.trigger('selfLeft',data);
-    });
-
-    socket.on('usersInRoomUpdate', function (data) {
-     EventHandler.trigger('usersInRoomUpdate',data);
-    });
-
-    socket.on('userError', function (data) {
-      EventHandler.trigger('userError',data);
-    });
-
-    socket.on('messageHistory', function (data) {
-       EventHandler.trigger('messageHistory',data);
-    });
 
     EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess);

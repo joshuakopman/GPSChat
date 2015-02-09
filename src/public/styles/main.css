@@ -1,4 +1,14 @@
+body{
+    width:500px;
+    margin:0px auto;
+    margin-top:100px;
+}
+h2{
+    display:none;
+    margin-left:30px;
+}
 #userDiv {
+    text-align: center;
 }
 
 #btnSendUser {
@@ -7,10 +17,12 @@
 
 #chat {
     display: none;
-    height: 200px;
+    height: 275px;
     width: 500px;
     border: 1px solid grey;
     float: left;
+    background-color:grey;
+    padding:10px;
 }
 
 #chatWindow {
@@ -21,6 +33,7 @@
     width: 75%;
     overflow-y: scroll;
     float: left;
+    background-color: white;
 }
 
 #memberList {
@@ -37,11 +50,15 @@
 #msgbox {
     margin-top: 10px;
     margin-bottom: 10px;
-    width: 193px;
+    width: 370px;
+    float:left;
 }
 
 #btnDisconnect {
     display: none;
+    float:left;
+    margin-left:20px;  
+    margin-top:35px
 }
 #MemberHeader{
     color:white;
@@ -71,34 +88,78 @@
 #error{
     display:none;
     color: red;
-    font-size:12px;
+    font-size:20px;
+    font-weight:bold;
+    font-family:arial;
 }
 
 .userNameMessage{
     font-weight: bold;
     display:inline;
+    word-wrap:break-word;
 }
 
 .message{
     font-weight:normal;
     display:inline;
+    word-wrap:break-word;
 }
 
 .userNameMissedMessage{
     font-weight: bold;
     display:inline;
     color:grey;
+    word-wrap:break-word;
 }
 
 .missedMessage{
     font-weight:normal;
     display:inline;
     color:grey;
+    word-wrap:break-word;
 }
 
 #userExistsError{
     display:none;
     color: red;
-    font-size:12px;
+    font-size:20px;
+    font-weight:bold;
+    font-family:arial;
 }
 
+.banner{
+    display:block;
+    height: 300px;
+    width: 500px;
+    opacity:.5;
+    border:1px solid grey;
+}
+.bannerText{
+   position: absolute; 
+   top: 100px; 
+   left: 0; 
+   width: 100%; 
+   font-family:cursive;
+   color:red;
+   font-size:72px;
+   text-shadow: 2px 2px black;
+}
+#txtUserName{
+    display:none;
+}
+
+/*#chatLoader{
+    height:100px;
+    width:100px;
+    margin:0px auto;
+    display:none;
+}*/
+#entryLoader{
+    height:100px;
+    width:100px;
+    margin-top:50px;
+}
+
+#msgbox{
+    resize:none;
+}

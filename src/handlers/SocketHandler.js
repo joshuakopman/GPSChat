@@ -14,6 +14,7 @@ SocketHandler.prototype.HandleSocketConnect = function(){
     	currentRoomName = FindAndJoinChatRoom(socket);
         if(currentRoomName)
         {
+            console.log('alerting')
             AlertMemberJoined(socket,currentRoomName);
             RegisterMessageEvent(socket,currentRoomName);
             RegisterMessageHistoryEvent(socket,currentRoomName);
@@ -40,7 +41,7 @@ function FindAndJoinChatRoom(socket){
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
         if(!CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName))
         {
-            socket.join(foundRoomName);
+            socket.join(CurrentRoomName);
             socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
             PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
             RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
@@ -94,8 +95,8 @@ function RegisterMessageEvent(socket,RoomName){
         {
             io.to(RoomName).emit('message',data);
             var mess = new Message();
-            mess.Content = data;
-            mess.Timestamp = Date.now();
+                mess.Content = data;
+                mess.Timestamp = Date.now();
             rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
         }
         else

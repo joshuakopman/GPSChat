@@ -7,7 +7,7 @@ EventManager.prototype.HideUserName =  function(){
  domManager.HideUserName(); 
 }
 
-EventManager.prototype.StartChat = function(callback){
+EventManager.prototype.StartChat = function(callback){	
  domManager.ShowStartButton(); 
  domManager.startChat(callback);
 }

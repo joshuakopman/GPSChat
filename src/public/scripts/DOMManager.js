@@ -37,8 +37,12 @@ DOMManager.prototype.addMember = function(m) {
     $("#memberList").append(m).append("<br>");
 }
 
-DOMManager.prototype.setTitle = function(title){
+DOMManager.prototype.displayChatRoom = function(title){
+    $("#chatLoader").hide();
     $("h2").show().html('You are now in room: ' + title);
+    $("#chat").show();
+    $("#msgbox").show();
+    $("#btnDisconnect").show();
 }  
 
 DOMManager.prototype.messageBoxEventHandler = function(){
@@ -53,7 +57,7 @@ DOMManager.prototype.messageBoxEventHandler = function(){
 
 DOMManager.prototype.startChat = function(callback){
   var self = this;
-   $("#txtUserName").unbind('focus').on('focus',function(){
+   $("#txtUserName").unbind('focus').unbind('blur').on('focus blur',function(){
          $("#error").hide();
          $("#userExistsError").hide();
          $("#txtUserName").removeClass("invalid").addClass("valid");
@@ -83,9 +87,8 @@ function EnterChat(callback,self){
       {                 
           $txtUserName.removeClass("invalid").addClass("valid");
           $("#error").hide();
-          $("#chat").show();
-          $("#msgbox").show();
           self.HideUserName();
+          $("#chatLoader").show();
           callback(userName);
       }
       else
@@ -99,6 +102,7 @@ DOMManager.prototype.OnDisconnect = function(data){
   $("#btnDisconnect").show().unbind( "click" ).on('click',function(){
       EventHandler.trigger('leave',data);
       disconnectTime = Date.now();
+      $("#chat").hide();
   });
 }
 
@@ -111,7 +115,9 @@ DOMManager.prototype.ShowUserName = function(){
 }
 
 DOMManager.prototype.ShowStartButton = function(){
-   $("#btnSendUser").show();
+  $("#entryLoader").hide();
+  $("#txtUserName").show();
+  $("#btnSendUser").show();
 }
 
 DOMManager.prototype.refreshUserList = function(data){

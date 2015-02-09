@@ -5,7 +5,7 @@ EventHandler.unbind('message').on('message', function (data) {
 });
 
 EventHandler.unbind('title').on('title', function (data) {
-  domManager.setTitle(data);
+  domManager.displayChatRoom(data);
 });
 
 EventHandler.unbind('joined').on('joined', function (data) {
@@ -21,7 +21,7 @@ EventHandler.unbind('left').on('left', function (data) {
 });
 
 EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
-  domManager.addMessage("You have left the room " + data,'roomMessage','');
+  domManager.addMessage("You left the room " + data,'roomMessage','');
   domManager.resetState();
 });
 

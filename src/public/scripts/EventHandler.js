@@ -38,7 +38,6 @@ EventHandler.unbind('userError').on('userError', function (data) {
 });
 
 EventHandler.unbind('messageHistory').on('messageHistory', function(data){
-  console.log(data);
 	data.forEach(function(mess){
 		domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage');
 	});

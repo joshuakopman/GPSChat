@@ -43,7 +43,7 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
 
 
     EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
-      socket.emit('message', mess);
+      socket.emit('message', mess, Date.now());
     });
     
     EventHandler.unbind('leave').on('leave', function () {  
@@ -51,7 +51,6 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     EventHandler.unbind('getMessageHistory').on('getMessageHistory',function(){
-      console.log('getting missed messages from server...');
       socket.emit('getMessageHistory',eventManager.GetLastDisconnect());
     });
 }

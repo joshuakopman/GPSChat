@@ -88,14 +88,14 @@ function AlertMemberJoined(socket,RoomName){
 
 function RegisterMessageEvent(socket,RoomName){
      UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-     socket.on('message', function(data){
+     socket.on('message', function(data,timestamp){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if(data.indexOf('&lt;script') < 0)
         {
             io.to(RoomName).emit('message',data);
             var mess = new Message();
                 mess.Content = data;
-                mess.Timestamp = Date.now();
+                mess.Timestamp = timestamp;
             rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
         }
         else
@@ -112,7 +112,6 @@ function RegisterMessageHistoryEvent(socket,RoomName){
         {
             rooms[key].Messages = rooms[key].Messages.slice(-100); //make sure to not store more than 100 messages back
             var allMessages = rooms[key].Messages;
-            console.log(allMessages);
             var recentMessages=[];
             allMessages.forEach( function (mess){
               if(mess.Timestamp > timestamp){

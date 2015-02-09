@@ -102,7 +102,6 @@ DOMManager.prototype.OnDisconnect = function(data){
   $("#btnDisconnect").show().unbind( "click" ).on('click',function(){
       EventHandler.trigger('leave',data);
       disconnectTime = Date.now();
-      console.log('disconnecting at: '+disconnectTime);
       $("#chat").hide();
   });
 }
@@ -144,6 +143,5 @@ DOMManager.prototype.resetState = function(){
 }
 
 DOMManager.prototype.GetLastDisconnect = function(){
-  console.log('last disconnected:'+disconnectTime);
   return disconnectTime;
 }

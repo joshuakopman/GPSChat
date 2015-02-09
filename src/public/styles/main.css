@@ -102,10 +102,18 @@ h2{
     word-wrap:break-word;
 }
 
+.myNameMessage{
+    font-weight: bold;
+    display:inline;
+    word-wrap:break-word;
+    color: blue;
+}
+
 .message{
     font-weight:normal;
     display:inline;
     word-wrap:break-word;
+    color:black;
 }
 
 .userNameMissedMessage{

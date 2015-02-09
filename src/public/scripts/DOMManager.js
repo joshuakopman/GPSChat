@@ -1,16 +1,23 @@
 var Lat;
 var Lon;
 var disconnectTime;
+var messageCount = 0;
 
 function DOMManager(lat,lon){
     Lat = lat;
     Lon = lon;
     this.messageBoxEventHandler();
+
      var chatLog = $("#chatlog");
          chatLog.bind("DOMSubtreeModified",function() {
          chatLog.animate({
             scrollTop: chatLog[0].scrollHeight
          });
+    });
+
+    $(window).on("focus",function(){
+      document.title = "Yosaaaa.ly";
+      messageCount = 0;
     });
 }
 
@@ -144,4 +151,9 @@ DOMManager.prototype.resetState = function(){
 
 DOMManager.prototype.GetLastDisconnect = function(){
   return disconnectTime;
+}
+
+DOMManager.prototype.UpdateTitle = function(){
+  messageCount++;
+  document.title = "Yosaaaa.ly ("+ messageCount + ")"; 
 }

@@ -1,7 +1,12 @@
 var EventHandler = _.extend({}, Backbone.Events);
 
+EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
+  domManager.addMessage(data,'message','myNameMessage');
+});
+
 EventHandler.unbind('message').on('message', function (data) {
   domManager.addMessage(data,'message','userNameMessage');
+  domManager.UpdateTitle();
 });
 
 EventHandler.unbind('injectMessage').on('injectMessage', function (data) {

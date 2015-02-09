@@ -92,7 +92,8 @@ function RegisterMessageEvent(socket,RoomName){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if(data.indexOf('&lt;script') < 0)
         {
-            io.to(RoomName).emit('message',data);
+            socket.broadcast.to(RoomName).emit('message', data);
+            socket.emit('selfMessage',data);
             var mess = new Message();
                 mess.Content = data;
                 mess.Timestamp = timestamp;

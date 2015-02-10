@@ -38,17 +38,17 @@ DOMManager.prototype.addMessage = function(m,messageClassName,userClassName,time
   {
       toggleTimestampClass = "hideTimestamp";
   }
-  messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date().toString("hh:mm tt") + ") </div>";
+  messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
   if(timestamp)
   {
-      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
+      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>";
   }
 
   if(m.indexOf(':') > -1){
     messSplit  = m.split(':',2);
     var user = messSplit[0];  
     m = m.replace(/^[^:]*:/,'');
-    $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + user + ':<div class="' + messageClassName + '">' + m + '</div></div><br/>');
+    $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + user + '<div class="' + messageClassName + '">' + m + '</div></div>');
   }
   else{
     $chatLog.append('<div class="' + messageClassName + '">' + messTimestamp + ' ' + m + '</div>');
@@ -68,13 +68,13 @@ DOMManager.prototype.addImageMessage = function(m,messageClassName,userClassName
     {
         toggleTimestampClass = "hideTimestamp";
     }
-    messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date().toString("hh:mm tt") + ") </div>";
+    messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
     if(timestamp)
     {
-      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
+      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>";
     } 
 
-  $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + ':<br/><div class="' + messageClassName + '"><a href="' + m.URL + '" target="_blank"><img src="' + m.URL +'" height="100" width="100"/></a></div></div><br/>');
+  $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + '<br/><div class="' + messageClassName + '"><a href="' + m.URL + '" target="_blank"><img src="' + m.URL +'" height="100" width="100"/></a></div></div>');
 }
 
 DOMManager.prototype.addMember = function(m) {
@@ -166,7 +166,7 @@ DOMManager.prototype.ShowStartButton = function(){
 
 DOMManager.prototype.refreshUserList = function(data){
     var self = this;
-    $("#memberList").html('<div id="MemberHeader">Members</div>');
+    $("#memberList").html('<div id="MemberHeader"></div>');
     $.each(data,function(key,val){
        self.addMember(val);
     });

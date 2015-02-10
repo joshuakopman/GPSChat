@@ -2,6 +2,8 @@ body{
     width:500px;
     margin:0px auto;
     margin-top:100px;
+    font-family:'Century Gothic', sans-serif;
+    font-size:14px;
 }
 h2{
     display:none;
@@ -19,7 +21,7 @@ h2{
 #chat {
     display: none;
     height: 275px;
-    width: 500px;
+    width: 600px;
     border: 1px solid grey;
     float: left;
     background-color:grey;
@@ -35,6 +37,7 @@ h2{
     overflow-y: scroll;
     float: left;
     background-color: white;
+    padding-top:5px
 }
 
 #memberList {
@@ -44,8 +47,10 @@ h2{
     height: 200px;
     font-weight: bold;
     border-left: 5px solid black;
-    background-color: lightblue;
+    background-color: white;
     overflow-y: scroll;
+    color:green;
+    padding-top:5px
 }
 
 #msgbox {
@@ -60,16 +65,18 @@ h2{
 #btnDisconnect {
     display: none;
     float:left;
-    margin-left:26px;  
+    margin-left:90px;  
     margin-top:20px
 }
 #MemberHeader{
-    color:white;
+    color:black;
     font-size: 18px;
 }
 .roomMessage{
-    color: red;
+    color: black;
+    background-color:#FF6961;
     font-weight: bold;
+    padding:3px;
 }
 .invalid{
     border : 3px solid red;
@@ -94,20 +101,20 @@ h2{
     color: red;
     font-size:20px;
     font-weight:bold;
-    font-family:arial;
 }
 
 .userNameMessage{
     font-weight: bold;
-    display:inline;
     word-wrap:break-word;
+    background:white;
+    padding:3px;
 }
 
 .myNameMessage{
-    font-weight: bold;
-    display:inline;
     word-wrap:break-word;
-    color: blue;
+    background:#B0E0E6;
+    padding:3px;
+    font-weight:bold;
 }
 
 .message{
@@ -115,20 +122,21 @@ h2{
     display:inline;
     word-wrap:break-word;
     color:black;
+    margin-left:10px;
 }
 
 .userNameMissedMessage{
     font-weight: bold;
-    display:inline;
     color:grey;
     word-wrap:break-word;
+    padding:3px;
 }
 
 .missedMessage{
     font-weight:normal;
-    display:inline;
     color:grey;
     word-wrap:break-word;
+    display:inline;
 }
 
 #userExistsError{
@@ -136,7 +144,6 @@ h2{
     color: red;
     font-size:20px;
     font-weight:bold;
-    font-family:arial;
 }
 
 .banner{
@@ -184,5 +191,5 @@ h2{
 }
 #timestampChkBox{
     margin-top:10px;
-    margin-left:2px;
+    margin-left:70px;
 }

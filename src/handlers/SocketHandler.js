@@ -93,20 +93,25 @@ function RegisterMessageEvent(socket,RoomName){
         if(data.indexOf('&lt;script') < 0)
         {
                 var result = new MessageHelper().HandleImageMessage(data, function(result){
-                if(result)
+                var mess = new Message();
+                var isImage;
+                if(result.URL)
                 {
-                    socket.broadcast.to(RoomName).emit('imageMessage', {Content : result, User : UserName });
-                    socket.emit('selfImageMessage',{Content : result, User : UserName });
+                    socket.broadcast.to(RoomName).emit('imageMessage', result);
+                    socket.emit('selfImageMessage',result);
+                    mess.Content = result;
+                    isImage = true;
                 }
                 else
                 {
                     socket.broadcast.to(RoomName).emit('message', data);
                     socket.emit('selfMessage',data);
-                    var mess = new Message();
-                        mess.Content = data;
-                        mess.Timestamp = timestamp;
-                    rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
+                    mess.Content = data;
+                    isImage = false;
                 }
+                mess.Timestamp = timestamp;
+                mess.IsImage  = isImage;
+                rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
             });
         }
         else

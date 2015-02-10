@@ -51,13 +51,13 @@ DOMManager.prototype.addMessage = function(m,messageClassName,userClassName,time
 DOMManager.prototype.addImageMessage = function(m,messageClassName,userClassName,timestamp) {
   var $chatLog =  $("#chatlog");
   var messTimestamp = "<div class=\"timestamp\">(" + new Date().toString("hh:mm tt") + ") </div>";
-  console.log(m);
+
   if(timestamp)
   {
     messTimestamp = "<div class=\"timestamp\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
   }
 
-  $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + ':<br/><div class="' + messageClassName + '"><a href="'+m.Content+'" target="_blank"><img src="' + m.Content +'" height="100" width="100"/></a></div></div><br/>');
+  $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + ':<br/><div class="' + messageClassName + '"><a href="' + m.URL + '" target="_blank"><img src="' + m.URL +'" height="100" width="100"/></a></div></div><br/>');
 }
 
 DOMManager.prototype.addMember = function(m) {

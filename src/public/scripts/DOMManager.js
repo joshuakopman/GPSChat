@@ -29,11 +29,19 @@ DOMManager.prototype.sendMsg = function(){
 
 DOMManager.prototype.addMessage = function(m,messageClassName,userClassName,timestamp) {
   var $chatLog =  $("#chatlog");
-  var messTimestamp = "<div class=\"timestamp\">(" + new Date().toString("hh:mm tt") + ") </div>";
-
+  var messTimestamp = "";
+  if(showTimestamps)
+  {
+      toggleTimestampClass = "showTimestamp";
+  }
+  else
+  {
+      toggleTimestampClass = "hideTimestamp";
+  }
+  messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date().toString("hh:mm tt") + ") </div>";
   if(timestamp)
   {
-    messTimestamp = "<div class=\"timestamp\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
+      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
   }
 
   if(m.indexOf(':') > -1){
@@ -50,12 +58,21 @@ DOMManager.prototype.addMessage = function(m,messageClassName,userClassName,time
 
 DOMManager.prototype.addImageMessage = function(m,messageClassName,userClassName,timestamp) {
   var $chatLog =  $("#chatlog");
-  var messTimestamp = "<div class=\"timestamp\">(" + new Date().toString("hh:mm tt") + ") </div>";
+  var messTimestamp='';
 
-  if(timestamp)
-  {
-    messTimestamp = "<div class=\"timestamp\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
-  }
+    if(showTimestamps)
+    {
+        toggleTimestampClass = "showTimestamp";
+    }
+    else
+    {
+        toggleTimestampClass = "hideTimestamp";
+    }
+    messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date().toString("hh:mm tt") + ") </div>";
+    if(timestamp)
+    {
+      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">(" + new Date(timestamp).toString("hh:mm tt") + ") </div>";
+    } 
 
   $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + ':<br/><div class="' + messageClassName + '"><a href="' + m.URL + '" target="_blank"><img src="' + m.URL +'" height="100" width="100"/></a></div></div><br/>');
 }
@@ -174,6 +191,9 @@ DOMManager.prototype.GetLastDisconnect = function(){
 }
 
 DOMManager.prototype.UpdateTitle = function(){
-  messageCount++;
-  document.title = "Yosaaaa.ly ("+ messageCount + ")"; 
+  if(!document.hasFocus())
+  {
+    messageCount++;
+    document.title = "Yosaaaa.ly ("+ messageCount + ")"; 
+  }
 }

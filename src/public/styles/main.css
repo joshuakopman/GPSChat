@@ -175,7 +175,12 @@ h2{
     color:grey;
 }
 .timestamp{
+}
+.showTimestamp{
     display:inline;
+}
+.hideTimestamp{
+    display:none;
 }
 #timestampChkBox{
     margin-top:10px;

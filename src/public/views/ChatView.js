@@ -15,10 +15,14 @@ ChatView = Backbone.View.extend({
     	},
     	toggleTimestamps : function(){
     		if($(".timestamp").is(":visible")){
-    			$(".timestamp").hide();
+    			$(".timestamp").removeClass('showTimestamp');
+    			$(".timestamp").addClass('hideTimestamp');
+    			showTimestamps=false;
     		}
     		else{
-    			$(".timestamp").show();
+    			$(".timestamp").removeClass('hideTimestamp');
+    			$(".timestamp").addClass('showTimestamp');
+    			showTimestamps=true;
     		}
     	}
       });

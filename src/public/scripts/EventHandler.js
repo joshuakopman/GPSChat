@@ -9,6 +9,14 @@ EventHandler.unbind('message').on('message', function (data) {
   domManager.UpdateTitle();
 });
 
+EventHandler.unbind('selfImageMessage').on('selfImageMessage', function (data) {
+  domManager.addImageMessage(data,'message','myNameMessage');
+});
+
+EventHandler.unbind('imageMessage').on('imageMessage', function (data) {
+  domManager.addImageMessage(data,'message','userNameMessage');
+});
+
 EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
   domManager.addMessage(data,'roomMessage','');
 });
@@ -44,7 +52,6 @@ EventHandler.unbind('userError').on('userError', function (data) {
 
 EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 	data.forEach(function(mess){
-    console.log(mess.timestamp);
 		domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
 	});
 });

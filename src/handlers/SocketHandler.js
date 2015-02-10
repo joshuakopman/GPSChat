@@ -1,6 +1,7 @@
 var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
 var Message = require('../models/Message');
+var MessageHelper = require('../helpers/MessageHelper');
 var ServiceHandler = require('./ServiceHandler');
 var io;
 var rooms=[];
@@ -91,12 +92,22 @@ function RegisterMessageEvent(socket,RoomName){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if(data.indexOf('&lt;script') < 0)
         {
-            socket.broadcast.to(RoomName).emit('message', data);
-            socket.emit('selfMessage',data);
-            var mess = new Message();
-                mess.Content = data;
-                mess.Timestamp = timestamp;
-            rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
+                var result = new MessageHelper().HandleImageMessage(data, function(result){
+                if(result)
+                {
+                    socket.broadcast.to(RoomName).emit('imageMessage', {Content : result, User : UserName });
+                    socket.emit('selfImageMessage',{Content : result, User : UserName });
+                }
+                else
+                {
+                    socket.broadcast.to(RoomName).emit('message', data);
+                    socket.emit('selfMessage',data);
+                    var mess = new Message();
+                        mess.Content = data;
+                        mess.Timestamp = timestamp;
+                    rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
+                }
+            });
         }
         else
         {

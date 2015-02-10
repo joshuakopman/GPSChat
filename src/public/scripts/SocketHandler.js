@@ -33,7 +33,8 @@ SocketHandler.prototype.Connect = function(lat,lon){
   }
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
-     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError','messageHistory','injectMessage','selfMessage'];
+     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
+     'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage'];
 
      receivedSocketEvents.forEach(function(eventType){
       socket.on(eventType, function (data) {

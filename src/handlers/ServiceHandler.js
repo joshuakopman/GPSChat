@@ -1,4 +1,6 @@
 var https = require('https');
+var http = require('http');
+
 function ServiceHandler(){
 
 }
@@ -20,6 +22,25 @@ ServiceHandler.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
               console.log("Got error: ", e);
         });
 
+}
+
+ServiceHandler.prototype.CheckImageIntegrity = function(url,callback){
+    if(url.indexOf('https')> -1)
+    {
+        https.get(url, function(response) {
+            callback(response.statusCode);
+        });
+    }
+    else if(url.indexOf('http')> -1)
+    {
+         http.get(url, function(response) {
+            callback(response.statusCode);
+        });
+    }
+    else
+    {
+        callback(500);
+    }
 }
 
 module.exports = ServiceHandler;

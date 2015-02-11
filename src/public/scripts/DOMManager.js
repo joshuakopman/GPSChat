@@ -49,6 +49,10 @@ DOMManager.prototype.addMessage = function(m,messageClassName,userClassName,time
     var user = messSplit[0];  
     m = m.replace(/^[^:]*:/,'');
     $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + user + '<div class="' + messageClassName + '">' + m + '</div></div>');
+    if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
+    {
+      $("#newMessageSound").get(0).play();
+    }
   }
   else{
     $chatLog.append('<div class="' + messageClassName + '">' + messTimestamp + ' ' + m + '</div>');

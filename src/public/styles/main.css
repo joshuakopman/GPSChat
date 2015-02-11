@@ -7,8 +7,11 @@ body{
 }
 h2{
     display:none;
-    margin-left:30px;
-    text-align:center;
+    text-align:left;
+    cursor:default;
+}
+input[type='button']{
+   cursor:pointer;
 }
 #userDiv {
     text-align: center;
@@ -50,14 +53,15 @@ h2{
     background-color: white;
     overflow-y: scroll;
     color:green;
-    padding-top:5px
+    padding-top:5px;
+    cursor:default;
 }
 
 #msgbox {
     margin-top: 10px;
     margin-bottom: 10px;
     width: 370px;
-    height:50px;
+    height:56px;
     float:left;
     resize:none;
 }
@@ -66,7 +70,7 @@ h2{
     display: none;
     float:left;
     margin-left:90px;  
-    margin-top:20px
+    margin-top:10px;
 }
 #MemberHeader{
     color:black;
@@ -161,7 +165,6 @@ h2{
    font-family:cursive;
    color:red;
    font-size:72px;
-   text-shadow: 2px 2px black;
 }
 #txtUserName{
     display:none;
@@ -190,6 +193,18 @@ h2{
     display:none;
 }
 #timestampChkBox{
-    margin-top:10px;
+    margin-top:8px;
     margin-left:70px;
+}
+#chkBoxSoundsLabel{
+    font-weight: bold;
+    margin-top: 8px;
+    float: left;
+    margin-left:82px;
+    font-size:12px;
+}
+
+#chkBoxSounds{
+    float:left;
+    margin-top:7px;
 }

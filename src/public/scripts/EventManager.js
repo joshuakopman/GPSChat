@@ -19,3 +19,8 @@ EventManager.prototype.OnDisconnect = function(callback){
 EventManager.prototype.GetLastDisconnect = function(){
 	return domManager.GetLastDisconnect();
 }
+
+EventManager.prototype.Leave = function(){
+  domManager.Leave();
+}
+

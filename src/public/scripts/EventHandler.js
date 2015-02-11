@@ -62,3 +62,9 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
     }
 	});
 });
+
+
+EventHandler.unbind('userBooted').on('userBooted', function (data) {
+  domManager.addMessage("You have been booted from the room",'roomMessage','');
+  domManager.Leave();
+});

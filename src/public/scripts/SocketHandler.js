@@ -27,14 +27,14 @@ SocketHandler.prototype.Connect = function(lat,lon){
                         forceNew : true 
                      });
 
-        self.RegisterSocketEvents(socket);
+        self.RegisterSocketEvents(socket,eventManager);
         EventHandler.trigger('getMessageHistory');
     });
   }
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
      var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
-     'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage'];
+     'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted'];
 
      receivedSocketEvents.forEach(function(eventType){
       socket.on(eventType, function (data) {
@@ -53,5 +53,9 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
 
     EventHandler.unbind('getMessageHistory').on('getMessageHistory',function(){
       socket.emit('getMessageHistory',eventManager.GetLastDisconnect());
+    });
+
+    EventHandler.unbind('bootUser').on('bootUser', function (socketID) {  
+      socket.emit('bootUser', socketID);
     });
 }

@@ -82,7 +82,7 @@ DOMManager.prototype.addImageMessage = function(m,messageClassName,userClassName
 }
 
 DOMManager.prototype.addMember = function(m) {
-    $("#memberList").append(m).append("<br>");
+    $("#memberList").append('<div>'+m+'</div>');
 }
 
 DOMManager.prototype.displayChatRoom = function(title){
@@ -147,11 +147,15 @@ function EnterChat(callback,self){
 }
 
 DOMManager.prototype.OnDisconnect = function(data){
+  var self = this;
   $("#btnDisconnect").show().unbind( "click" ).on('click',function(){
       EventHandler.trigger('leave',data);
       disconnectTime = Date.now();
-      $("#chat").hide();
+      self.Leave();
   });
+}
+DOMManager.prototype.Leave = function(){
+     $("#chat").hide();
 }
 
 DOMManager.prototype.HideUserName = function(){
@@ -170,10 +174,19 @@ DOMManager.prototype.ShowStartButton = function(){
 
 DOMManager.prototype.refreshUserList = function(data){
     var self = this;
+    var $self = $(this);
     $("#memberList").html('<div id="MemberHeader"></div>');
     $.each(data,function(key,val){
-       self.addMember(val);
+       self.addMember(val.Name);
+       $("#memberList").append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
+       self.registerBootEvent($("#socket_"+val.Name));
     });
+}
+
+DOMManager.prototype.registerBootEvent = function(socketElement){
+  socketElement.prev().on('click',function(){
+      EventHandler.trigger('bootUser',{ UserName : socketElement.id, SocketID : socketElement.html()});
+  });
 }
 
 DOMManager.prototype.displayUserError = function(err){

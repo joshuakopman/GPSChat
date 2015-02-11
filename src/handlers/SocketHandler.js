@@ -1,5 +1,6 @@
 var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
+var Client = require('../models/Client');
 var Message = require('../models/Message');
 var MessageHelper = require('../helpers/MessageHelper');
 var ServiceHandler = require('./ServiceHandler');
@@ -18,6 +19,7 @@ SocketHandler.prototype.HandleSocketConnect = function(){
             RegisterMessageHistoryEvent(socket,currentRoomName);
             RegisterNewMemberJoinedEvent(socket,currentRoomName);
             RegisterMessageEvent(socket,currentRoomName);
+            RegisterBootEvent(socket,currentRoomName);
         }
     });
 }
@@ -39,11 +41,11 @@ function FindAndJoinChatRoom(socket){
      {
         CurrentRoomName = foundRoomName;
         currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
-        if(!CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName))
+        if(CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName) == false)
         {
             socket.join(CurrentRoomName);
             socket.emit('title',rooms[currentRoomNameKey].Neighborhood + ' (' + CurrentRoomName + ')');
-            PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
+            PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients,socket);
             RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
             RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
         }
@@ -61,7 +63,7 @@ function FindAndJoinChatRoom(socket){
                rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
                socket.join(CurrentRoomName);
                socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
-               PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients);
+               PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients,socket);
                RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName); //needs to be in callback so you leave correct room
                RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
         });
@@ -73,12 +75,14 @@ function FindAndJoinChatRoom(socket){
 }
 
 function CheckIfNameTaken(roomList,user){
-
-    if(roomList.indexOf(user) > -1)
-    {
-        return true;
-    }
-    return false;
+    var isFound =false;
+    roomList.forEach(function(val){
+        if(val.Name == user)
+        {
+            isFound = true;
+        }
+    });
+    return isFound;
 }
 
 function RegisterNewMemberJoinedEvent(socket,RoomName){
@@ -143,6 +147,7 @@ function RegisterMessageHistoryEvent(socket,RoomName){
 
 function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
      socket.on('leave', function() {
+            console.log('leaving');
             HandleLeave(socket,existingRoom, currentRoomName);
         })
 }
@@ -150,15 +155,18 @@ function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
 function RegisterDisconnectEvent(socket,existingRoom,currentRoomName){
      UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      socket.on('disconnect', function() {
-        if(typeof existingRoom.Clients != 'undefined' && existingRoom.Clients.indexOf(UserName) > -1)
+        if(typeof existingRoom.Clients != 'undefined'/* && existingRoom.Clients.indexOf(UserName) > -1*/)
         {
             HandleLeave(socket, existingRoom, currentRoomName);
         }
     })
 }
 
-function PushUpdatedMemberList(roomName,userName,clients){
-    clients.push(userName);
+function PushUpdatedMemberList(roomName,userName,clients,socket){
+    var client = new Client();
+        client.Name = userName;
+        client.SocketID = socket.id;
+    clients.push(client);
     io.to(roomName).emit('usersInRoomUpdate',clients);
 }
 
@@ -169,11 +177,26 @@ function HandleLeave(socket,CurrentRoom,CurrentRoomName){
     socket.emit('selfLeft',CurrentRoomName); //let myself know i left
     if(typeof CurrentRoom.Clients != 'undefined')
     {
-        var removeIndex = CurrentRoom.Clients.indexOf(UserName);
-        CurrentRoom.Clients.splice(removeIndex,1);
+        var removeUserIndex;
+        CurrentRoom.Clients.forEach(function(val,index){
+            if(val.Name == UserName)
+            {
+                removeUserIndex = index;
+            }
+        });
+        CurrentRoom.Clients.splice(removeUserIndex,1);
         io.to(CurrentRoomName).emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from room for everyone in it
         socket.emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from dead room list
     }
 }
 
+function RegisterBootEvent(socket,currentRoomName){
+    socket.on('bootUser', function(data) {
+        if(socket.handshake.query.UserName != io.sockets.connected[data.SocketID].handshake.query.UserName)
+        {
+             HandleLeave(io.sockets.connected[data.SocketID],rooms[currentRoomName.replace(/[\s\-\.]/g, '').toString()],currentRoomName);
+             io.sockets.connected[data.SocketID].emit('userBooted');
+        }
+    });
+}
 module.exports = SocketHandler;

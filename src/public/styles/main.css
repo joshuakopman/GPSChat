@@ -23,7 +23,7 @@ input[type='button']{
 
 #chat {
     display: none;
-    height: 275px;
+    height: 290px;
     width: 600px;
     border: 1px solid grey;
     float: left;
@@ -61,7 +61,7 @@ input[type='button']{
     margin-top: 10px;
     margin-bottom: 10px;
     width: 370px;
-    height:56px;
+    height:70px;
     float:left;
     resize:none;
 }
@@ -70,7 +70,7 @@ input[type='button']{
     display: none;
     float:left;
     margin-left:90px;  
-    margin-top:10px;
+    margin-top:15px;
 }
 #MemberHeader{
     color:black;
@@ -206,5 +206,6 @@ input[type='button']{
 
 #chkBoxSounds{
     float:left;
-    margin-top:7px;
+    margin-top:9px;
+    margin-left:5px;
 }

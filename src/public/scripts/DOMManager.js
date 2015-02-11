@@ -7,17 +7,17 @@ function DOMManager(lat,lon){
     Lat = lat;
     Lon = lon;
     this.messageBoxEventHandler();
-
-     var chatLog = $("#chatlog");
-         chatLog.bind("DOMSubtreeModified",function() {
-         chatLog.animate({
-            scrollTop: chatLog[0].scrollHeight
-         });
-    });
-
+    this.AutoScrollEventHandler();
     $(window).on("focus",function(){
       document.title = "Yosaaaa.ly";
       messageCount = 0;
+    });
+}
+
+DOMManager.prototype.AutoScrollEventHandler = function(){
+    var chatLog = $("#chatlog");
+         chatLog.bind("DOMSubtreeModified",function() {
+         $('#chatlog').animate({scrollTop: $('#chatlog').get(0).scrollHeight}, 1);
     });
 }
 

@@ -19,18 +19,16 @@ SocketHandler.prototype.GetLocation = function(location){
 SocketHandler.prototype.Connect = function(lat,lon){
   var self = this;
   eventManager = new EventManager(lat,lon);
-
-  eventManager.StartChat(function(userName){
+  EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect('http://' + window.location.hostname +':3000',
                      { 
-                        query : 'UserName=' +  userName + "&Lat=" + lat + "&Lon=" + lon , 
+                        query : 'UserName=' +  NameEntryView.userName + "&Lat=" + lat + "&Lon=" + lon , 
                         forceNew : true 
                      });
-
         self.RegisterSocketEvents(socket,eventManager);
         EventHandler.trigger('getMessageHistory');
-    });
-  }
+  });
+}
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
      var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',

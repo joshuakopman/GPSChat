@@ -1,12 +1,12 @@
 var EventHandler = _.extend({}, Backbone.Events);
 
 EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
-  domManager.addMessage(data,'message','myNameMessage');
+  ChatView.addMessage(data,'message','myNameMessage');
 });
 
 EventHandler.unbind('message').on('message', function (data) {
-  domManager.addMessage(data,'message','userNameMessage');
-  domManager.UpdateTitle();
+  ChatView.addMessage(data,'message','userNameMessage');
+  ChatView.updateTitle();
 });
 
 EventHandler.unbind('selfImageMessage').on('selfImageMessage', function (data) {
@@ -18,7 +18,7 @@ EventHandler.unbind('imageMessage').on('imageMessage', function (data) {
 });
 
 EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
-  domManager.addMessage(data,'roomMessage','');
+  ChatView.addMessage(data,'roomMessage','');
 });
 
 EventHandler.unbind('title').on('title', function (data) {
@@ -26,19 +26,19 @@ EventHandler.unbind('title').on('title', function (data) {
 });
 
 EventHandler.unbind('joined').on('joined', function (data) {
-  domManager.addMessage(data + " has joined",'roomMessage','');
+  ChatView.addMessage(data + " has joined",'roomMessage','');
 });
 
 EventHandler.unbind('selfjoined').on('selfjoined', function (data) {
-  domManager.addMessage("You have joined the room '" + data + "'",'roomMessage','');
+  ChatView.addMessage("You have joined the room '" + data + "'",'roomMessage','');
 });
 
 EventHandler.unbind('left').on('left', function (data) {
-  domManager.addMessage(data +" has left the room",'roomMessage','');
+  ChatView.addMessage(data +" has left the room",'roomMessage','');
 });
 
 EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
-  domManager.addMessage("You left the room " + data,'roomMessage','');
+  ChatView.addMessage("You left the room " + data,'roomMessage','');
   domManager.resetState();
 });
 
@@ -54,7 +54,7 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 	data.forEach(function(mess){
     if(mess.IsImage == false)
     {
-		  domManager.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
+		  ChatView.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
     }
     else
     {
@@ -65,6 +65,6 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 
 
 EventHandler.unbind('userBooted').on('userBooted', function (data) {
-  domManager.addMessage("You have been booted from the room",'roomMessage','');
+  ChatView.addMessage("You have been booted from the room",'roomMessage','');
   domManager.Leave();
 });

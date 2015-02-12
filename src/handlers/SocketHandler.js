@@ -202,7 +202,7 @@ function HandleLeave(socket,CurrentRoom,CurrentRoomName){
 
 function RegisterBootEvent(socket,currentRoomName){
     socket.on('bootUser', function(data) {
-        if(socket.handshake.query.UserName != io.sockets.connected[data.SocketID].handshake.query.UserName)
+        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && socket.handshake.query.UserName != io.sockets.connected[data.SocketID].handshake.query.UserName)
         {
              HandleLeave(io.sockets.connected[data.SocketID],rooms[currentRoomName.replace(/[\s\-\.]/g, '').toString()],currentRoomName);
              io.sockets.connected[data.SocketID].emit('userBooted');

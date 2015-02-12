@@ -147,7 +147,6 @@ function RegisterMessageHistoryEvent(socket,RoomName){
 
 function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
      socket.on('leave', function() {
-            console.log('leaving');
             HandleLeave(socket,existingRoom, currentRoomName);
         })
 }
@@ -155,10 +154,21 @@ function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
 function RegisterDisconnectEvent(socket,existingRoom,currentRoomName){
      UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      socket.on('disconnect', function() {
-        if(typeof existingRoom.Clients != 'undefined'/* && existingRoom.Clients.indexOf(UserName) > -1*/)
+     var isUserInRoom = false;
+     if(typeof existingRoom.Clients != 'undefined' )
+     {
+        existingRoom.Clients.forEach(function(val,index){
+            if(val.Name == UserName)
+            {
+                isUserInRoom = true;
+            }
+        });
+        if(isUserInRoom)
         {
             HandleLeave(socket, existingRoom, currentRoomName);
+            isUserInRoom = false;
         }
+     }
     })
 }
 
@@ -182,9 +192,9 @@ function HandleLeave(socket,CurrentRoom,CurrentRoomName){
             if(val.Name == UserName)
             {
                 removeUserIndex = index;
+                CurrentRoom.Clients.splice(removeUserIndex,1);
             }
         });
-        CurrentRoom.Clients.splice(removeUserIndex,1);
         io.to(CurrentRoomName).emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from room for everyone in it
         socket.emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from dead room list
     }

@@ -212,3 +212,7 @@ input[type='button']{
 .socketID{
     display:none;
 }
+
+.memberName:hover{
+    background-color: red;
+}

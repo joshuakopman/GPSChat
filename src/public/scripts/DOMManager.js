@@ -82,7 +82,7 @@ DOMManager.prototype.addImageMessage = function(m,messageClassName,userClassName
 }
 
 DOMManager.prototype.addMember = function(m) {
-    $("#memberList").append('<div>'+m+'</div>');
+    $("#memberList").append('<div title="Boot User" class="memberName">'+m+'</div>');
 }
 
 DOMManager.prototype.displayChatRoom = function(title){
@@ -184,7 +184,7 @@ DOMManager.prototype.refreshUserList = function(data){
 }
 
 DOMManager.prototype.registerBootEvent = function(socketElement){
-  socketElement.prev().on('click',function(){
+  socketElement.prev().unbind('click').on('click',function(){
       EventHandler.trigger('bootUser',{ UserName : socketElement.id, SocketID : socketElement.html()});
   });
 }

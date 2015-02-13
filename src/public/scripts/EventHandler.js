@@ -1,5 +1,7 @@
 var EventHandler = _.extend({}, Backbone.Events);
 
+domManager = new DOMManager();
+
 EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
   ChatView.addMessage(data,'message','myNameMessage');
 });
@@ -10,11 +12,11 @@ EventHandler.unbind('message').on('message', function (data) {
 });
 
 EventHandler.unbind('selfImageMessage').on('selfImageMessage', function (data) {
-  domManager.addImageMessage(data,'message','myNameMessage');
+  ChatView.addImageMessage(data,'message','myNameMessage');
 });
 
 EventHandler.unbind('imageMessage').on('imageMessage', function (data) {
-  domManager.addImageMessage(data,'message','userNameMessage');
+  ChatView.addImageMessage(data,'message','userNameMessage');
 });
 
 EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
@@ -22,7 +24,7 @@ EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
 });
 
 EventHandler.unbind('title').on('title', function (data) {
-  domManager.displayChatRoom(data);
+  ChatView.displayChatRoom(data);
 });
 
 EventHandler.unbind('joined').on('joined', function (data) {
@@ -39,7 +41,7 @@ EventHandler.unbind('left').on('left', function (data) {
 
 EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
   ChatView.addMessage("You left the room " + data,'roomMessage','');
-  domManager.resetState();
+  ChatView.resetState();
 });
 
 EventHandler.unbind('usersInRoomUpdate').on('usersInRoomUpdate', function (data) {
@@ -47,7 +49,7 @@ EventHandler.unbind('usersInRoomUpdate').on('usersInRoomUpdate', function (data)
 });
 
 EventHandler.unbind('userError').on('userError', function (data) {
-  domManager.displayUserError(data);
+  ChatView.displayUserError(data);
 });
 
 EventHandler.unbind('messageHistory').on('messageHistory', function(data){
@@ -58,7 +60,7 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
     }
     else
     {
-      domManager.addImageMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
+      ChatView.addImageMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
     }
 	});
 });
@@ -66,5 +68,5 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 
 EventHandler.unbind('userBooted').on('userBooted', function (data) {
   ChatView.addMessage("You have been booted from the room",'roomMessage','');
-  domManager.Leave();
+  ChatView.hideRoom();
 });

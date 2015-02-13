@@ -1,8 +1,11 @@
 ChatView = Backbone.View.extend({
         el: "#chat",
         initialize: function(){
+          this.Lat ='';
+       	  this.Lon='';
           this.messageCount = 0;
           this.showTimestamps = false;
+          this.disconnectTime = Date.now();
           this.render();
 		},
         render: function(){
@@ -20,21 +23,14 @@ ChatView = Backbone.View.extend({
         events:{
         	'click #timestampChkBox':'toggleTimestamps',
         	'DOMSubtreeModified #chatlog':'autoScroll',
-        	'keypress #msgbox':'handleMessageBox'
+        	'keypress #msgbox':'handleMessageBox',
+        	'click #btnDisconnect':'handleDisconnect'
     	},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
 		  var $chatLog =  $("#chatlog");
-		  var messTimestamp = "";
 		  var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
-
-		  if(timestamp)
-		  {
-		      messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>";
-		  }
-		  else
-		  {
-		  	  messTimestamp = "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
-		  }
+		  var messTimestamp = (timestamp)? "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>":
+										   "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
 
 		  if(m.indexOf(':') > -1)
 		  {
@@ -51,9 +47,39 @@ ChatView = Backbone.View.extend({
 		    	$chatLog.append('<div class="' + messageClassName + '">' + messTimestamp + ' ' + m + '</div>');
 		  }
 		},
+		addImageMessage : function(m,messageClassName,userClassName,timestamp) {
+		  	var $chatLog =  $("#chatlog");
+		  	var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
+		  	var messTimestamp = (timestamp)? "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>":
+											 "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
+
+		 	$chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + '<br/><div class="' + messageClassName + '"><a href="' + m.URL + '" target="_blank"><img src="' + m.URL +'" height="100" width="100"/></a></div></div>');
+		 	if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
+		    {
+		      $("#newMessageSound").get(0).play();
+		    }
+		},
 		autoScroll: function(){
 		    var $chatLog = $("#chatlog");
 		    $chatLog.animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
+		},
+		displayChatRoom : function(title){
+		    $("#chatLoader").hide();
+		    $("h2").show().html('<div class="title">Current Room </div>' + title);
+		    $("#chat").show();
+		    $("#msgbox").show();
+		    $("#btnDisconnect").show();
+		},  
+		displayUserError : function(err){
+		  $("#chat").hide();
+		  $("#userDiv").show();
+		  $("#userExistsError").show().html(err);
+		  $("#txtUserName").removeClass("valid").addClass("invalid");
+		},
+		handleDisconnect: function(){
+	      EventHandler.trigger('leave',{Lat : this.Lat, Lon : this.Lon});
+	      this.disconnectTime = Date.now();
+	      this.hideRoom();
 		},
 		handleMessageBox : function(event){
 	         if (event.which == '13') {
@@ -61,10 +87,19 @@ ChatView = Backbone.View.extend({
 	            event.preventDefault();
 	        } 
 		},
+		hideRoom: function(){
+			$("#chat").hide();
+		},
+		resetState : function(){
+		    $("#btnDisconnect").hide();
+		    $("#userDiv").show();
+		    $("#msgbox").hide();
+		    $("h2").hide();
+		},
 		sendMsg : function(){
 			var $msgBox = $("#msgbox");
 		    var r = $msgBox.val();
-		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + r ,Lat,Lon);
+		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + r ,this.Lat,this.Lon);
 		    $msgBox.val('');
 		},
 		toggleTimestamps : function(){

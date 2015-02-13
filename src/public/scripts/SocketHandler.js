@@ -11,35 +11,34 @@ SocketHandler.prototype.errorCallback = function(err){
 }
 
 SocketHandler.prototype.GetLocation = function(location){
-  var lat = location.coords.latitude;
-  var lon = location.coords.longitude;
-  SocketHandler.prototype.Connect(lat,lon);
+  ChatView.Lat = location.coords.latitude;
+  ChatView.Lon = location.coords.longitude;
+  SocketHandler.prototype.Connect();
 }
 
-SocketHandler.prototype.Connect = function(lat,lon){
+SocketHandler.prototype.Connect = function(){
   var self = this;
-  eventManager = new EventManager(lat,lon);
+  NameEntryView.showStartButton();
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect('http://' + window.location.hostname +':3000',
                      { 
-                        query : 'UserName=' +  NameEntryView.userName + "&Lat=" + lat + "&Lon=" + lon , 
+                        query : 'UserName=' +  NameEntryView.userName + "&Lat=" + ChatView.Lat + "&Lon=" + ChatView.Lon , 
                         forceNew : true 
                      });
-        self.RegisterSocketEvents(socket,eventManager);
+        self.RegisterSocketEvents(socket);
         EventHandler.trigger('getMessageHistory');
   });
 }
 
 SocketHandler.prototype.RegisterSocketEvents = function(socket){
-     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
-     'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted'];
+    var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
+                                'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted'];
 
-     receivedSocketEvents.forEach(function(eventType){
+    receivedSocketEvents.forEach(function(eventType){
       socket.on(eventType, function (data) {
         EventHandler.trigger(eventType,data);
       });
-     });
-
+    });
 
     EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess, Date.now());
@@ -50,7 +49,7 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
     });
 
     EventHandler.unbind('getMessageHistory').on('getMessageHistory',function(){
-      socket.emit('getMessageHistory',eventManager.GetLastDisconnect());
+      socket.emit('getMessageHistory',ChatView.disconnectTime);
     });
 
     EventHandler.unbind('bootUser').on('bootUser', function (socketID) {  

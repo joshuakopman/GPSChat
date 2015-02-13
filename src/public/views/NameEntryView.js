@@ -1,8 +1,9 @@
 NameEntryView = Backbone.View.extend({
         el: "#userDiv",
         initialize: function(){
-          this.render();
           this.userName = '';
+          var socketHandler = new SocketHandler();
+          this.render();
         },
         render: function(){
             var self = this;

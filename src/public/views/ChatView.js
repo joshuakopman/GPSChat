@@ -106,7 +106,7 @@ ChatView = Backbone.View.extend({
 		       $("#memberList").append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
 		       self.bindBootEvent($("#socket_"+val.Name));
 		    });
-		}
+		},
 		resetState : function(){
 		    $("#btnDisconnect").hide();
 		    $("#userDiv").show();

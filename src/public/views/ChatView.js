@@ -59,9 +59,17 @@ ChatView = Backbone.View.extend({
 		      $("#newMessageSound").get(0).play();
 		    }
 		},
+		addMember : function(m) {
+		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '</div>');
+		},
 		autoScroll: function(){
 		    var $chatLog = $("#chatlog");
 		    $chatLog.animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
+		},
+		bindBootEvent : function(socketElement){
+		  socketElement.prev().unbind('click').on('click',function(){
+		      EventHandler.trigger('bootUser',{ UserName : socketElement.id, SocketID : socketElement.html()});
+		  });
 		},
 		displayChatRoom : function(title){
 		    $("#chatLoader").hide();
@@ -90,6 +98,15 @@ ChatView = Backbone.View.extend({
 		hideRoom: function(){
 			$("#chat").hide();
 		},
+		refreshUserList : function(data){
+		    var self = this;
+		    $("#memberList").html('');
+		    $.each(data,function(key,val){
+		       self.addMember(val.Name);
+		       $("#memberList").append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
+		       self.bindBootEvent($("#socket_"+val.Name));
+		    });
+		}
 		resetState : function(){
 		    $("#btnDisconnect").hide();
 		    $("#userDiv").show();

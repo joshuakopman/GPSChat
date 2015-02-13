@@ -1,7 +1,5 @@
 var EventHandler = _.extend({}, Backbone.Events);
 
-domManager = new DOMManager();
-
 EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
   ChatView.addMessage(data,'message','myNameMessage');
 });
@@ -45,7 +43,7 @@ EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
 });
 
 EventHandler.unbind('usersInRoomUpdate').on('usersInRoomUpdate', function (data) {
- domManager.refreshUserList(data);
+ ChatView.refreshUserList(data);
 });
 
 EventHandler.unbind('userError').on('userError', function (data) {

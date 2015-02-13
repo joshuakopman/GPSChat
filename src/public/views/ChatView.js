@@ -24,7 +24,8 @@ ChatView = Backbone.View.extend({
         	'click #timestampChkBox':'toggleTimestamps',
         	'DOMSubtreeModified #chatlog':'autoScroll',
         	'keypress #msgbox':'handleMessageBox',
-        	'click #btnDisconnect':'handleDisconnect'
+        	'click #btnDisconnect':'handleDisconnect',
+        	'click .memberName': 'handleBoot'
     	},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
 		  var $chatLog =  $("#chatlog");
@@ -66,11 +67,6 @@ ChatView = Backbone.View.extend({
 		    var $chatLog = $("#chatlog");
 		    $chatLog.animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
 		},
-		bindBootEvent : function(socketElement){
-		  socketElement.prev().unbind('click').on('click',function(){
-		      EventHandler.trigger('bootUser',{ UserName : socketElement.id, SocketID : socketElement.html()});
-		  });
-		},
 		displayChatRoom : function(title){
 		    $("#chatLoader").hide();
 		    $("h2").show().html('<div class="title">Current Room </div>' + title);
@@ -83,6 +79,10 @@ ChatView = Backbone.View.extend({
 		  $("#userDiv").show();
 		  $("#userExistsError").show().html(err);
 		  $("#txtUserName").removeClass("valid").addClass("invalid");
+		},
+		handleBoot : function(event){
+		  var $socketElement = $(event.currentTarget).next();
+		  EventHandler.trigger('bootUser',{ UserName : $socketElement.id, SocketID : $socketElement.html()});
 		},
 		handleDisconnect: function(){
 	      EventHandler.trigger('leave',{Lat : this.Lat, Lon : this.Lon});
@@ -104,7 +104,6 @@ ChatView = Backbone.View.extend({
 		    $.each(data,function(key,val){
 		       self.addMember(val.Name);
 		       $("#memberList").append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
-		       self.bindBootEvent($("#socket_"+val.Name));
 		    });
 		},
 		resetState : function(){

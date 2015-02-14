@@ -30,4 +30,15 @@ SocketHelper.prototype.FindRoomInRange = function(mylat,mylon)
     return roomNameFound;
 }
 
+SocketHelper.prototype.CheckIfNameTaken = function(roomList,user){
+    var isFound =false;
+    roomList.forEach(function(val){
+        if(val.Name == user)
+        {
+            isFound = true;
+        }
+    });
+    return isFound;
+}
+
 module.exports = SocketHelper;

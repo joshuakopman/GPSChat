@@ -1,4 +1,4 @@
-var ServiceHandler = require('../handlers/ServiceHandler');
+var ServiceController = require('../controllers/ServiceController');
 
 function MessageHelper(){
 }
@@ -8,7 +8,7 @@ MessageHelper.prototype.HandleImageMessage = function(mess, callback){
 	{
 		var imageURL =  mess.substring(mess.indexOf('/img ') + 5,mess.length);
 		var user = mess.substring(0,mess.indexOf(':'));
-		new ServiceHandler().CheckImageIntegrity(imageURL, function(code){
+		new ServiceController().CheckImageIntegrity(imageURL, function(code){
 			if(code == 200)
 			{
 				return callback({URL: imageURL , User : user});

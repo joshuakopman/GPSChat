@@ -1,11 +1,11 @@
 var https = require('https');
 var http = require('http');
 
-function ServiceHandler(){
+function ServiceController(){
 
 }
 
-ServiceHandler.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
+ServiceController.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
         var url = 'https://api.flickr.com/services/rest/?method=flickr.places.findByLatLon&api_key=58c6594cbce90ae5daaa7ae687e1149f&lat='+lat+'&lon='+lon+'&format=json&nojsoncallback=1';
         https.get(url, function(res) {
             var body = '';
@@ -24,7 +24,7 @@ ServiceHandler.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
 
 }
 
-ServiceHandler.prototype.CheckImageIntegrity = function(url,callback){
+ServiceController.prototype.CheckImageIntegrity = function(url,callback){
     if(url.indexOf('https')> -1)
     {
         https.get(url, function(response) {
@@ -43,4 +43,4 @@ ServiceHandler.prototype.CheckImageIntegrity = function(url,callback){
     }
 }
 
-module.exports = ServiceHandler;
+module.exports = ServiceController;

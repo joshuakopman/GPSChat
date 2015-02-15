@@ -27,6 +27,9 @@ ChatView = Backbone.View.extend({
         	'click #btnDisconnect':'handleDisconnect',
         	'click .memberName': 'handleBoot'
     	},
+    	addMember : function(m) {
+		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '</div>');
+		},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
 		  var $chatLog =  $("#chatlog");
 		  var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
@@ -60,14 +63,12 @@ ChatView = Backbone.View.extend({
 		      $("#newMessageSound").get(0).play();
 		    }
 		},
-		addMember : function(m) {
-		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '</div>');
-		},
 		autoScroll: function(){
 		    var $chatLog = $("#chatlog");
 		    $chatLog.animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
 		},
 		displayChatRoom : function(title){
+		    $("#userTemplate").hide();
 		    $("h2").html('<div class="title">Current Room </div>' + title);
 		    $("#chatTemplate").show();
 		},  
@@ -100,15 +101,15 @@ ChatView = Backbone.View.extend({
 		       $memberList.append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
 		    });
 		},
-		showUserTemplate : function(){
-			$("#chatTemplate").hide();
-		    $("#userTemplate").show();
-		},
 		sendMsg : function(){
 			var $msgBox = $("#msgbox");
 		    var messageText = $msgBox.val();
 		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText ,this.Lat,this.Lon);
 		    $msgBox.val('');
+		},
+		showUserTemplate : function(){
+			$("#chatTemplate").hide();
+		    $("#userTemplate").show();
 		},
 		toggleTimestamps : function(){
     		var $timestamp = $(".timestamp");

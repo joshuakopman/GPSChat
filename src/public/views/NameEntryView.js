@@ -27,10 +27,6 @@ NameEntryView = Backbone.View.extend({
            $("#userExistsError").hide();
            $("#txtUserName").removeClass("invalid").addClass("valid");
         },
-        showChatTemplate : function(){
-          $("#userTemplate").hide();
-          $("#chatTemplate").show();
-        },
         startChat:function(event){
           this.hideErrors();
           if (typeof event !='undefined' && (event.which == '13' || event.type == 'click')) {
@@ -42,7 +38,6 @@ NameEntryView = Backbone.View.extend({
                 this.userName = enteredUserName; 
                 $txtUserName.removeClass("invalid").addClass("valid");       
                 EventHandler.trigger('connect');
-                this.showChatTemplate();
             }
             else
             {

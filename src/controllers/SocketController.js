@@ -49,7 +49,8 @@ function FindAndJoinChatRoom(socket){
             RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
         }
         else
-        {
+        {   
+            console.log('user exists');
             socket.emit('userError','A user with that name is already in the room.');
             return '';
         }

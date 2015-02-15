@@ -1,5 +1,5 @@
 NameEntryView = Backbone.View.extend({
-        el: "#userDiv",
+        el: "#userTemplate",
         initialize: function(){
           this.userName = '';
           var socketHandler = new SocketHandler();
@@ -27,38 +27,31 @@ NameEntryView = Backbone.View.extend({
            $("#userExistsError").hide();
            $("#txtUserName").removeClass("invalid").addClass("valid");
         },
-        validateInput: function(event){
-          if (typeof event !='undefined' && (event.which == '13' || event.type == 'click')) {
-              event.preventDefault();
-              if(!$("#userExistsError").is(':visible'))
-              {
-                 return true;
-              }
-           }
+        showChatTemplate : function(){
+          $("#userTemplate").hide();
+          $("#chatTemplate").show();
         },
         startChat:function(event){
           this.hideErrors();
-          if(this.validateInput(event))
-          {
-              var $txtUserName = $("#txtUserName");
-              var userName = $txtUserName.val();
-              if(userName)
-              {                 
-                  $txtUserName.removeClass("invalid").addClass("valid");
-                  $("#error").hide();
-                  $("#userDiv").hide();
-                  $("#chatLoader").show();
-                  this.userName = userName;
-                  EventHandler.trigger('connect');
-              }
-              else
-              {
-                 $("#error").show();
-                 $txtUserName.removeClass("valid").addClass("invalid");
-              }
+          if (typeof event !='undefined' && (event.which == '13' || event.type == 'click')) {
+            event.preventDefault();
+            var $txtUserName = $("#txtUserName");
+            var enteredUserName = $txtUserName.val();
+            if(enteredUserName && /\S/.test(enteredUserName))
+            {       
+                this.userName = enteredUserName; 
+                $txtUserName.removeClass("invalid").addClass("valid");       
+                EventHandler.trigger('connect');
+                this.showChatTemplate();
+            }
+            else
+            {
+               $("#error").show();
+               $txtUserName.removeClass("valid").addClass("invalid");
+            }
           }
         }
-      });
+  });
 
 var NameEntryView = new NameEntryView();
 

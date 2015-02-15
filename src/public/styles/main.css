@@ -6,32 +6,27 @@ body{
     font-size:14px;
 }
 h2{
-    display:none;
     text-align:left;
     cursor:default;
 }
 input[type='button']{
    cursor:pointer;
 }
-#userDiv {
+#userTemplate {
     text-align: center;
 }
-
-#btnSendUser {
+#chatTemplate{
     display:none;
 }
 
+
 #chat {
-    display: none;
     height: 290px;
     width: 600px;
     border: 1px solid grey;
     float: left;
     background-color:grey;
     padding:10px;
-}
-
-#chatWindow {
 }
 
 #chatlog {
@@ -67,10 +62,12 @@ input[type='button']{
 }
 
 #btnDisconnect {
-    display: none;
     float:left;
     margin-left:90px;  
     margin-top:15px;
+}
+#btnSendUser{
+    display:none;
 }
 #MemberHeader{
     color:black;
@@ -170,12 +167,6 @@ input[type='button']{
     display:none;
 }
 
-/*#chatLoader{
-    height:100px;
-    width:100px;
-    margin:0px auto;
-    display:none;
-}*/
 #entryLoader{
     height:100px;
     width:100px;

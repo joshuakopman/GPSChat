@@ -39,7 +39,6 @@ EventHandler.unbind('left').on('left', function (data) {
 
 EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
   ChatView.addMessage("You left the room " + data,'roomMessage','');
-  ChatView.resetState();
 });
 
 EventHandler.unbind('usersInRoomUpdate').on('usersInRoomUpdate', function (data) {
@@ -66,5 +65,5 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 EventHandler.unbind('userBooted').on('userBooted', function (data) {
   ChatView.addMessage("You have been booted from the room",'roomMessage','');
   ChatView.disconnectTime = Date.now();
-  ChatView.hideRoom();
+  ChatView.showUserTemplate();
 });

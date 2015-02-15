@@ -1,5 +1,5 @@
 ChatView = Backbone.View.extend({
-        el: "#chat",
+        el: "#chatTemplate",
         initialize: function(){
           this.Lat ='';
        	  this.Lon='';
@@ -68,15 +68,11 @@ ChatView = Backbone.View.extend({
 		    $chatLog.animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
 		},
 		displayChatRoom : function(title){
-		    $("#chatLoader").hide();
-		    $("h2").show().html('<div class="title">Current Room </div>' + title);
-		    $("#chat").show();
-		    $("#msgbox").show();
-		    $("#btnDisconnect").show();
+		    $("h2").html('<div class="title">Current Room </div>' + title);
+		    $("#chatTemplate").show();
 		},  
 		displayUserError : function(err){
-		  $("#chat").hide();
-		  $("#userDiv").show();
+		  this.showUserTemplate();
 		  $("#userExistsError").show().html(err);
 		  $("#txtUserName").removeClass("valid").addClass("invalid");
 		},
@@ -87,7 +83,7 @@ ChatView = Backbone.View.extend({
 		handleDisconnect: function(){
 	      EventHandler.trigger('leave',{Lat : this.Lat, Lon : this.Lon});
 	      this.disconnectTime = Date.now();
-	      this.hideRoom();
+	      this.showUserTemplate();
 		},
 		handleMessageBox : function(event){
 	         if (event.which == '13') {
@@ -95,27 +91,23 @@ ChatView = Backbone.View.extend({
 	            event.preventDefault();
 	        } 
 		},
-		hideRoom: function(){
-			$("#chat").hide();
-		},
 		refreshUserList : function(data){
 		    var self = this;
-		    $("#memberList").html('');
+		    var $memberList = $("#memberList");
+		    $memberList.html('');
 		    $.each(data,function(key,val){
 		       self.addMember(val.Name);
-		       $("#memberList").append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
+		       $memberList.append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
 		    });
 		},
-		resetState : function(){
-		    $("#btnDisconnect").hide();
-		    $("#userDiv").show();
-		    $("#msgbox").hide();
-		    $("h2").hide();
+		showUserTemplate : function(){
+			$("#chatTemplate").hide();
+		    $("#userTemplate").show();
 		},
 		sendMsg : function(){
 			var $msgBox = $("#msgbox");
-		    var r = $msgBox.val();
-		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + r ,this.Lat,this.Lon);
+		    var messageText = $msgBox.val();
+		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText ,this.Lat,this.Lon);
 		    $msgBox.val('');
 		},
 		toggleTimestamps : function(){
@@ -123,11 +115,13 @@ ChatView = Backbone.View.extend({
     		if($timestamp.is(":visible")){
     			$timestamp.removeClass('showTimestamp');
     			$timestamp.addClass('hideTimestamp');
+    			$("#timestampChkBox").val('Show Timestamps');
     			this.showTimestamps = false;
     		}
     		else{
     			$timestamp.removeClass('hideTimestamp');
     			$timestamp.addClass('showTimestamp');
+    			$("#timestampChkBox").val('Hide Timestamps');
     			this.showTimestamps = true;
     		}
     	},

@@ -25,12 +25,13 @@ SocketHandler.prototype.Connect = function(){
                         query : 'UserName=' +  NameEntryView.userName + "&Lat=" + ChatView.Lat + "&Lon=" + ChatView.Lon , 
                         forceNew : true 
                      });
-        self.RegisterSocketEvents(socket);
+        self.RegisterInboundEvents(socket);
+        self.RegisterOutboundEvents(socket);
         EventHandler.trigger('getMessageHistory');
   });
 }
 
-SocketHandler.prototype.RegisterSocketEvents = function(socket){
+SocketHandler.prototype.RegisterInboundEvents = function(socket){
     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
                                 'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted'];
 
@@ -39,7 +40,9 @@ SocketHandler.prototype.RegisterSocketEvents = function(socket){
         EventHandler.trigger(eventType,data);
       });
     });
+}
 
+SocketHandler.prototype.RegisterOutboundEvents = function(socket){
     EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess, Date.now());
     });

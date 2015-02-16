@@ -82,7 +82,7 @@ ChatView = Backbone.View.extend({
 		   var $chatlog = $("#chatlog");
 		   $chatlog.animate(
 		   {
-		   		scrollTop: $chatLog.get(0).scrollHeight
+		   		scrollTop: $chatlog.get(0).scrollHeight
 		   }, 1);
 		},
 		displayChatRoom : function(title){

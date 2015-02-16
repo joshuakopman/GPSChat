@@ -30,12 +30,12 @@ NameEntryView = Backbone.View.extend({
         startChat:function(event){
           this.hideErrors();
           if (typeof event !='undefined' && (event.which == '13' || event.type == 'click')) {
-            $("#btnSendUser,#txtUserName").prop('disabled',true);
             event.preventDefault();
             var $txtUserName = $("#txtUserName");
             var enteredUserName = $txtUserName.val();
             if(enteredUserName && /\S/.test(enteredUserName))
             {       
+                $("#btnSendUser,#txtUserName").prop('disabled',true);
                 this.userName = enteredUserName; 
                 $txtUserName.removeClass("invalid").addClass("valid");       
                 EventHandler.trigger('connect');

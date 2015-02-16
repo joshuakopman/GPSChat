@@ -50,7 +50,7 @@ function FindAndJoinChatRoom(socket){
         }
         else
         {   
-            console.log('user exists');
+            console.log('user exists')
             socket.emit('userError','A user with that name is already in the room.');
             return '';
         }
@@ -62,6 +62,7 @@ function FindAndJoinChatRoom(socket){
         serviceController.GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
                rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
                socket.join(CurrentRoomName);
+               socket.emit('selfjoined',rooms[currentRoomNameKey].Neighborhood + ' (' + CurrentRoomName + ')');
                socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
                PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients,socket);
                RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName); //needs to be in callback so you leave correct room
@@ -127,10 +128,9 @@ function RegisterMessageHistoryEvent(socket,RoomName){
                 recentMessages.push(mess);
               }
             });
-
            socket.emit('messageHistory',recentMessages);
+           socket.emit('selfjoined',rooms[key].Neighborhood + ' (' + RoomName + ')');
         }
-        socket.emit('selfjoined',RoomName);
     });
 }
 

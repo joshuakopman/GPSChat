@@ -6,15 +6,13 @@ ChatView = Backbone.View.extend({
           this.messageCount = 0;
           this.showTimestamps = false;
           this.disconnectTime = Date.now();
+          this.messTimestampPartial = '';
+          this.messagePartial = '';
           this.render();
 		},
         render: function(){
             var self = this;
-            $.get('/templates/ChatTemplate.html', function (data) {
-              template = _.template(data, {  });
-              self.$el.html(template);  
-            }, 'html');
-
+            this.renderTemplates();
             $(window).on("focus",function(){
 		      document.title = "Yosaaaa.ly";
 		      self.messageCount = 0;
@@ -27,20 +25,36 @@ ChatView = Backbone.View.extend({
         	'click #btnDisconnect':'handleDisconnect',
         	'click .memberName': 'handleBoot'
     	},
+    	renderTemplates: function(){
+            var self = this;
+
+            $.get('/templates/ChatTemplate.html', function (data) {
+              template = _.template(data, {  });
+              self.$el.html(template);  
+            }, 'html');
+
+         	$.get('/templates/partials/Timestamp.html', function (data) {
+         		self.messTimestampPartial = data;
+         	},'html');
+
+         	$.get('/templates/partials/Message.html', function (data) {
+         		self.messagePartial = data;
+         	},'html'); 
+    	},
     	addMember : function(m) {
 		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '</div>');
 		},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
 		  var $chatLog =  $("#chatlog");
 		  var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
-		  var messTimestamp = (timestamp)? "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>":
-										   "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
-
+		  var formattedMessTimestamp = (timestamp) ? new Date(timestamp).toString("hh:mm tt") : new Date().toString("hh:mm tt");
+		  var messTimestampHTML = _.template(this.messTimestampPartial)({timeStamp : formattedMessTimestamp,toggleTimestampClass : toggleTimestampClass});
 		  if(m.indexOf(':') > -1)
 		  {
 			    var user = m.split(':',2)[0];  
 			    m = m.replace(/^[^:]*:/,'');
-			    $chatLog.append('<div class="' + userClassName + '">' + messTimestamp + user + '<div class="' + messageClassName + '">' + m + '</div></div>');
+		  		var messageHTML = _.template(this.messagePartial)({timeStamp : messTimestampHTML,userClass : userClassName,userName:user,messageText:m,messageClass:messageClassName});
+			    $chatLog.append(messageHTML);
 			    if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
 			    {
 			      $("#newMessageSound").get(0).play();
@@ -48,7 +62,8 @@ ChatView = Backbone.View.extend({
 		  }
 		  else
 		  {
-		    	$chatLog.append('<div class="' + messageClassName + '">' + messTimestamp + ' ' + m + '</div>');
+		  		var messageHTML = _.template(this.messagePartial)({timeStamp : '',userClass : '',userName:'',messageText:messTimestampHTML + m,messageClass:messageClassName});
+			    $chatLog.append(messageHTML);
 		  }
 		},
 		addImageMessage : function(m,messageClassName,userClassName,timestamp) {
@@ -64,8 +79,7 @@ ChatView = Backbone.View.extend({
 		    }
 		},
 		autoScroll: function(){
-		    var $chatLog = $("#chatlog");
-		    $chatLog.animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
+		   $("#chatlog").animate({scrollTop: $chatLog.get(0).scrollHeight}, 1);
 		},
 		displayChatRoom : function(title){
 		    $("#userTemplate").hide();
@@ -110,6 +124,7 @@ ChatView = Backbone.View.extend({
 		showUserTemplate : function(){
 			$("#chatTemplate").hide();
 		    $("#userTemplate").show();
+		    $("#btnSendUser,#txtUserName").prop('disabled',false);
 		},
 		toggleTimestamps : function(){
     		var $timestamp = $(".timestamp");

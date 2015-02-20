@@ -86,6 +86,7 @@ ChatView = Backbone.View.extend({
 		   }, 1);
 		},
 		displayChatRoom : function(title){
+			$("#txtUserName").blur();
 		    $("#userTemplate").hide();
 		    $("h2").html('<div class="title">Current Room </div>' + title);
 		    $("#chatTemplate").show();

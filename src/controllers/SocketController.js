@@ -12,22 +12,22 @@ function SocketController(IO){
 }
 
 SocketController.prototype.OnConnection = function(socket){
-	currentRoomName = FindAndJoinChatRoom(socket);
-    if(currentRoomName)
-    {
-        RegisterMessageHistoryEvent(socket,currentRoomName);
-        RegisterNewMemberJoinedEvent(socket,currentRoomName);
-        RegisterMessageEvent(socket,currentRoomName);
-        RegisterBootEvent(socket,currentRoomName);
-    }
+    var self = this;
+	this.FindAndJoinChatRoom(socket,function(room){
+        if(room != '')
+        {
+            self.RegisterMessageHistoryEvent(socket,room);
+            self.RegisterNewMemberJoinedEvent(socket,room);
+            self.RegisterMessageEvent(socket,room);
+            self.RegisterBootEvent(socket,room);
+        }
+    });
 }
 
-function FindAndJoinChatRoom(socket){
+SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
      var SocketQuery = socket.handshake.query;
-     var UserName = SocketQuery.UserName;
-
-     UserName = UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
+     var UserName = SocketQuery.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+     var existingRoomDTO;
      var latNum = parseFloat(SocketQuery.Lat).toFixed(2);
      var lonNum = parseFloat(SocketQuery.Lon).toFixed(2);
      var CurrentRoomName = latNum + " " + lonNum;
@@ -35,52 +35,53 @@ function FindAndJoinChatRoom(socket){
 
      //check if room exists
      var socketHelper = new SocketHelper(io.sockets);
-     var foundRoomName = socketHelper.FindRoomInRange(latNum,lonNum)
+     var foundRoomName = socketHelper.FindRoomInRange(latNum,lonNum);
      if(foundRoomName != '')
      {
-        CurrentRoomName = foundRoomName;
-        currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
+        currentRoomNameKey = foundRoomName.replace(/[\s\-\.]/g, '').toString();
         if(socketHelper.CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName) == false)
         {
-            socket.join(CurrentRoomName);
-            socket.emit('title',rooms[currentRoomNameKey].Neighborhood + ' (' + CurrentRoomName + ')');
-            PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients,socket);
-            RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
-            RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
+            existingRoomDTO = new Room(foundRoomName,rooms[currentRoomNameKey].Neighborhood,rooms[currentRoomNameKey].Clients);
+            socket.join(existingRoomDTO.Name);
+            socket.emit('title',rooms[existingRoomDTO.Key].Neighborhood + ' (' + existingRoomDTO.Name + ')');
+            this.PushUpdatedMemberList(existingRoomDTO.Name,rooms[existingRoomDTO.Key].Clients,socket,UserName);
+            this.RegisterLeaveEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
+            this.RegisterDisconnectEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
+
+            return callback(existingRoomDTO);
         }
         else
         {   
-            console.log('user exists')
             socket.emit('userError','A user with that name is already in the room.');
-            return '';
+            return callback('');
         }
      }
      else //no room close enough, create
      {
-        currentRoomNameKey = CurrentRoomName.replace(/[\s\-\.]/g, '').toString();
-        var serviceController = new ServiceController();
-        serviceController.GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
-               rooms[currentRoomNameKey] = new Room(CurrentRoomName.toString(),neighborhood);
-               socket.join(CurrentRoomName);
-               socket.emit('selfjoined',rooms[currentRoomNameKey].Neighborhood + ' (' + CurrentRoomName + ')');
-               socket.emit('title',rooms[currentRoomNameKey].Neighborhood + '(' + CurrentRoomName + ')');
-               PushUpdatedMemberList(CurrentRoomName,UserName,rooms[currentRoomNameKey].Clients,socket);
-               RegisterLeaveEvent(socket,rooms[currentRoomNameKey],CurrentRoomName); //needs to be in callback so you leave correct room
-               RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],CurrentRoomName);
+        var self = this;
+        new ServiceController().GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
+               existingRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
+               rooms[existingRoomDTO.Key] = existingRoomDTO;
+               socket.join(existingRoomDTO.Name);
+               socket.emit('selfjoined',rooms[existingRoomDTO.Key].Neighborhood + ' (' + existingRoomDTO.Name + ')');
+               socket.emit('title',rooms[existingRoomDTO.Key].Neighborhood + '(' + existingRoomDTO.Name + ')');
+               self.PushUpdatedMemberList(existingRoomDTO.Name,rooms[existingRoomDTO.Key].Clients,socket,UserName);
+               self.RegisterLeaveEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
+               self.RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],existingRoomDTO.Name,UserName);
+
+               return callback(existingRoomDTO);
         });
      }
 
      console.log("User Joined | Name: '" + socket.handshake.query.UserName + "' | IP: '" + socket.handshake.address + "'");
-
-     return CurrentRoomName;
 }
 
-function RegisterNewMemberJoinedEvent(socket,RoomName){
+SocketController.prototype.RegisterNewMemberJoinedEvent= function(socket,Room){
     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    socket.broadcast.to(RoomName).emit('joined', UserName);
+    socket.broadcast.to(Room.Name).emit('joined', UserName);
 }
 
-function RegisterMessageEvent(socket,RoomName){
+SocketController.prototype.RegisterMessageEvent = function(socket,Room){
      UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      socket.on('message', function(data,timestamp){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -91,21 +92,21 @@ function RegisterMessageEvent(socket,RoomName){
                 var isImage;
                 if(result.URL)
                 {
-                    socket.broadcast.to(RoomName).emit('imageMessage', result);
+                    socket.broadcast.to(Room.Name).emit('imageMessage', result);
                     socket.emit('selfImageMessage',result);
                     mess.Content = result;
                     isImage = true;
                 }
                 else
                 {
-                    socket.broadcast.to(RoomName).emit('message', data);
+                    socket.broadcast.to(Room.Name).emit('message', data);
                     socket.emit('selfMessage',data);
                     mess.Content = data;
                     isImage = false;
                 }
                 mess.Timestamp = timestamp;
                 mess.IsImage  = isImage;
-                rooms[RoomName.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
+                rooms[Room.Name.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
             });
         }
         else
@@ -115,9 +116,9 @@ function RegisterMessageEvent(socket,RoomName){
      });
 }
 
-function RegisterMessageHistoryEvent(socket,RoomName){
+SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
     socket.on('getMessageHistory', function(timestamp) {
-        var key = RoomName.replace(/[\s\-\.]/g, '').toString();
+        var key = room.Name.replace(/[\s\-\.]/g, '').toString();
         if(typeof rooms[key] != 'undefined')
         {
             rooms[key].Messages = rooms[key].Messages.slice(-100); //make sure to not store more than 100 messages back
@@ -129,39 +130,40 @@ function RegisterMessageHistoryEvent(socket,RoomName){
               }
             });
            socket.emit('messageHistory',recentMessages);
-           socket.emit('selfjoined',rooms[key].Neighborhood + ' (' + RoomName + ')');
+           socket.emit('selfjoined',room.Neighborhood + ' (' + room.Name + ')');
         }
     });
 }
 
-function RegisterLeaveEvent(socket,existingRoom,currentRoomName){
+SocketController.prototype.RegisterLeaveEvent = function(socket,existingRoom,currentRoomName,userName){
+    var self = this;
      socket.on('leave', function() {
-            HandleLeave(socket,existingRoom, currentRoomName);
+            self.HandleLeave(socket,existingRoom, currentRoomName,userName);
         })
 }
 
-function RegisterDisconnectEvent(socket,existingRoom,currentRoomName){
-     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+SocketController.prototype.RegisterDisconnectEvent = function(socket,existingRoom,currentRoomName,userName){
+    var self = this;
      socket.on('disconnect', function() {
-     var isUserInRoom = false;
-     if(typeof existingRoom.Clients != 'undefined' )
-     {
-        existingRoom.Clients.forEach(function(val,index){
-            if(val.Name == UserName)
+         var isUserInRoom = false;
+         if(typeof existingRoom != 'undefined' && typeof existingRoom.Clients != 'undefined' )
+         {
+            existingRoom.Clients.forEach(function(val,index){
+                if(val.Name == userName)
+                {
+                    isUserInRoom = true;
+                }
+            });
+            if(isUserInRoom)
             {
-                isUserInRoom = true;
+                self.HandleLeave(socket, existingRoom, currentRoomName,userName);
+                isUserInRoom = false;
             }
-        });
-        if(isUserInRoom)
-        {
-            HandleLeave(socket, existingRoom, currentRoomName);
-            isUserInRoom = false;
-        }
-     }
-    })
+         }
+    });
 }
 
-function PushUpdatedMemberList(roomName,userName,clients,socket){
+SocketController.prototype.PushUpdatedMemberList = function(roomName,clients,socket,userName){
     var client = new Client();
         client.Name = userName;
         client.SocketID = socket.id;
@@ -169,16 +171,15 @@ function PushUpdatedMemberList(roomName,userName,clients,socket){
     io.to(roomName).emit('usersInRoomUpdate',clients);
 }
 
-function HandleLeave(socket,CurrentRoom,CurrentRoomName){
-    UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoomName,userName){
     socket.leave(CurrentRoomName); //leave room
-    io.to(CurrentRoomName).emit('left',UserName); //tell everyone i left
+    io.to(CurrentRoomName).emit('left',userName); //tell everyone i left
     socket.emit('selfLeft',CurrentRoomName); //let myself know i left
     if(typeof CurrentRoom.Clients != 'undefined')
     {
         var removeUserIndex;
         CurrentRoom.Clients.forEach(function(val,index){
-            if(val.Name == UserName)
+            if(val.Name == userName)
             {
                 removeUserIndex = index;
                 CurrentRoom.Clients.splice(removeUserIndex,1);
@@ -189,11 +190,12 @@ function HandleLeave(socket,CurrentRoom,CurrentRoomName){
     }
 }
 
-function RegisterBootEvent(socket,currentRoomName){
+SocketController.prototype.RegisterBootEvent = function(socket,Room){
+    var self = this;
     socket.on('bootUser', function(data) {
         if(typeof io.sockets.connected[data.SocketID] != 'undefined' && socket.handshake.query.UserName != io.sockets.connected[data.SocketID].handshake.query.UserName)
         {
-             HandleLeave(io.sockets.connected[data.SocketID],rooms[currentRoomName.replace(/[\s\-\.]/g, '').toString()],currentRoomName);
+             self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,io.sockets.connected[data.SocketID].handshake.query.UserName);
              io.sockets.connected[data.SocketID].emit('userBooted');
         }
     });

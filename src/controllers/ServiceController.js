@@ -42,11 +42,8 @@ ServiceController.prototype.CheckImageIntegrity = function(url,callback){
     }
 }
 
-ServiceController.prototype.SetLightState = function(lightstate){
-    var lightSwitchObj = {};
-    lightSwitchObj.state = lightstate;
-
-    this.options = {
+ServiceController.prototype.SetLightState = function(lightSwitchObj){
+ this.options = {
         host: 'huetube.info',
         path: '/groups/0',
         method: 'PUT',

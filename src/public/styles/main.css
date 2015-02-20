@@ -220,3 +220,8 @@ input[type='button']{
 .memberName:hover{
     background-color: red;
 }
+
+.specialCommand{
+    color: blue;
+    font-weight: bold;
+}

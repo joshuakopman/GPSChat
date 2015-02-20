@@ -13,11 +13,11 @@ MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
 		serviceController.CheckImageIntegrity(imageURL, function(code){
 			if(code == 200)
 			{
-				return callback({URL: imageURL , User : user});
+				return callback({URL : imageURL , User : user});
 			}
 			else
 			{
-				return callback({URL: "http://maxcdn.thedesigninspiration.com/wp-content/uploads/2010/03/fail-whale/Fail-Whale-15.jpg", User : user});
+				return callback({URL : "http://maxcdn.thedesigninspiration.com/wp-content/uploads/2010/03/fail-whale/Fail-Whale-15.jpg", User : user});
 			}
 		});
 	}
@@ -27,8 +27,10 @@ MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
 		var user = mess.substring(0,mess.indexOf(':'));
 		if(lightCommand.toUpperCase().trim() == "ON" || lightCommand.toUpperCase().trim() == "OFF")
 		{
-			serviceController.SetLightState(lightCommand);
-			return callback({User : user, StateMessage: "has turned the lights " + lightCommand});
+		    var lightSwitchObj = {};
+    		lightSwitchObj.state = lightCommand;
+			serviceController.SetLightState(lightSwitchObj);
+			return callback({StateMessage : "has turned the lights " + lightCommand, User : user});
 		}
 	}
 	else

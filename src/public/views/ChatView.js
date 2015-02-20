@@ -22,6 +22,7 @@ ChatView = Backbone.View.extend({
         	'click #timestampChkBox':'toggleTimestamps',
         	'DOMSubtreeModified #chatlog':'autoScroll',
         	'keypress #msgbox':'handleMessageBox',
+        	'keyup #msgbox':'checkForFlags',
         	'click #btnDisconnect':'handleDisconnect',
         	'click .memberName': 'handleBoot'
     	},
@@ -97,11 +98,21 @@ ChatView = Backbone.View.extend({
 		   		scrollTop: $chatlog.get(0).scrollHeight
 		   }, 1);
 		},
+		checkForFlags: function(){
+			var $msgBox = $("#msgbox");
+			if($msgBox.val().indexOf("/img") > -1 || $msgBox.val().indexOf("/lights") > -1){
+				$msgBox.addClass("specialCommand");
+			}
+			else{
+				$msgBox.removeClass("specialCommand");
+			}
+		},
 		displayChatRoom : function(title){
 			$("#txtUserName").blur();
 		    $("#userTemplate").hide();
 		    $("h2").html('<div class="title">Current Room </div>' + title);
 		    $("#chatTemplate").show();
+		    $("#msgbox").focus();
 		},  
 		displayUserError : function(err){
 		  this.showUserTemplate();

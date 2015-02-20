@@ -13,16 +13,24 @@ function SocketController(IO){
 
 SocketController.prototype.OnConnection = function(socket){
     var self = this;
-	this.FindAndJoinChatRoom(socket,function(room){
+	this.FindAndJoinChatRoom(socket,function(room,userName){
         if(room != '')
         {
+            self.RegisterLeaveEvent(socket,rooms[room.Key],room.Name,userName);
+            self.RegisterDisconnectEvent(socket,rooms[room.Key],room.Name,userName);
             self.RegisterMessageHistoryEvent(socket,room);
-            self.RegisterNewMemberJoinedEvent(socket,room);
             self.RegisterMessageEvent(socket,room);
             self.RegisterBootEvent(socket,room);
-            socket.emit('chatLoaded');
+            self.InitializeChatRoom(socket,room,userName);
         }
     });
+}
+
+SocketController.prototype.InitializeChatRoom = function(socket,room,user){
+    socket.emit('title',rooms[room.Key].Neighborhood + ' (' + room.Name + ')');
+    this.PushUpdatedMemberList(room.Name,rooms[room.Key].Clients,socket,user);
+    this.EmitNewMemberJoined(socket,room);
+    socket.emit('chatLoaded');
 }
 
 SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
@@ -44,12 +52,8 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
         {
             existingRoomDTO = new Room(foundRoomName,rooms[currentRoomNameKey].Neighborhood,rooms[currentRoomNameKey].Clients);
             socket.join(existingRoomDTO.Name);
-            socket.emit('title',rooms[existingRoomDTO.Key].Neighborhood + ' (' + existingRoomDTO.Name + ')');
-            this.PushUpdatedMemberList(existingRoomDTO.Name,rooms[existingRoomDTO.Key].Clients,socket,UserName);
-            this.RegisterLeaveEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
-            this.RegisterDisconnectEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
 
-            return callback(existingRoomDTO);
+            return callback(existingRoomDTO,UserName);
         }
         else
         {   
@@ -59,24 +63,19 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
      }
      else //no room close enough, create
      {
-        var self = this;
         new ServiceController().GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
                existingRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
                rooms[existingRoomDTO.Key] = existingRoomDTO;
                socket.join(existingRoomDTO.Name);
-               socket.emit('title',rooms[existingRoomDTO.Key].Neighborhood + '(' + existingRoomDTO.Name + ')');
-               self.PushUpdatedMemberList(existingRoomDTO.Name,rooms[existingRoomDTO.Key].Clients,socket,UserName);
-               self.RegisterLeaveEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
-               self.RegisterDisconnectEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
 
-               return callback(existingRoomDTO);
+               return callback(existingRoomDTO,UserName);
         });
      }
 
      console.log("User Joined | Name: '" + socket.handshake.query.UserName + "' | IP: '" + socket.handshake.address + "'");
 }
 
-SocketController.prototype.RegisterNewMemberJoinedEvent= function(socket,Room){
+SocketController.prototype.EmitNewMemberJoined= function(socket,Room){
     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     socket.broadcast.to(Room.Name).emit('joined', UserName);
 }

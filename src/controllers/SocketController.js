@@ -67,7 +67,7 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
                socket.emit('title',rooms[existingRoomDTO.Key].Neighborhood + '(' + existingRoomDTO.Name + ')');
                self.PushUpdatedMemberList(existingRoomDTO.Name,rooms[existingRoomDTO.Key].Clients,socket,UserName);
                self.RegisterLeaveEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
-               self.RegisterDisconnectEvent(socket,rooms[currentRoomNameKey],existingRoomDTO.Name,UserName);
+               self.RegisterDisconnectEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
 
                return callback(existingRoomDTO);
         });

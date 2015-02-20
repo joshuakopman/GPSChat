@@ -1,6 +1,8 @@
 var ServiceController = require('../controllers/ServiceController');
+var serviceController;
 
 function MessageHelper(){
+	serviceController = new ServiceController();
 }
 
 MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
@@ -8,7 +10,7 @@ MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
 	{
 		var imageURL =  mess.substring(mess.indexOf('/img ') + 5,mess.length);
 		var user = mess.substring(0,mess.indexOf(':'));
-		new ServiceController().CheckImageIntegrity(imageURL, function(code){
+		serviceController.CheckImageIntegrity(imageURL, function(code){
 			if(code == 200)
 			{
 				return callback({URL: imageURL , User : user});
@@ -25,8 +27,8 @@ MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
 		var user = mess.substring(0,mess.indexOf(':'));
 		if(lightCommand.toUpperCase().trim() == "ON" || lightCommand.toUpperCase().trim() == "OFF")
 		{
-			new ServiceController().SetLightState(lightCommand);
-			return callback({User : user,StateMessage: "has turned the lights " + lightCommand});
+			serviceController.SetLightState(lightCommand);
+			return callback({User : user, StateMessage: "has turned the lights " + lightCommand});
 		}
 	}
 	else

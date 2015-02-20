@@ -27,13 +27,12 @@ SocketHandler.prototype.Connect = function(){
                      });
         self.RegisterInboundEvents(socket);
         self.RegisterOutboundEvents(socket);
-        EventHandler.trigger('getMessageHistory');
   });
 }
 
 SocketHandler.prototype.RegisterInboundEvents = function(socket){
     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
-                                'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted'];
+                                'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted','lightMessage','selfLightMessage','chatLoaded'];
 
     receivedSocketEvents.forEach(function(eventType){
       socket.on(eventType, function (data) {
@@ -51,7 +50,7 @@ SocketHandler.prototype.RegisterOutboundEvents = function(socket){
        socket.emit('leave');
     });
 
-    EventHandler.unbind('getMessageHistory').on('getMessageHistory',function(){
+    EventHandler.unbind('chatLoaded').on('chatLoaded',function(){
       socket.emit('getMessageHistory',ChatView.disconnectTime);
     });
 

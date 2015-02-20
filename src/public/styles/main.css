@@ -118,6 +118,20 @@ input[type='button']{
     font-weight:bold;
 }
 
+.userNameLightMessage{
+    font-weight: bold;
+    word-wrap:break-word;
+    background-color:#FF6961;
+    padding:3px;
+}
+
+.myNameLightMessage{
+    word-wrap:break-word;
+    background-color:#FF6961;
+    padding:3px;
+    font-weight:bold;
+}
+
 .message{
     font-weight:normal;
     display:inline;

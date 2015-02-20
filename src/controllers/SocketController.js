@@ -20,6 +20,7 @@ SocketController.prototype.OnConnection = function(socket){
             self.RegisterNewMemberJoinedEvent(socket,room);
             self.RegisterMessageEvent(socket,room);
             self.RegisterBootEvent(socket,room);
+            socket.emit('chatLoaded');
         }
     });
 }
@@ -86,7 +87,7 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if(data.indexOf('&lt;script') < 0)
         {
-                var result = new MessageHelper().HandleImageMessage(data, function(result){
+                var result = new MessageHelper().HandleSpecialMessage(data, function(result){
                 var mess = new Message();
                 var isImage;
                 if(result.URL)
@@ -96,8 +97,14 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room){
                     mess.Content = result;
                     isImage = true;
                 }
-                else
+                else if(result.StateMessage)
                 {
+                    socket.broadcast.to(Room.Name).emit('lightMessage', result);
+                    socket.emit('selfLightMessage',result);
+                    mess.Content = result;
+                    isImage = false;
+                }
+                else{
                     socket.broadcast.to(Room.Name).emit('message', data);
                     socket.emit('selfMessage',data);
                     mess.Content = data;
@@ -110,7 +117,7 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room){
         }
         else
         {
-            io.to(RoomName).emit('injectMessage',UserName +" tried to inject javascript and FAILED");
+            io.to(Room.Name).emit('injectMessage',UserName +" tried to inject javascript and FAILED");
         }
      });
 }

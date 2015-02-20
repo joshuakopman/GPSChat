@@ -17,6 +17,14 @@ EventHandler.unbind('imageMessage').on('imageMessage', function (data) {
   ChatView.addImageMessage(data,'message','userNameMessage');
 });
 
+EventHandler.unbind('selfLightMessage').on('selfLightMessage', function (data) {
+  ChatView.addLightMessage(data,'message','myNameLightMessage');
+});
+
+EventHandler.unbind('lightMessage').on('lightMessage', function (data) {
+  ChatView.addLightMessage(data,'message','userNameLightMessage');
+});
+
 EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
   ChatView.addMessage(data,'roomMessage','');
 });

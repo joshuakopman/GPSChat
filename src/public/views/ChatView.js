@@ -78,6 +78,19 @@ ChatView = Backbone.View.extend({
 		      $("#newMessageSound").get(0).play();
 		    }
 		},
+		addLightMessage: function(m,messageClassName,userClassName,timestamp) {
+			console.log('here');
+		  	var $chatLog =  $("#chatlog");
+		  	var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
+		  	var messTimestamp = (timestamp)? "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>":
+											 "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
+
+		 	$chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + '<div class="' + messageClassName + '">'+m.StateMessage+'</div></div>');
+		 	if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
+		    {
+		      $("#newMessageSound").get(0).play();
+		    }
+		},
 		autoScroll: function(){
 		   var $chatlog = $("#chatlog");
 		   $chatlog.animate(

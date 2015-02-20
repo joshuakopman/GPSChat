@@ -63,7 +63,6 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
                existingRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
                rooms[existingRoomDTO.Key] = existingRoomDTO;
                socket.join(existingRoomDTO.Name);
-               socket.emit('selfjoined',rooms[existingRoomDTO.Key].Neighborhood + ' (' + existingRoomDTO.Name + ')');
                socket.emit('title',rooms[existingRoomDTO.Key].Neighborhood + '(' + existingRoomDTO.Name + ')');
                self.PushUpdatedMemberList(existingRoomDTO.Name,rooms[existingRoomDTO.Key].Clients,socket,UserName);
                self.RegisterLeaveEvent(socket,rooms[existingRoomDTO.Key],existingRoomDTO.Name,UserName);
@@ -130,8 +129,8 @@ SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
               }
             });
            socket.emit('messageHistory',recentMessages);
-           socket.emit('selfjoined',room.Neighborhood + ' (' + room.Name + ')');
         }
+        socket.emit('selfjoined',room.Neighborhood + ' (' + room.Name + ')');
     });
 }
 
@@ -174,7 +173,7 @@ SocketController.prototype.PushUpdatedMemberList = function(roomName,clients,soc
 SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoomName,userName){
     socket.leave(CurrentRoomName); //leave room
     io.to(CurrentRoomName).emit('left',userName); //tell everyone i left
-    socket.emit('selfLeft',CurrentRoomName); //let myself know i left
+    socket.emit('selfLeft',CurrentRoom.Neighborhood + ' (' + CurrentRoom.Name + ')'); //let myself know i left
     if(typeof CurrentRoom.Clients != 'undefined')
     {
         var removeUserIndex;

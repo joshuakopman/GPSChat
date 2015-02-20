@@ -79,7 +79,6 @@ ChatView = Backbone.View.extend({
 		    }
 		},
 		addLightMessage: function(m,messageClassName,userClassName,timestamp) {
-			console.log('here');
 		  	var $chatLog =  $("#chatlog");
 		  	var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
 		  	var messTimestamp = (timestamp)? "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>":

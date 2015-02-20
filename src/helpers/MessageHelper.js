@@ -23,7 +23,7 @@ MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
 	{
 		var lightCommand =  mess.substring(mess.indexOf('/lights ') + 8,mess.length);
 		var user = mess.substring(0,mess.indexOf(':'));
-		if(lightCommand.toUpperCase() == "ON" || lightCommand.toUpperCase() == "OFF")
+		if(lightCommand.toUpperCase().trim() == "ON" || lightCommand.toUpperCase().trim() == "OFF")
 		{
 			new ServiceController().SetLightState(lightCommand);
 			return callback({User : user,StateMessage: "has turned the lights " + lightCommand});

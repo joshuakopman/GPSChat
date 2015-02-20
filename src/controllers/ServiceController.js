@@ -43,29 +43,18 @@ ServiceController.prototype.CheckImageIntegrity = function(url,callback){
     }
 }
 
-ServiceController.prototype.SetLightState = function(state){
-        var boolState = state=="on" ;
-        var lightSwitchObj = { on: boolState};
-        var self = this;
-        var Config = {};
-
-        Config.hue = {};
-
-        Config.hue.host = '68.173.226.51'
-        Config.hue.port = 80;
-
-        Config.hue.uri = '/api/joshkopman';
-
+ServiceController.prototype.SetLightState = function(lightstate){
+        var lightSwitchObj = {};
+        lightSwitchObj.state = lightstate;
         this.options = {
-            host: Config.hue.host,
-            port: Config.hue.port,
-            path: Config.hue.uri + '/groups/0/action',
+            host: 'huetube.info',
+            path: '/groups/0',
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
         };
-        var req = http.request(self.options, function(res)
+        var req = http.request(this.options, function(res)
         {
             var output = '';
             res.setEncoding('utf8');
@@ -73,18 +62,13 @@ ServiceController.prototype.SetLightState = function(state){
             res.on('data', function (chunk) {
                 output += chunk;
             });
-
-            res.on('end', function() {
-             //   var obj = JSON.parse(output);
-              //  onResult(res.statusCode, obj);
-            });
         });
 
         req.on('error', function(statusCode,err) {
             console.log(err);
         });
 
-        if(self.options.method=="PUT" || self.options.method=="POST") 
+        if(this.options.method=="PUT" || this.options.method=="POST") 
         {
             req.write(JSON.stringify(lightSwitchObj));
         }

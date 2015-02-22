@@ -22,8 +22,10 @@ SocketHandler.prototype.Connect = function(){
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect('http://' + window.location.hostname +':3000',
                      { 
+                        query : 'UserName=' +  NameEntryView.userName, 
                         forceNew : true 
                      });
+
         socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : ChatView.Lat , Lon : ChatView.Lon });
         self.RegisterInboundEvents(socket);
         self.RegisterOutboundEvents(socket);

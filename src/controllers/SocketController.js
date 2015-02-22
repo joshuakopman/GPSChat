@@ -21,7 +21,7 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterDisconnectEvent(socket,rooms[room.Key],room.Name,userName);
                 self.RegisterMessageHistoryEvent(socket,room);
                 self.RegisterMessageEvent(socket,room,userName);
-                self.RegisterBootEvent(socket,room);
+                self.RegisterBootEvent(socket,room,userName);
                 self.InitializeChatRoom(socket,room,userName);
             }
         });
@@ -194,10 +194,10 @@ SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoom
     }
 }
 
-SocketController.prototype.RegisterBootEvent = function(socket,Room){
+SocketController.prototype.RegisterBootEvent = function(socket,Room,myUserName){
     var self = this;
     socket.on('bootUser', function(data) {
-        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && socket.handshake.query.UserName != io.sockets.connected[data.SocketID].handshake.query.UserName)
+        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && myUserName!= io.sockets.connected[data.SocketID].handshake.query.UserName)
         {
              self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,io.sockets.connected[data.SocketID].handshake.query.UserName);
              io.sockets.connected[data.SocketID].emit('userBooted');

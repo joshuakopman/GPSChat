@@ -1,5 +1,6 @@
 var ServiceController = require('../controllers/ServiceController');
 var serviceController;
+var Message = require('../models/Message');
 
 function MessageHelper(){
 	serviceController = new ServiceController();
@@ -37,6 +38,36 @@ MessageHelper.prototype.HandleSpecialMessage = function(mess, callback){
 	{
 		return callback({User : user});
 	}
+}
+
+MessageHelper.prototype.EmitSpecialMessageEvent = function(socket,roomName,data,timestamp,result){
+        var mess = new Message();
+        var isImage;
+
+        if(result.URL)
+        {
+            socket.broadcast.to(roomName).emit('imageMessage', result);
+            socket.emit('selfImageMessage',result);
+            mess.Content = result;
+            isImage = true;
+        }
+        else if(result.StateMessage)
+        {
+            socket.broadcast.to(roomName).emit('lightMessage', result);
+            socket.emit('selfLightMessage',result);
+            mess.Content = result;
+            isImage = false;
+        }
+        else{
+            socket.broadcast.to(roomName).emit('message', data);
+            socket.emit('selfMessage',data);
+            mess.Content = data;
+            isImage = false;
+        }
+        mess.Timestamp = timestamp;
+        mess.IsImage  = isImage;
+
+        return mess;
 }
 
 module.exports = MessageHelper;

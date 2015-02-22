@@ -1,7 +1,6 @@
-var SocketHelper = require('../helpers/SocketHelper');
 var Room = require('../models/Room');
 var Client = require('../models/Client');
-var Message = require('../models/Message');
+var SocketHelper = require('../helpers/SocketHelper');
 var MessageHelper = require('../helpers/MessageHelper');
 var ServiceController = require('./ServiceController');
 var io;
@@ -14,6 +13,7 @@ function SocketController(IO){
 SocketController.prototype.OnConnection = function(socket){
     var self = this;
     socket.on("initialize",function(initialObject){
+        console.log(initialObject);
         self.FindAndJoinChatRoom(socket,initialObject,function(room,userName){
             if(room != '')
             {
@@ -31,7 +31,7 @@ SocketController.prototype.OnConnection = function(socket){
 SocketController.prototype.InitializeChatRoom = function(socket,room,user){
     socket.emit('title',rooms[room.Key].Neighborhood + ' (' + room.Name + ')');
     this.PushUpdatedMemberList(room.Name,rooms[room.Key].Clients,socket,user);
-    this.EmitNewMemberJoined(socket,room,user);
+    socket.broadcast.to(room.Name).emit('joined', user);
     socket.emit('chatLoaded');
 }
 
@@ -41,14 +41,12 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      var latNum = parseFloat(initializeObject.Lat).toFixed(2);
      var lonNum = parseFloat(initializeObject.Lon).toFixed(2);
      var CurrentRoomName = latNum + " " + lonNum;
-     var currentRoomNameKey = '';
 
-     //check if room exists
      var socketHelper = new SocketHelper(io.sockets);
      var foundRoomName = socketHelper.FindRoomInRange(latNum,lonNum);
-     if(foundRoomName != '')
+     if(foundRoomName)
      {
-        currentRoomNameKey = foundRoomName.replace(/[\s\-\.]/g, '').toString();
+        var currentRoomNameKey = foundRoomName.replace(/[\s\-\.]/g, '').toString();
         if(socketHelper.CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName) == false)
         {
             existingRoomDTO = new Room(foundRoomName,rooms[currentRoomNameKey].Neighborhood,rooms[currentRoomNameKey].Clients);
@@ -62,7 +60,7 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
             return callback('');
         }
      }
-     else //no room close enough, create
+     else
      {
         new ServiceController().GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
                existingRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
@@ -76,42 +74,16 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      console.log("User Joined | Name: '" + initializeObject.UserName + "' | IP: '" + socket.handshake.address + "'");
 }
 
-SocketController.prototype.EmitNewMemberJoined= function(socket,Room,userName){
-    socket.broadcast.to(Room.Name).emit('joined', userName);
-}
-
 SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName){
      socket.on('message', function(data,timestamp){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        var messageHelper = new MessageHelper();
         if(data.indexOf('&lt;script') < 0)
         {
-                var result = new MessageHelper().HandleSpecialMessage(data, function(result){
-                var mess = new Message();
-                var isImage;
-                if(result.URL)
-                {
-                    socket.broadcast.to(Room.Name).emit('imageMessage', result);
-                    socket.emit('selfImageMessage',result);
-                    mess.Content = result;
-                    isImage = true;
-                }
-                else if(result.StateMessage)
-                {
-                    socket.broadcast.to(Room.Name).emit('lightMessage', result);
-                    socket.emit('selfLightMessage',result);
-                    mess.Content = result;
-                    isImage = false;
-                }
-                else{
-                    socket.broadcast.to(Room.Name).emit('message', data);
-                    socket.emit('selfMessage',data);
-                    mess.Content = data;
-                    isImage = false;
-                }
-                mess.Timestamp = timestamp;
-                mess.IsImage  = isImage;
+           messageHelper.HandleSpecialMessage(data, function(result){
+                var mess =  messageHelper.EmitSpecialMessageEvent(socket,Room.Name,data,timestamp,result);
                 rooms[Room.Name.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
-            });
+           });
         }
         else
         {
@@ -142,7 +114,7 @@ SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
 SocketController.prototype.RegisterLeaveEvent = function(socket,existingRoom,currentRoomName,userName){
     var self = this;
      socket.on('leave', function() {
-            self.HandleLeave(socket,existingRoom, currentRoomName,userName);
+            self.HandleLeave(socket,existingRoom, currentRoomName,userName,true);
         })
 }
 
@@ -160,10 +132,21 @@ SocketController.prototype.RegisterDisconnectEvent = function(socket,existingRoo
             });
             if(isUserInRoom)
             {
-                self.HandleLeave(socket, existingRoom, currentRoomName,userName);
+                self.HandleLeave(socket, existingRoom, currentRoomName,userName,true);
                 isUserInRoom = false;
             }
          }
+    });
+}
+
+SocketController.prototype.RegisterBootEvent = function(socket,Room,myUserName){
+    var self = this;
+    socket.on('bootUser', function(data) {
+        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && myUserName!= io.sockets.connected[data.SocketID].handshake.query.UserName)
+        {
+             self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,io.sockets.connected[data.SocketID].handshake.query.UserName,false);
+             io.sockets.connected[data.SocketID].emit('userBooted');
+        }
     });
 }
 
@@ -175,10 +158,13 @@ SocketController.prototype.PushUpdatedMemberList = function(roomName,clients,soc
     io.to(roomName).emit('usersInRoomUpdate',clients);
 }
 
-SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoomName,userName){
+SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoomName,userName,notBoot){
     socket.leave(CurrentRoomName); //leave room
     io.to(CurrentRoomName).emit('left',userName); //tell everyone i left
-    socket.emit('selfLeft',CurrentRoom.Neighborhood + ' (' + CurrentRoom.Name + ')'); //let myself know i left
+    if(notBoot)
+    {
+      socket.emit('selfLeft',CurrentRoom.Neighborhood + ' (' + CurrentRoom.Name + ')'); //let myself know i left
+    }
     if(typeof CurrentRoom.Clients != 'undefined')
     {
         var removeUserIndex;
@@ -194,14 +180,5 @@ SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoom
     }
 }
 
-SocketController.prototype.RegisterBootEvent = function(socket,Room,myUserName){
-    var self = this;
-    socket.on('bootUser', function(data) {
-        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && myUserName!= io.sockets.connected[data.SocketID].handshake.query.UserName)
-        {
-             self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,io.sockets.connected[data.SocketID].handshake.query.UserName);
-             io.sockets.connected[data.SocketID].emit('userBooted');
-        }
-    });
-}
+
 module.exports = SocketController;

@@ -13,32 +13,33 @@ function SocketController(IO){
 
 SocketController.prototype.OnConnection = function(socket){
     var self = this;
-	this.FindAndJoinChatRoom(socket,function(room,userName){
-        if(room != '')
-        {
-            self.RegisterLeaveEvent(socket,rooms[room.Key],room.Name,userName);
-            self.RegisterDisconnectEvent(socket,rooms[room.Key],room.Name,userName);
-            self.RegisterMessageHistoryEvent(socket,room);
-            self.RegisterMessageEvent(socket,room);
-            self.RegisterBootEvent(socket,room);
-            self.InitializeChatRoom(socket,room,userName);
-        }
+    socket.on("initialize",function(initialObject){
+        self.FindAndJoinChatRoom(socket,initialObject,function(room,userName){
+            if(room != '')
+            {
+                self.RegisterLeaveEvent(socket,rooms[room.Key],room.Name,userName);
+                self.RegisterDisconnectEvent(socket,rooms[room.Key],room.Name,userName);
+                self.RegisterMessageHistoryEvent(socket,room);
+                self.RegisterMessageEvent(socket,room,userName);
+                self.RegisterBootEvent(socket,room);
+                self.InitializeChatRoom(socket,room,userName);
+            }
+        });
     });
 }
 
 SocketController.prototype.InitializeChatRoom = function(socket,room,user){
     socket.emit('title',rooms[room.Key].Neighborhood + ' (' + room.Name + ')');
     this.PushUpdatedMemberList(room.Name,rooms[room.Key].Clients,socket,user);
-    this.EmitNewMemberJoined(socket,room);
+    this.EmitNewMemberJoined(socket,room,user);
     socket.emit('chatLoaded');
 }
 
-SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
-     var SocketQuery = socket.handshake.query;
-     var UserName = SocketQuery.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObject,callback){
+     var UserName = initializeObject.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      var existingRoomDTO;
-     var latNum = parseFloat(SocketQuery.Lat).toFixed(2);
-     var lonNum = parseFloat(SocketQuery.Lon).toFixed(2);
+     var latNum = parseFloat(initializeObject.Lat).toFixed(2);
+     var lonNum = parseFloat(initializeObject.Lon).toFixed(2);
      var CurrentRoomName = latNum + " " + lonNum;
      var currentRoomNameKey = '';
 
@@ -72,16 +73,14 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,callback){
         });
      }
 
-     console.log("User Joined | Name: '" + socket.handshake.query.UserName + "' | IP: '" + socket.handshake.address + "'");
+     console.log("User Joined | Name: '" + initializeObject.UserName + "' | IP: '" + socket.handshake.address + "'");
 }
 
-SocketController.prototype.EmitNewMemberJoined= function(socket,Room){
-    UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    socket.broadcast.to(Room.Name).emit('joined', UserName);
+SocketController.prototype.EmitNewMemberJoined= function(socket,Room,userName){
+    socket.broadcast.to(Room.Name).emit('joined', userName);
 }
 
-SocketController.prototype.RegisterMessageEvent = function(socket,Room){
-     UserName = socket.handshake.query.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName){
      socket.on('message', function(data,timestamp){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if(data.indexOf('&lt;script') < 0)
@@ -116,7 +115,7 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room){
         }
         else
         {
-            io.to(Room.Name).emit('injectMessage',UserName +" tried to inject javascript and FAILED");
+            io.to(Room.Name).emit('injectMessage',userName +" tried to inject javascript and FAILED");
         }
      });
 }

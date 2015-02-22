@@ -100,7 +100,7 @@ ChatView = Backbone.View.extend({
 		},
 		checkForFlags: function(){
 			var $msgBox = $("#msgbox");
-			if($msgBox.val().indexOf("/img") > -1 || $msgBox.val().indexOf("/lights") > -1){
+			if($msgBox.val().indexOf("/img") == 0 || $msgBox.val().indexOf("/lights") == 0){
 				$msgBox.addClass("specialCommand");
 			}
 			else{

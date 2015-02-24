@@ -8,6 +8,7 @@ ChatView = Backbone.View.extend({
           this.disconnectTime = Date.now();
           this.messTimestampPartial = '';
           this.messagePartial = '';
+          this.searchTimeout='';
           this.render();
 		},
         render: function(){
@@ -43,7 +44,7 @@ ChatView = Backbone.View.extend({
          	},'html'); 
     	},
     	addMember : function(m) {
-		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '</div>');
+		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '<div class="hidetyping"> (typing)</div></div>');
 		},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
 		  var $chatLog =  $("#chatlog");
@@ -132,6 +133,11 @@ ChatView = Backbone.View.extend({
 	         if (event.which == '13') {
 	            this.sendMsg();
 	            event.preventDefault();
+	        }else{
+        		clearTimeout(this.searchTimeout);
+        		EventHandler.trigger('notifyTyping');
+        		this.searchTimeout = setTimeout(function(){EventHandler.trigger('stoppedTyping',NameEntryView.userName);}, 250);
+
 	        } 
 		},
 		refreshUserList : function(data){
@@ -153,6 +159,16 @@ ChatView = Backbone.View.extend({
 			$("#chatTemplate").hide();
 		    $("#userTemplate").show();
 		    $("#btnSendUser,#txtUserName").prop('disabled',false);
+		},
+		startedTyping: function(data){
+			var $userNameTypingDiv = $('#memberList').find('div').filter(':contains("'+data+'")').children().first();
+			$userNameTypingDiv.removeClass('hidetyping');
+			$userNameTypingDiv.addClass('typing');
+		},
+		stoppedTyping : function(userName){
+			var $userNameTypingDiv = $('#memberList').find('div').filter(':contains("'+userName+'")').children().first();
+			$userNameTypingDiv.addClass('hidetyping');
+			$userNameTypingDiv.removeClass('typing');
 		},
 		toggleTimestamps : function(){
     		var $timestamp = $(".timestamp");

@@ -75,3 +75,11 @@ EventHandler.unbind('userBooted').on('userBooted', function (data) {
   ChatView.disconnectTime = Date.now();
   ChatView.showUserTemplate();
 });
+
+EventHandler.unbind('typing').on('typing', function (userName) {
+  ChatView.startedTyping(userName);
+});
+
+EventHandler.unbind('stopTyping').on('stopTyping', function (userName) {
+  ChatView.stoppedTyping(userName);
+});

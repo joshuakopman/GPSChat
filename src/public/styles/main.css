@@ -225,3 +225,13 @@ input[type='button']{
     color: blue;
     font-weight: bold;
 }
+
+.typing{
+    display:inline;
+    color:grey;
+    font-size:11px;
+}
+.hidetyping{
+    display:inline;
+    display:none;
+}

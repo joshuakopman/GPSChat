@@ -22,6 +22,7 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterMessageHistoryEvent(socket,room);
                 self.RegisterMessageEvent(socket,room,userName);
                 self.RegisterBootEvent(socket,room,userName);
+                self.RegisterTypingEvents(socket,room,userName);
                 self.InitializeChatRoom(socket,room,userName);
             }
         });
@@ -74,6 +75,16 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      console.log("User Joined | Name: '" + initializeObject.UserName + "' | IP: '" + socket.handshake.address + "'");
 }
 
+SocketController.prototype.RegisterTypingEvents = function(socket,Room,userName){
+    socket.on('notifyTyping', function(userType){
+        io.to(Room.Name).emit('typing',userType);
+    });
+
+   socket.on('stoppedTyping', function(userStop){
+        io.to(Room.Name).emit('stopTyping',userStop);
+    });
+}
+
 SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName){
      socket.on('message', function(data,timestamp){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -94,6 +105,15 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName)
 
 SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
     socket.on('getMessageHistory', function(timestamp) {
+
+        if(typeof timestamp == 'undefined')
+        {
+            var d1 = new Date();
+            var d2 = new Date(d1);
+            d2.setHours (d1.getHours() - 3);
+            timestamp = d2;
+        }
+
         var key = room.Name.replace(/[\s\-\.]/g, '').toString();
         if(typeof rooms[key] != 'undefined')
         {

@@ -35,7 +35,7 @@ SocketHandler.prototype.Connect = function(){
 SocketHandler.prototype.RegisterInboundEvents = function(socket){
     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
                                 'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted',
-                                'lightMessage','selfLightMessage','chatLoaded'];
+                                'lightMessage','selfLightMessage','chatLoaded','typing','stopTyping'];
 
     receivedSocketEvents.forEach(function(eventType){
       socket.on(eventType, function (data) {
@@ -59,5 +59,13 @@ SocketHandler.prototype.RegisterOutboundEvents = function(socket){
 
     EventHandler.unbind('bootUser').on('bootUser', function (socketID) {  
       socket.emit('bootUser', socketID);
+    });
+
+    EventHandler.unbind('notifyTyping').on('notifyTyping', function (socketID) {  
+      socket.emit('notifyTyping',NameEntryView.userName);
+    });
+
+    EventHandler.unbind('stoppedTyping').on('stoppedTyping', function (user) {  
+      socket.emit('stoppedTyping',NameEntryView.userName);
     });
 }

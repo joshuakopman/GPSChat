@@ -5,8 +5,8 @@ function ServiceController(){
 
 }
 
-ServiceController.prototype.GetWeather = function(callback){
-var url = 'http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&units=imperial';
+ServiceController.prototype.GetWeather = function(lat,lon,callback){
+var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+ lon +'&units=imperial';
     http.get(url, function(res) {
         var body = '';
 

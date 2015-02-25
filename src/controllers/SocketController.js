@@ -23,7 +23,7 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterMessageEvent(socket,room,userName);
                 self.RegisterBootEvent(socket,room,userName);
                 self.RegisterTypingEvents(socket,room,userName);
-                self.GetWeatherEvent(socket);
+                self.GetWeatherEvent(initialObject,socket);
                 self.InitializeChatRoom(socket,room,userName);
             }
         });
@@ -201,8 +201,8 @@ SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoom
     }
 }
 
-SocketController.prototype.GetWeatherEvent = function(socket){
-    new ServiceController().GetWeather(function(data){
+SocketController.prototype.GetWeatherEvent = function(initialObject,socket){
+    new ServiceController().GetWeather(initialObject.Lat,initialObject.Lon,function(data){
          socket.emit('weather',data);
     });
 }

@@ -35,7 +35,7 @@ SocketHandler.prototype.Connect = function(){
 SocketHandler.prototype.RegisterInboundEvents = function(socket){
     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
                                 'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted',
-                                'lightMessage','selfLightMessage','chatLoaded','typing','stopTyping'];
+                                'lightMessage','selfLightMessage','chatLoaded','typing','stopTyping','weather'];
 
     receivedSocketEvents.forEach(function(eventType){
       socket.on(eventType, function (data) {

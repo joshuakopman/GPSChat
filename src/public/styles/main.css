@@ -8,6 +8,7 @@ body{
 h2{
     text-align:left;
     cursor:default;
+    margin-bottom:5px;
 }
 input[type='button']{
    cursor:pointer;
@@ -234,4 +235,14 @@ input[type='button']{
 .hidetyping{
     display:inline;
     display:none;
+}
+#weather{
+   color:darkblue;
+   margin-bottom:15px;
+   font-size:14px;
+   font-weight:bold;
+}
+.weatherData{
+    color:grey;
+    display:inline;
 }

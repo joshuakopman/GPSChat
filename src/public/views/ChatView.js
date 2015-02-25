@@ -155,6 +155,9 @@ ChatView = Backbone.View.extend({
 		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText ,this.Lat,this.Lon);
 		    $msgBox.val('');
 		},
+		setWeather : function(data){
+			$("#weather").html('Current weather: <div class="weatherData">' + data.Weather + " " + data.Temp+"</div>");
+		},
 		showUserTemplate : function(){
 			$("#chatTemplate").hide();
 		    $("#userTemplate").show();

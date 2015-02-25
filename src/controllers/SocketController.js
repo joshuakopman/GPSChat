@@ -23,6 +23,7 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterMessageEvent(socket,room,userName);
                 self.RegisterBootEvent(socket,room,userName);
                 self.RegisterTypingEvents(socket,room,userName);
+                self.GetWeatherEvent(socket);
                 self.InitializeChatRoom(socket,room,userName);
             }
         });
@@ -200,5 +201,10 @@ SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoom
     }
 }
 
+SocketController.prototype.GetWeatherEvent = function(socket){
+    new ServiceController().GetWeather(function(data){
+         socket.emit('weather',data);
+    });
+}
 
 module.exports = SocketController;

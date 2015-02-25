@@ -68,4 +68,8 @@ SocketHandler.prototype.RegisterOutboundEvents = function(socket){
     EventHandler.unbind('stoppedTyping').on('stoppedTyping', function (user) {  
       socket.emit('stoppedTyping',NameEntryView.userName);
     });
+
+    EventHandler.unbind('getWeather').on('getWeather', function () { 
+       socket.emit('getWeather');
+    });
 }

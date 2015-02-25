@@ -23,18 +23,21 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterMessageEvent(socket,room,userName);
                 self.RegisterBootEvent(socket,room,userName);
                 self.RegisterTypingEvents(socket,room,userName);
-                self.GetWeatherEvent(initialObject,socket);
-                self.InitializeChatRoom(socket,room,userName);
+                self.RegisterWeatherEvent(initialObject,socket);
+                self.InitializeChatRoom(socket,room,initialObject,userName);
             }
         });
     });
 }
 
-SocketController.prototype.InitializeChatRoom = function(socket,room,user){
+SocketController.prototype.InitializeChatRoom = function(socket,room,initialObj,user){
     socket.emit('title',rooms[room.Key].Neighborhood + ' (' + room.Name + ')');
     this.PushUpdatedMemberList(room.Name,rooms[room.Key].Clients,socket,user);
     socket.broadcast.to(room.Name).emit('joined', user);
-    socket.emit('chatLoaded');
+    new ServiceController().GetWeather(initialObj.Lat,initialObj.Lon,function(data){
+             socket.emit('weather',data);
+             socket.emit('chatLoaded');
+    });
 }
 
 SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObject,callback){
@@ -201,9 +204,11 @@ SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoom
     }
 }
 
-SocketController.prototype.GetWeatherEvent = function(initialObject,socket){
-    new ServiceController().GetWeather(initialObject.Lat,initialObject.Lon,function(data){
-         socket.emit('weather',data);
+SocketController.prototype.RegisterWeatherEvent = function(initialObject,socket){
+    socket.on('getWeather',function(){
+        new ServiceController().GetWeather(initialObject.Lat,initialObject.Lon,function(data){
+             socket.emit('weather',data);
+        });
     });
 }
 

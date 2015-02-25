@@ -86,4 +86,5 @@ EventHandler.unbind('stopTyping').on('stopTyping', function (userName) {
 
 EventHandler.unbind('weather').on('weather', function (data) {
   ChatView.setWeather(data);
+  setTimeout(function(){  EventHandler.trigger('getWeather');},1000);
 });

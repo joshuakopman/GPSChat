@@ -97,7 +97,7 @@ ChatWindowSubView = Backbone.View.extend({
 		handleDisconnect: function(){
 	      EventHandler.trigger('leave',{Lat : this.Lat, Lon : this.Lon});
 	      ChatView.disconnectTime = Date.now();
-	      ChatView.showUserTemplate();
+	      ChatView.displayNameEntryTemplate();
 		},
 		handleMessageBox : function(event){
 	         if (event.which == '13') {

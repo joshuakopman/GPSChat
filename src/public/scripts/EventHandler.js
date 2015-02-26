@@ -30,7 +30,7 @@ EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
 });
 
 EventHandler.unbind('title').on('title', function (data) {
-  ChatView.displayChatRoom(data);
+  ChatView.displayChatTemplate(data);
 });
 
 EventHandler.unbind('joined').on('joined', function (data) {
@@ -73,7 +73,7 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 EventHandler.unbind('userBooted').on('userBooted', function (data) {
   ChatView.chatWindowSubView.addMessage("You have been booted from the room",'roomMessage','');
   ChatView.disconnectTime = Date.now();
-  ChatView.showUserTemplate();
+  ChatView.displayNameEntryTemplate();
 });
 
 EventHandler.unbind('typing').on('typing', function (userName) {

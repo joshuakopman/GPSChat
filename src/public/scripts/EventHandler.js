@@ -50,7 +50,7 @@ EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
 });
 
 EventHandler.unbind('usersInRoomUpdate').on('usersInRoomUpdate', function (data) {
- ChatView.refreshUserList(data);
+ ChatView.memberListSubView.refreshUserList(data);
 });
 
 EventHandler.unbind('userError').on('userError', function (data) {
@@ -86,5 +86,5 @@ EventHandler.unbind('stopTyping').on('stopTyping', function (userName) {
 
 EventHandler.unbind('weather').on('weather', function (data) {
   ChatView.setWeather(data);
-  setTimeout(function(){  EventHandler.trigger('getWeather');},1000);
+  setTimeout(function(){  EventHandler.trigger('getWeather');},60000);
 });

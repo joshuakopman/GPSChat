@@ -10,6 +10,7 @@ ChatView = Backbone.View.extend({
           this.messagePartial = '';
           this.searchTimeout='';
           this.render();
+          this.memberListSubView = new MemberListSubView();
 		},
         render: function(){
             var self = this;
@@ -24,8 +25,7 @@ ChatView = Backbone.View.extend({
         	'DOMSubtreeModified #chatlog':'autoScroll',
         	'keypress #msgbox':'handleMessageBox',
         	'keyup #msgbox':'checkForFlags',
-        	'click #btnDisconnect':'handleDisconnect',
-        	'click .memberName': 'handleBoot'
+        	'click #btnDisconnect':'handleDisconnect'
     	},
     	renderTemplates: function(){
             var self = this;
@@ -43,9 +43,6 @@ ChatView = Backbone.View.extend({
          		self.messagePartial = data;
          	},'html'); 
     	},
-    	addMember : function(m) {
-		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '<div class="hidetyping"> (typing)</div></div>');
-		},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
 		  var $chatLog =  $("#chatlog");
 		  var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
@@ -120,10 +117,6 @@ ChatView = Backbone.View.extend({
 		  $("#userExistsError").show().html(err);
 		  $("#txtUserName").removeClass("valid").addClass("invalid");
 		},
-		handleBoot : function(event){
-		  var $socketElement = $(event.currentTarget).next();
-		  EventHandler.trigger('bootUser',{ UserName : $socketElement.id, SocketID : $socketElement.html()});
-		},
 		handleDisconnect: function(){
 	      EventHandler.trigger('leave',{Lat : this.Lat, Lon : this.Lon});
 	      this.disconnectTime = Date.now();
@@ -139,15 +132,6 @@ ChatView = Backbone.View.extend({
         		this.searchTimeout = setTimeout(function(){EventHandler.trigger('stoppedTyping',NameEntryView.userName);}, 250);
 
 	        } 
-		},
-		refreshUserList : function(data){
-		    var self = this;
-		    var $memberList = $("#memberList");
-		    $memberList.html('');
-		    $.each(data,function(key,val){
-		       self.addMember(val.Name);
-		       $memberList.append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
-		    });
 		},
 		sendMsg : function(){
 			var $msgBox = $("#msgbox");

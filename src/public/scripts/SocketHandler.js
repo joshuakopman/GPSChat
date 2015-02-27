@@ -1,5 +1,5 @@
 function SocketHandler(){
-  navigator.geolocation.getCurrentPosition(this.GetLocation,this.errorCallback,{timeout:10000});
+  navigator.geolocation.getCurrentPosition(this.Connect,this.errorCallback,{timeout:10000});
 }
 
 SocketHandler.prototype.errorCallback = function(err){
@@ -10,15 +10,10 @@ SocketHandler.prototype.errorCallback = function(err){
   }
 }
 
-SocketHandler.prototype.GetLocation = function(location){
-  NameEntryView.Lat = location.coords.latitude;
-  NameEntryView.Lon = location.coords.longitude;
-  EventHandler.trigger('userLocationFound');
-  SocketHandler.prototype.Connect();
-}
-
-SocketHandler.prototype.Connect = function(){
-  var self = this;
+SocketHandler.prototype.Connect = function(location){
+  var locationLat = location.coords.latitude;
+  var locationLon = location.coords.longitude;
+  EventHandler.trigger('userLocationFound',{Lat : locationLat, Lon : locationLon });
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect('http://' + window.location.hostname +':3000',
                      { 
@@ -26,9 +21,9 @@ SocketHandler.prototype.Connect = function(){
                         forceNew : true 
                      });
 
-        socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : NameEntryView.Lat , Lon : NameEntryView.Lon });
-        self.RegisterInboundEvents(socket);
-        self.RegisterOutboundEvents(socket);
+        socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : locationLat , Lon : locationLon });
+        SocketHandler.prototype.RegisterInboundEvents(socket);
+        SocketHandler.prototype.RegisterOutboundEvents(socket);
   });
 }
 

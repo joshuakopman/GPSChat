@@ -1,6 +1,8 @@
 var EventHandler = _.extend({}, Backbone.Events);
 
-EventHandler.unbind('userLocationFound').on('userLocationFound', function () {
+EventHandler.unbind('userLocationFound').on('userLocationFound', function (location) {
+  NameEntryView.Lat = location.Lat;
+  NameEntryView.Lon = location.Lon;
   NameEntryView.showStartButton();
 });
 

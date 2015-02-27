@@ -1,5 +1,9 @@
 var EventHandler = _.extend({}, Backbone.Events);
 
+EventHandler.unbind('userLocationFound').on('userLocationFound', function () {
+  NameEntryView.showStartButton();
+});
+
 EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
   ChatView.chatWindowSubView.addMessage(data,'message','myNameMessage');
 });

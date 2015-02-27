@@ -13,12 +13,12 @@ SocketHandler.prototype.errorCallback = function(err){
 SocketHandler.prototype.GetLocation = function(location){
   NameEntryView.Lat = location.coords.latitude;
   NameEntryView.Lon = location.coords.longitude;
+  EventHandler.trigger('userLocationFound');
   SocketHandler.prototype.Connect();
 }
 
 SocketHandler.prototype.Connect = function(){
   var self = this;
-  NameEntryView.showStartButton();
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect('http://' + window.location.hostname +':3000',
                      { 

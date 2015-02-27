@@ -2,6 +2,8 @@ NameEntryView = Backbone.View.extend({
         el: "#userTemplate",
         initialize: function(){
           this.userName = '';
+          this.Lat ='';
+          this.Lon='';
           var socketHandler = new SocketHandler();
           this.render();
         },

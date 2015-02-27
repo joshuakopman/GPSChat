@@ -11,8 +11,8 @@ SocketHandler.prototype.errorCallback = function(err){
 }
 
 SocketHandler.prototype.GetLocation = function(location){
-  ChatView.chatWindowSubView.Lat = location.coords.latitude;
-  ChatView.chatWindowSubView.Lon = location.coords.longitude;
+  NameEntryView.Lat = location.coords.latitude;
+  NameEntryView.Lon = location.coords.longitude;
   SocketHandler.prototype.Connect();
 }
 
@@ -26,7 +26,7 @@ SocketHandler.prototype.Connect = function(){
                         forceNew : true 
                      });
 
-        socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : ChatView.chatWindowSubView.Lat , Lon : ChatView.chatWindowSubView.Lon });
+        socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : NameEntryView.Lat , Lon : NameEntryView.Lon });
         self.RegisterInboundEvents(socket);
         self.RegisterOutboundEvents(socket);
   });

@@ -4,6 +4,7 @@ ChatWindowSubView = Backbone.View.extend({
           this.showTimestamps = false;
           this.messTimestampPartial = '';
           this.messagePartial = '';
+          this.imageMessagePartial = '';
           this.typingTimeout='';
           this.renderTemplates();
 		},
@@ -28,6 +29,10 @@ ChatWindowSubView = Backbone.View.extend({
 
          	$.get('/templates/partials/Message.html', function (data) {
          		self.messagePartial = data;
+         	},'html'); 
+
+         	$.get('/templates/partials/ImageMessage.html', function (data) {
+         		self.imageMessagePartial = data;
          	},'html'); 
     	},
 		addMessage: function(m,messageClassName,userClassName,timestamp) {
@@ -54,11 +59,12 @@ ChatWindowSubView = Backbone.View.extend({
 		},
 		addImageMessage : function(m,messageClassName,userClassName,timestamp) {
 		  	var $chatLog =  $("#chatlog");
-		  	var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
-		  	var messTimestamp = (timestamp)? "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date(timestamp).toString("hh:mm tt") + " </div>":
-											 "<div class=\"timestamp "+toggleTimestampClass+"\">" + new Date().toString("hh:mm tt") + " </div>";
+			var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
+		  	var formattedMessTimestamp = (timestamp) ? new Date(timestamp).toString("hh:mm tt") : new Date().toString("hh:mm tt");
+		  	var messTimestampHTML = _.template(this.messTimestampPartial)({timeStamp : formattedMessTimestamp,toggleTimestampClass : toggleTimestampClass});
 
-		 	$chatLog.append('<div class="' + userClassName + '">' + messTimestamp + m.User + '<br/><div class="' + messageClassName + '"><a href="' + m.URL + '" target="_blank"><img src="' + m.URL +'" height="100" width="100"/></a></div></div>');
+		  	var messageHTML = _.template(this.imageMessagePartial)({timeStamp : messTimestampHTML,userClass : userClassName,userName:m.User,messageClass:messageClassName,url:m.URL});
+		 	$chatLog.append(messageHTML);
 		 	if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
 		    {
 		      $("#newMessageSound").get(0).play();
@@ -104,7 +110,7 @@ ChatWindowSubView = Backbone.View.extend({
 	        }else{
         		clearTimeout(this.typingTimeout);
         		EventHandler.trigger('notifyTyping');
-        		this.typingTimeout = setTimeout(function(){EventHandler.trigger('stoppedTyping',NameEntryView.userName);}, 250);
+        		this.typingTimeout = setTimeout(function(){EventHandler.trigger('stoppedTyping',NameEntryView.userName);}, 500);
 
 	        } 
 		},

@@ -1,12 +1,22 @@
 MemberListSubView = Backbone.View.extend({
         el: "#chatTemplate",
         initialize: function(){
+        	var self = this;
+        	this.newMemberPartial = '';
+        	this.socketIDPartial = '';
+         	$.get('/templates/partials/NewMember.html', function (data) {
+         		self.newMemberPartial = data;
+         	},'html');
+         	$.get('/templates/partials/MemberSocketID.html', function (data) {
+         		self.socketIDPartial = data;
+         	},'html');
         },
         events:{
           'click .memberName': 'handleBoot'
         },
     	addMember : function(m) {
-		    $("#memberList").append('<div title="Boot User" class="memberName">' + m + '<div class="hidetyping"> (typing)</div></div>');
+    		var memberHTML = _.template(this.newMemberPartial)({memberName : m});
+			$("#memberList").append(memberHTML);
 		},
 		handleBoot : function(event){
 		  var $socketElement = $(event.currentTarget).next();
@@ -18,7 +28,8 @@ MemberListSubView = Backbone.View.extend({
 		    $memberList.html('');
 		    $.each(data,function(key,val){
 		       self.addMember(val.Name);
-		       $memberList.append("<div id='socket_"+val.Name+"' class='socketID'>"+val.SocketID+"</div>");
+		       var socketIDHTML = _.template(self.socketIDPartial)({memberName : val.Name,socketID : val.SocketID});
+		       $memberList.append(socketIDHTML);
 		    });
 		},
   });

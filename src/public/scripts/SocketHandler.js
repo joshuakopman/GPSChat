@@ -1,8 +1,8 @@
 function SocketHandler(){
-  navigator.geolocation.getCurrentPosition(this.Connect,this.errorCallback,{timeout:10000});
+  navigator.geolocation.getCurrentPosition(SocketHandler.Connect,SocketHandler.errorCallback,{timeout:10000});
 }
 
-SocketHandler.prototype.errorCallback = function(err){
+SocketHandler.errorCallback = function(err){
  if(err.code == 1) {
     alert("Error: Access is denied!");
   }else if( err.code == 2) {
@@ -10,10 +10,10 @@ SocketHandler.prototype.errorCallback = function(err){
   }
 }
 
-SocketHandler.prototype.Connect = function(location){
+SocketHandler.Connect = function(location){
   var locationLat = location.coords.latitude;
   var locationLon = location.coords.longitude;
-  EventHandler.trigger('userLocationFound',{Lat : locationLat, Lon : locationLon });
+  EventHandler.trigger('userLocationFound',{ Lat : locationLat, Lon : locationLon });
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect('http://' + window.location.hostname +':3000',
                      { 
@@ -22,12 +22,12 @@ SocketHandler.prototype.Connect = function(location){
                      });
 
         socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : locationLat , Lon : locationLon });
-        SocketHandler.prototype.RegisterInboundEvents(socket);
-        SocketHandler.prototype.RegisterOutboundEvents(socket);
+        SocketHandler.RegisterInboundEvents(socket);
+        SocketHandler.RegisterOutboundEvents(socket);
   });
 }
 
-SocketHandler.prototype.RegisterInboundEvents = function(socket){
+SocketHandler.RegisterInboundEvents = function(socket){
     var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
                                 'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted',
                                 'lightMessage','selfLightMessage','chatLoaded','typing','stopTyping','weather'];
@@ -39,7 +39,7 @@ SocketHandler.prototype.RegisterInboundEvents = function(socket){
     });
 }
 
-SocketHandler.prototype.RegisterOutboundEvents = function(socket){
+SocketHandler.RegisterOutboundEvents = function(socket){
     EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess, Date.now());
     });

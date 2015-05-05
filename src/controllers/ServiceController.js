@@ -29,7 +29,8 @@ var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+
             return callback(weatherObj);
         });
     }).on('error', function(e) {
-          console.log("Got error: ", e);
+          console.log("Got error from weather service: ", e);
+          return callback(weatherObj); 
     });
 }
 

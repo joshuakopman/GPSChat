@@ -28,6 +28,10 @@ RUN npm install
 #Install global forever module
 RUN npm install forever -g
 
+#minify js
+RUN npm install gulp -g
+RUN gulp compress
+
 #Expose port and run app
 EXPOSE 3000
 

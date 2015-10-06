@@ -5,6 +5,7 @@ var MessageHelper = require('../helpers/MessageHelper');
 var ServiceController = require('./ServiceController');
 var io;
 var rooms=[];
+var Config = require('../Config');
 
 function SocketController(IO){
     io = IO;
@@ -24,8 +25,9 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterTypingEvents(socket,room,userName);
                 self.RegisterWeatherEvent(initialObject,socket);
                 self.InitializeChatRoom(socket,room,initialObject,userName);
-                if(room.Clients.length > 2){
-                    room.Radius = room.Radius - .05;
+                console.log(Config.RoomCapacity);
+                if(room.Clients.length > Config.RoomCapacity){
+                    room.Radius = room.Radius - Config.RadiusInterval;
                 }
 
             }

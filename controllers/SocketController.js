@@ -13,7 +13,6 @@ function SocketController(IO){
 SocketController.prototype.OnConnection = function(socket){
     var self = this;
     socket.on("initialize",function(initialObject){
-        console.log(initialObject);
         self.FindAndJoinChatRoom(socket,initialObject,function(room,userName){
             if(room != '')
             {
@@ -25,6 +24,10 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterTypingEvents(socket,room,userName);
                 self.RegisterWeatherEvent(initialObject,socket);
                 self.InitializeChatRoom(socket,room,initialObject,userName);
+                if(room.Clients.length > 2){
+                    room.Radius = room.Radius - .05;
+                }
+
             }
         });
     });
@@ -42,19 +45,18 @@ SocketController.prototype.InitializeChatRoom = function(socket,room,initialObj,
 
 SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObject,callback){
      var UserName = initializeObject.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-     var existingRoomDTO;
      var latNum = parseFloat(initializeObject.Lat).toFixed(2);
      var lonNum = parseFloat(initializeObject.Lon).toFixed(2);
      var CurrentRoomName = latNum + " " + lonNum;
 
      var socketHelper = new SocketHelper(io.sockets);
-     var foundRoomName = socketHelper.FindRoomInRange(latNum,lonNum);
+     var foundRoomName = socketHelper.FindRoomInRange(latNum,lonNum,rooms);
      if(foundRoomName)
      {
         var currentRoomNameKey = foundRoomName.replace(/[\s\-\.]/g, '').toString();
         if(socketHelper.CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName) == false)
         {
-            existingRoomDTO = new Room(foundRoomName,rooms[currentRoomNameKey].Neighborhood,rooms[currentRoomNameKey].Clients);
+            var existingRoomDTO = rooms[currentRoomNameKey];
             socket.join(existingRoomDTO.Name);
 
             return callback(existingRoomDTO,UserName);
@@ -68,11 +70,11 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      else
      {
         new ServiceController().GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
-               existingRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
-               rooms[existingRoomDTO.Key] = existingRoomDTO;
-               socket.join(existingRoomDTO.Name);
+               var newRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
+               rooms[newRoomDTO.Key] = newRoomDTO;
+               socket.join(newRoomDTO.Name);
 
-               return callback(existingRoomDTO,UserName);
+               return callback(newRoomDTO,UserName);
         });
      }
 

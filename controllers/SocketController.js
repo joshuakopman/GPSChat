@@ -52,16 +52,13 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      var CurrentRoomName = latNum + " " + lonNum;
 
      var socketHelper = new SocketHelper(io.sockets);
-     var foundRoomName = socketHelper.FindRoomInRange(latNum,lonNum,rooms);
-     if(foundRoomName)
+     var existingRoom = socketHelper.FindExistingRoom(latNum,lonNum,rooms);
+     if(existingRoom)
      {
-        var currentRoomNameKey = foundRoomName.replace(/[\s\-\.]/g, '').toString();
-        if(socketHelper.CheckIfNameTaken(rooms[currentRoomNameKey].Clients,UserName) == false)
+        if(socketHelper.CheckIfNameTaken(existingRoom.Clients,UserName) == false)
         {
-            var existingRoomDTO = rooms[currentRoomNameKey];
-            socket.join(existingRoomDTO.Name);
-
-            return callback(existingRoomDTO,UserName);
+            socket.join(existingRoom.Name);
+            return callback(existingRoom,UserName);
         }
         else
         {   

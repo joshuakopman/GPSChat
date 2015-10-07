@@ -4,32 +4,34 @@ function SocketHelper(sockets){
   socketsIO = sockets;
 }
 
-SocketHelper.prototype.FindRoomInRange = function(mylat,mylon,rooms){
-    var existingRooms = socketsIO.adapter.rooms;
-    var roomNameFound;
+SocketHelper.prototype.FindExistingRoom = function(mylat,mylon,rooms){
+    var existingRoomFound;
 
     if(rooms.length < 1)
     {
-        return roomNameFound;
+        return null;
     }
-    
-    Object.keys(existingRooms).forEach(function(roomName){
-        var roomTokens = roomName.split(" ");
-        if(!isNaN(parseFloat(roomTokens[0])) && !isNaN(parseFloat(roomTokens[1])))
+
+    rooms.some(function(currRoom){
+        var roomKey = currRoom.Key;
+        var roomCoordinates = currRoom.Name.split(" ");
+        if(!isNaN(parseFloat(roomCoordinates[0])) && !isNaN(parseFloat(roomCoordinates[1])))
         { 
-          var currentRadius = rooms[roomName.replace(/[\s\-\.]/g, '')].Radius;
-          if(Math.abs(parseFloat(roomTokens[0]).toFixed(2) - mylat) < currentRadius && Math.abs(parseFloat(roomTokens[1]).toFixed(2) - mylon) < currentRadius)
+          var currentRadius = rooms[roomKey].Radius;
+          if(Math.abs(parseFloat(roomCoordinates[0]).toFixed(2) - mylat) < currentRadius && Math.abs(parseFloat(roomCoordinates[1]).toFixed(2) - mylon) < currentRadius)
           {
-            roomNameFound = roomName;
+            existingRoomFound = rooms[roomKey];
+            return true;
           }
-        }
+        }   
     });
 
-    return roomNameFound;
+    return existingRoomFound;
+
 }
 
 SocketHelper.prototype.CheckIfNameTaken = function(roomList,user){
-    var isFound =false;
+    var isFound = false;
     roomList.forEach(function(val){
         if(val.Name == user)
         {

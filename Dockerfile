@@ -1,4 +1,4 @@
-FROM node:0.10-onbuild
+FROM node:4.1.2-onbuild
 
 #Pull Latest Code From Repo
 ADD . /

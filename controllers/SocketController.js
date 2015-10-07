@@ -25,7 +25,7 @@ SocketController.prototype.OnConnection = function(socket){
                 self.RegisterTypingEvents(socket,room,userName);
                 self.RegisterWeatherEvent(initialObject,socket);
                 self.InitializeChatRoom(socket,room,initialObject,userName);
-                console.log(Config.RoomCapacity);
+
                 if(room.Clients.length > Config.RoomCapacity){
                     room.Radius = room.Radius - Config.RadiusInterval;
                 }

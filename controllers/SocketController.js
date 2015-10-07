@@ -15,7 +15,7 @@ SocketController.prototype.OnConnection = function(socket){
     var self = this;
     socket.on("initialize",function(initialObject){
         self.FindAndJoinChatRoom(socket,initialObject,function(room,userName){
-            if(room != '')
+            if(room)
             {
                 self.RegisterLeaveEvent(socket,rooms[room.Key],room.Name,userName);
                 self.RegisterDisconnectEvent(socket,rooms[room.Key],room.Name,userName);
@@ -49,8 +49,6 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      var UserName = initializeObject.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      var latNum = parseFloat(initializeObject.Lat).toFixed(2);
      var lonNum = parseFloat(initializeObject.Lon).toFixed(2);
-     var CurrentRoomName = latNum + " " + lonNum;
-
      var socketHelper = new SocketHelper(io.sockets);
      var existingRoom = socketHelper.FindExistingRoom(latNum,lonNum,rooms);
      if(existingRoom)
@@ -63,17 +61,17 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
         else
         {   
             socket.emit('userError','A user with that name is already in the room.');
-            return callback('');
+            return callback(null);
         }
      }
      else
      {
         new ServiceController().GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
-               var newRoomDTO = new Room(CurrentRoomName.toString(),neighborhood);
-               rooms[newRoomDTO.Key] = newRoomDTO;
-               socket.join(newRoomDTO.Name);
+               var newRoom = new Room(latNum + " " + lonNum,neighborhood);
+               rooms[newRoom.Key] = newRoom;
+               socket.join(newRoom.Name);
 
-               return callback(newRoomDTO,UserName);
+               return callback(newRoom,UserName);
         });
      }
 
@@ -98,7 +96,7 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName)
         {
            messageHelper.HandleSpecialMessage(data, function(result){
                 var mess =  messageHelper.EmitSpecialMessageEvent(socket,Room.Name,data,timestamp,result);
-                rooms[Room.Name.replace(/[\s\-\.]/g, '').toString()].Messages.push(mess);
+                rooms[Room.Key].Messages.push(mess);
            });
         }
         else
@@ -115,11 +113,11 @@ SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
         {
             var d1 = new Date();
             var d2 = new Date(d1);
-            d2.setHours (d1.getHours() - 3);
+            d2.setHours(d1.getHours() - 3);
             timestamp = d2;
         }
 
-        var key = room.Name.replace(/[\s\-\.]/g, '').toString();
+        var key = room.Key;
         if(typeof rooms[key] != 'undefined')
         {
             rooms[key].Messages = rooms[key].Messages.slice(-100); //make sure to not store more than 100 messages back

@@ -2,8 +2,6 @@ NameEntryView = Backbone.View.extend({
         el: "#userTemplate",
         initialize: function(){
           this.userName = '';
-          this.Lat ='';
-          this.Lon='';
           this.render();
         },
         render: function(){

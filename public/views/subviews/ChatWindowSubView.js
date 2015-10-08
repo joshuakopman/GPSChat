@@ -99,7 +99,7 @@ ChatWindowSubView = Backbone.View.extend({
 			}
 		},
 		handleDisconnect: function(){
-	      EventHandler.trigger('leave',{Lat : NameEntryView.Lat, Lon : NameEntryView.Lon});
+	      EventHandler.trigger('leave');
 	      ChatView.disconnectTime = Date.now();
 	      ChatView.displayNameEntryTemplate();
 		},
@@ -117,7 +117,7 @@ ChatWindowSubView = Backbone.View.extend({
 		sendMsg : function(){
 			var $msgBox = $("#msgbox");
 		    var messageText = $msgBox.val();
-		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText ,NameEntryView.Lat,NameEntryView.Lon);
+		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText);
 		    $msgBox.val('');
 		},
 		setWeather : function(data){

@@ -13,7 +13,7 @@ SocketHandler.errorCallback = function(err){
 SocketHandler.Connect = function(location){
   var locationLat = location.coords.latitude;
   var locationLon = location.coords.longitude;
-  EventHandler.trigger('userLocationFound',{ Lat : locationLat, Lon : locationLon });
+  EventHandler.trigger('userLocationFound');
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
                      { 

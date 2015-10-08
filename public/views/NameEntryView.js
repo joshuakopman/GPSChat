@@ -4,7 +4,6 @@ NameEntryView = Backbone.View.extend({
           this.userName = '';
           this.Lat ='';
           this.Lon='';
-          var socketHandler = new SocketHandler();
           this.render();
         },
         render: function(){
@@ -12,6 +11,7 @@ NameEntryView = Backbone.View.extend({
             $.get('/templates/NameEntryTemplate.html', function (data) {
               template = _.template(data, {  });
               self.$el.html(template);  
+              new SocketHandler();
             }, 'html');
         },
         events:{
@@ -20,9 +20,9 @@ NameEntryView = Backbone.View.extend({
           'click #btnSendUser':'startChat'
         },
         showStartButton:function(){
-          $("#entryLoader").hide();
-          $("#txtUserName").show();
-          $("#btnSendUser").show();
+            $("#entryLoader").hide();
+            $("#txtUserName").show();
+            $("#btnSendUser").show();
         },
         hideErrors:function(){
            $("#error").hide();

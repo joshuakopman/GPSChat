@@ -11,6 +11,7 @@ SocketHandler.errorCallback = function(err){
 }
 
 SocketHandler.Connect = function(location){
+  console.log('connected');
   var locationLat = location.coords.latitude;
   var locationLon = location.coords.longitude;
   EventHandler.trigger('userLocationFound',{ Lat : locationLat, Lon : locationLon });

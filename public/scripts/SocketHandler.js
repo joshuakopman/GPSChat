@@ -52,7 +52,6 @@ SocketHandler.RegisterOutboundEvents = function(socket){
     });
 
     EventHandler.unbind('bootUser').on('bootUser', function (bootedUserInfo) {  
-      console.log(bootedUserInfo);
       socket.emit('bootUser', bootedUserInfo);
     });
 

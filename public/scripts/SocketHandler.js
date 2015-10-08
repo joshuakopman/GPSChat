@@ -15,7 +15,7 @@ SocketHandler.Connect = function(location){
   var locationLon = location.coords.longitude;
   EventHandler.trigger('userLocationFound',{ Lat : locationLat, Lon : locationLon });
   EventHandler.unbind('connect').on('connect',function(){
-        var socket = io.connect('http://' + window.location.hostname +':3000',
+        var socket = io.connect(location.protocol + '://' + window.location.hostname,
                      { 
                         query : 'UserName=' +  NameEntryView.userName, 
                         forceNew : true 

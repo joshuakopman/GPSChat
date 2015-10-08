@@ -1,5 +1,5 @@
 function SocketHandler(){
-  navigator.geolocation.getCurrentPosition(SocketHandler.Connect,SocketHandler.errorCallback,{timeout:10000});
+  navigator.geolocation.getCurrentPosition(SocketHandler.RegisterEventListenersAndInitializeChat,SocketHandler.errorCallback,{timeout:10000});
 }
 
 SocketHandler.errorCallback = function(err){
@@ -10,25 +10,22 @@ SocketHandler.errorCallback = function(err){
   }
 }
 
-SocketHandler.Connect = function(location){
-  var locationLat = location.coords.latitude;
-  var locationLon = location.coords.longitude;
+SocketHandler.RegisterEventListenersAndInitializeChat = function(location){
   EventHandler.trigger('userLocationFound');
+  var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
+               { 
+                  forceNew : true 
+               });
   EventHandler.unbind('connect').on('connect',function(){
-        var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
-                     { 
-                        forceNew : true 
-                     });
-        SocketHandler.GetInboundEvents(function(eventsList){
-           SocketHandler.RegisterInboundEvents(socket,eventsList);
-           SocketHandler.RegisterOutboundEvents(socket);
-           socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : locationLat , Lon : locationLon });
+        SocketHandler.GetServerEventNames(function(eventsList){
+           SocketHandler.RegisterServerEventListeners(socket,eventsList);
+           SocketHandler.RegisterClientEventListeners(socket);
+           socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : location.coords.latitude , Lon : location.coords.longitude });
         });
-
   });
 }
 
-SocketHandler.GetInboundEvents = function(callback){
+SocketHandler.GetServerEventNames = function(callback){
     var eventList = [];
      $.getJSON('/events',function(receivedSocketEvents){
         for (var property in receivedSocketEvents) {
@@ -40,15 +37,15 @@ SocketHandler.GetInboundEvents = function(callback){
       }); 
 }
 
-SocketHandler.RegisterInboundEvents = function(socket, inboundEvents){
-    inboundEvents.forEach(function(eventName){
+SocketHandler.RegisterServerEventListeners = function(socket, serverEvents){
+    serverEvents.forEach(function(eventName){
       socket.on(eventName, function (data) {
         EventHandler.trigger(eventName,data);
       });
     });
 }
 
-SocketHandler.RegisterOutboundEvents = function(socket){
+SocketHandler.RegisterClientEventListeners = function(socket){
     EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess, Date.now());
     });

@@ -41,4 +41,8 @@ SocketHelper.prototype.CheckIfNameTaken = function(roomList,user){
     return isFound;
 }
 
+SocketHelper.prototype.GetRoomTitle = function(neighborhood, name){
+    return neighborhood + ' (' + name + ')';
+}
+
 module.exports = SocketHelper;

@@ -4,16 +4,20 @@ var SocketHelper = require('../helpers/SocketHelper');
 var MessageHelper = require('../helpers/MessageHelper');
 var ServiceController = require('./ServiceController');
 var io;
+var socketHelper;
 var rooms=[];
 var Config = require('../Config');
+var Events = require('../constants/Events');
+var ClientEvents = require('../constants/ClientEvents');
 
 function SocketController(IO){
     io = IO;
+    socketHelper = new SocketHelper(io.sockets);
 }
 
 SocketController.prototype.OnConnection = function(socket){
     var self = this;
-    socket.on("initialize",function(initialObject){
+    socket.on(ClientEvents.OnEnterChatRoom,function(initialObject){
         self.FindAndJoinChatRoom(socket,initialObject,function(room,userName){
             if(room)
             {
@@ -36,12 +40,12 @@ SocketController.prototype.OnConnection = function(socket){
 }
 
 SocketController.prototype.InitializeChatRoom = function(socket,room,initialObj,user){
-    socket.emit('title',rooms[room.Key].Neighborhood + ' (' + room.Name + ')');
+    socket.emit(Events.SendRoomTitle,rooms[room.Key].Neighborhood + ' (' + room.Name + ')');
     this.PushUpdatedMemberList(room.Name,rooms[room.Key].Clients,socket,user);
-    socket.broadcast.to(room.Name).emit('joined', user);
+    socket.broadcast.to(room.Name).emit(Events.NewUserJoined, user);
     new ServiceController().GetWeather(initialObj.Lat,initialObj.Lon,function(data){
-             socket.emit('weather',data);
-             socket.emit('chatLoaded');
+             socket.emit(Events.SendWeather,data);
+             socket.emit(Events.Loaded);
     });
 }
 
@@ -49,7 +53,6 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
      var UserName = initializeObject.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
      var latNum = parseFloat(initializeObject.Lat).toFixed(2);
      var lonNum = parseFloat(initializeObject.Lon).toFixed(2);
-     var socketHelper = new SocketHelper(io.sockets);
      var existingRoom = socketHelper.FindExistingRoom(latNum,lonNum,rooms);
      if(existingRoom)
      {
@@ -60,7 +63,7 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
         }
         else
         {   
-            socket.emit('userError','A user with that name is already in the room.');
+            socket.emit(Events.UserError,'A user with that name is already in the room.');
             return callback(null);
         }
      }
@@ -79,17 +82,17 @@ SocketController.prototype.FindAndJoinChatRoom = function(socket,initializeObjec
 }
 
 SocketController.prototype.RegisterTypingEvents = function(socket,Room,userName){
-    socket.on('notifyTyping', function(userType){
-        io.to(Room.Name).emit('typing',userType);
+    socket.on(ClientEvents.OnNotifyTyping, function(userType){
+        io.to(Room.Name).emit(Events.StartedTyping,userType);
     });
 
-   socket.on('stoppedTyping', function(userStop){
-        io.to(Room.Name).emit('stopTyping',userStop);
+   socket.on(ClientEvents.OnStoppedTyping, function(userStop){
+        io.to(Room.Name).emit(Events.StoppedTyping,userStop);
     });
 }
 
 SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName){
-     socket.on('message', function(data,timestamp){
+     socket.on(ClientEvents.OnMessageReceived, function(data,timestamp){
         data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         var messageHelper = new MessageHelper();
         if(data.indexOf('&lt;script') < 0)
@@ -101,13 +104,13 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName)
         }
         else
         {
-            io.to(Room.Name).emit('injectMessage',userName +" tried to inject javascript and FAILED");
+            io.to(Room.Name).emit(Events.BlockedJavascript,userName +" tried to inject javascript and FAILED");
         }
      });
 }
 
 SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
-    socket.on('getMessageHistory', function(timestamp) {
+    socket.on(ClientEvents.OnMessageHistoryRequested, function(timestamp) {
 
         if(typeof timestamp == 'undefined')
         {
@@ -128,22 +131,22 @@ SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
                 recentMessages.push(mess);
               }
             });
-           socket.emit('messageHistory',recentMessages);
+           socket.emit(Events.SendMessageHistory,recentMessages);
         }
-        socket.emit('selfjoined',room.Neighborhood + ' (' + room.Name + ')');
+        socket.emit(Events.SelfJoined,socketHelper.GetRoomTitle(room.Neighborhood,room.Name));
     });
 }
 
 SocketController.prototype.RegisterLeaveEvent = function(socket,existingRoom,currentRoomName,userName){
     var self = this;
-     socket.on('leave', function() {
+     socket.on(ClientEvents.OnLeave, function() {
             self.HandleLeave(socket,existingRoom, currentRoomName,userName,true);
         })
 }
 
 SocketController.prototype.RegisterDisconnectEvent = function(socket,existingRoom,currentRoomName,userName){
     var self = this;
-     socket.on('disconnect', function() {
+     socket.on(ClientEvents.OnDisconnect, function() {
          var isUserInRoom = false;
          if(typeof existingRoom != 'undefined' && typeof existingRoom.Clients != 'undefined' )
          {
@@ -164,11 +167,11 @@ SocketController.prototype.RegisterDisconnectEvent = function(socket,existingRoo
 
 SocketController.prototype.RegisterBootEvent = function(socket,Room,myUserName){
     var self = this;
-    socket.on('bootUser', function(data) {
+    socket.on(ClientEvents.OnBootUser, function(data) {
         if(typeof io.sockets.connected[data.SocketID] != 'undefined' && myUserName!= io.sockets.connected[data.SocketID].handshake.query.UserName)
         {
              self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,io.sockets.connected[data.SocketID].handshake.query.UserName,false);
-             io.sockets.connected[data.SocketID].emit('userBooted');
+             io.sockets.connected[data.SocketID].emit(Events.BootedUser);
         }
     });
 }
@@ -178,15 +181,15 @@ SocketController.prototype.PushUpdatedMemberList = function(roomName,clients,soc
         client.Name = userName;
         client.SocketID = socket.id;
     clients.push(client);
-    io.to(roomName).emit('usersInRoomUpdate',clients);
+    io.to(roomName).emit(Events.SendUpdatedMemberList,clients);
 }
 
 SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoomName,userName,notBoot){
     socket.leave(CurrentRoomName); //leave room
-    io.to(CurrentRoomName).emit('left',userName); //tell everyone i left
+    io.to(CurrentRoomName).emit(Events.UserLeft,userName); //tell everyone i left
     if(notBoot)
     {
-      socket.emit('selfLeft',CurrentRoom.Neighborhood + ' (' + CurrentRoom.Name + ')'); //let myself know i left
+      socket.emit(Events.SelfLeft,socketHelper.GetRoomTitle(CurrentRoom.Neighborhood,CurrentRoom.Name)); //let myself know i left
     }
     if(typeof CurrentRoom.Clients != 'undefined')
     {
@@ -198,15 +201,15 @@ SocketController.prototype.HandleLeave = function(socket,CurrentRoom,CurrentRoom
                 CurrentRoom.Clients.splice(removeUserIndex,1);
             }
         });
-        io.to(CurrentRoomName).emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from room for everyone in it
-        socket.emit('usersInRoomUpdate',CurrentRoom.Clients); //remove me from dead room list
+        io.to(CurrentRoomName).emit(Events.SendUpdatedMemberList,CurrentRoom.Clients); //remove me from room for everyone in it
+        socket.emit(Events.SendUpdatedMemberList,CurrentRoom.Clients); //remove me from dead room list
     }
 }
 
 SocketController.prototype.RegisterWeatherEvent = function(initialObject,socket){
-    socket.on('getWeather',function(){
+    socket.on(ClientEvents.OnWeatherRequested,function(){
         new ServiceController().GetWeather(initialObject.Lat,initialObject.Lon,function(data){
-             socket.emit('weather',data);
+             socket.emit(Events.SendWeather,data);
         });
     });
 }

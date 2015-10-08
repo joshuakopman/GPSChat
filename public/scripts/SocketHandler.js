@@ -15,7 +15,7 @@ SocketHandler.Connect = function(location){
   var locationLon = location.coords.longitude;
   EventHandler.trigger('userLocationFound',{ Lat : locationLat, Lon : locationLon });
   EventHandler.unbind('connect').on('connect',function(){
-        var socket = io.connect(location.protocol + '://' + window.location.hostname,
+        var socket = io.connect(location.protocol + '//' + window.location.hostname,
                      { 
                         forceNew : true 
                      });

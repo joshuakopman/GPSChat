@@ -17,7 +17,6 @@ SocketHandler.Connect = function(location){
   EventHandler.unbind('connect').on('connect',function(){
         var socket = io.connect(location.protocol + '://' + window.location.hostname,
                      { 
-                        query : 'UserName=' +  NameEntryView.userName, 
                         forceNew : true 
                      });
 
@@ -52,8 +51,9 @@ SocketHandler.RegisterOutboundEvents = function(socket){
       socket.emit('getMessageHistory',ChatView.disconnectTime);
     });
 
-    EventHandler.unbind('bootUser').on('bootUser', function (socketID) {  
-      socket.emit('bootUser', socketID);
+    EventHandler.unbind('bootUser').on('bootUser', function (bootedUserInfo) {  
+      console.log(bootedUserInfo);
+      socket.emit('bootUser', bootedUserInfo);
     });
 
     EventHandler.unbind('notifyTyping').on('notifyTyping', function (socketID) {  

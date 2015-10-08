@@ -168,9 +168,11 @@ SocketController.prototype.RegisterDisconnectEvent = function(socket,existingRoo
 SocketController.prototype.RegisterBootEvent = function(socket,Room,myUserName){
     var self = this;
     socket.on(ClientEvents.OnBootUser, function(data) {
-        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && myUserName!= io.sockets.connected[data.SocketID].handshake.query.UserName)
+        console.log(data);
+        if(typeof io.sockets.connected[data.SocketID] != 'undefined' && socket.id != data.SocketID)
         {
-             self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,io.sockets.connected[data.SocketID].handshake.query.UserName,false);
+             console.log('booting: '+data.UserName);
+             self.HandleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,data.UserName,false);
              io.sockets.connected[data.SocketID].emit(Events.BootedUser);
         }
     });

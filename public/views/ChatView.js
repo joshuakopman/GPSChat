@@ -4,8 +4,8 @@ ChatView = Backbone.View.extend({
           this.messageCount = 0;
           this.disconnectTime = Date.now();
           this.render();
-          this.memberListSubView = new MemberListSubView();
-          this.chatWindowSubView = new ChatWindowSubView();
+          this.memberListPartial = new MemberListPartial();
+          this.chatWindowPartial = new ChatWindowPartial();
 		},
         render: function(){
             var self = this;;

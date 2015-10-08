@@ -1,4 +1,4 @@
-ChatWindowSubView = Backbone.View.extend({
+ChatWindowPartial = Backbone.View.extend({
         el: "#chatTemplate",
         initialize: function(){
           this.showTimestamps = false;

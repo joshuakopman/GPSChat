@@ -1,4 +1,4 @@
-MemberListSubView = Backbone.View.extend({
+MemberListPartial = Backbone.View.extend({
         el: "#chatTemplate",
         initialize: function(){
         	var self = this;

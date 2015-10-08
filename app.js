@@ -2,6 +2,8 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var SocketController = require('./controllers/SocketController');
+var Events = require('./constants/Events');
+var ClientEvents = require('./constants/ClientEvents');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.disable('etag');
@@ -12,6 +14,14 @@ var server = app.listen(3000, function() {
 
 app.get('/', function(req, res){
   res.sendfile('index.html');
+});
+
+app.get('/events', function(req, res){
+  res.send(Events);
+});
+
+app.get('/clientevents', function(req, res){
+  res.send(ClientEvents);
 });
 
 var io = require('socket.io').listen(server);

@@ -11,30 +11,39 @@ SocketHandler.errorCallback = function(err){
 }
 
 SocketHandler.Connect = function(location){
-  console.log('connected');
   var locationLat = location.coords.latitude;
   var locationLon = location.coords.longitude;
   EventHandler.trigger('userLocationFound',{ Lat : locationLat, Lon : locationLon });
   EventHandler.unbind('connect').on('connect',function(){
-        var socket = io.connect(window.location.protocol + '//' + window.location.hostname+":"+3000,
+        var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
                      { 
                         forceNew : true 
                      });
+        SocketHandler.GetInboundEvents(function(eventsList){
+           SocketHandler.RegisterInboundEvents(socket,eventsList);
+           SocketHandler.RegisterOutboundEvents(socket);
+           socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : locationLat , Lon : locationLon });
+        });
 
-        socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : locationLat , Lon : locationLon });
-        SocketHandler.RegisterInboundEvents(socket);
-        SocketHandler.RegisterOutboundEvents(socket);
   });
 }
 
-SocketHandler.RegisterInboundEvents = function(socket){
-    var receivedSocketEvents = ['message','title','joined','selfjoined','left','selfLeft','usersInRoomUpdate','userError',
-                                'messageHistory','injectMessage','selfMessage','imageMessage','selfImageMessage','userBooted',
-                                'lightMessage','selfLightMessage','chatLoaded','typing','stopTyping','weather'];
+SocketHandler.GetInboundEvents = function(callback){
+    var eventList = [];
+     $.getJSON('/events',function(receivedSocketEvents){
+        for (var property in receivedSocketEvents) {
+            if (receivedSocketEvents.hasOwnProperty(property)){
+                eventList.push(receivedSocketEvents[property]);
+            }
+        }
+        callback(eventList);
+      }); 
+}
 
-    receivedSocketEvents.forEach(function(eventType){
-      socket.on(eventType, function (data) {
-        EventHandler.trigger(eventType,data);
+SocketHandler.RegisterInboundEvents = function(socket, inboundEvents){
+    inboundEvents.forEach(function(eventName){
+      socket.on(eventName, function (data) {
+        EventHandler.trigger(eventName,data);
       });
     });
 }

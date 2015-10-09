@@ -6,7 +6,7 @@ function ServiceController(){
 }
 
 ServiceController.prototype.GetWeather = function(lat,lon,callback){
-var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+ lon +'&units=imperial';
+var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+ lon +'&units=imperial&APPID=cc76249b31be5896cffcb3696b7d1db2';
     http.get(url, function(res) {
         var body = '';
 

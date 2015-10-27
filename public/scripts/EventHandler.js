@@ -5,7 +5,6 @@ EventHandler.unbind('userLocationFound').on('userLocationFound', function (locat
 });
 
 EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
-    console.log("self message received")
  if(typeof data.ImageUrl != 'undefined'){
       ChatView.chatWindowPartial.addImageMessage(data,'message','myNameMessage');
   }else{
@@ -14,7 +13,6 @@ EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
 });
 
 EventHandler.unbind('message').on('message', function (data) {
-  console.log("message received")
  if(typeof data.ImageUrl != 'undefined'){
       ChatView.chatWindowPartial.addImageMessage(data,'message','userNameMessage');
   }else{

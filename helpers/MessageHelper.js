@@ -7,20 +7,12 @@ function MessageHelper(){
 	serviceController = new ServiceController();
 }
 
-var ServiceController = require('../controllers/ServiceController');
-var serviceController;
-var Message = require('../models/Message');
-var Events = require('../constants/Events');
-
-function MessageHelper(){
-	serviceController = new ServiceController();
-}
-
 MessageHelper.prototype.HandleSpecialMessage = function(messageFromClient, timestamp, callback){
     var createdMessage = new Message();
 		createdMessage.User = messageFromClient.substring(0,messageFromClient.indexOf(':'));
 		createdMessage.Timestamp = timestamp;
 		createdMessage.Content = messageFromClient.substring(messageFromClient.indexOf(':'),messageFromClient.length);
+
 		if(messageFromClient.indexOf('/img ') > -1)
 		{
 			var imageURL =  messageFromClient.substring(messageFromClient.indexOf('/img ') + 5,messageFromClient.length);

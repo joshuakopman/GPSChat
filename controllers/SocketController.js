@@ -100,6 +100,7 @@ SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName)
            messageHelper.HandleSpecialMessage(clientMessage, timestamp, function(result){
                 socket.broadcast.to(Room.Name).emit(Events.Message, result);
                 socket.emit(Events.SelfMessage,result);
+                console.log("adding to message history"+result);
                 rooms[Room.Key].Messages.push(result);
            });
         }
@@ -129,6 +130,7 @@ SocketController.prototype.RegisterMessageHistoryEvent = function(socket,room){
             var recentMessages=[];
             allMessages.forEach( function (mess){
               if(mess.Timestamp > timestamp){
+                console.log(mess);
                 recentMessages.push(mess);
               }
             });

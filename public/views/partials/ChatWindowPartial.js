@@ -40,12 +40,11 @@ ChatWindowPartial = Backbone.View.extend({
 		  var toggleTimestampClass = (this.showTimestamps) ? "showTimestamp" : "hideTimestamp";
 		  var formattedMessTimestamp = (timestamp) ? new Date(timestamp).toString("hh:mm tt") : new Date().toString("hh:mm tt");
 		  var messTimestampHTML = _.template(this.messTimestampPartial)({timeStamp : formattedMessTimestamp,toggleTimestampClass : toggleTimestampClass});
-		  if(m.indexOf(':') > -1)
+		  var messageHTML = '';
+		  if(typeof m != 'undefined' && typeof m.Content !== 'undefined')
 		  {
-			    var user = m.split(':',2)[0];  
-			    m = m.replace(/^[^:]*:/,'');
-		  		var messageHTML = _.template(this.messagePartial)({timeStamp : messTimestampHTML,userClass : userClassName,userName:user,messageText:m,messageClass:messageClassName});
-			    $chatLog.append(messageHTML);
+			    m.Content = m.Content.replace(/^[^:]*:/,'');
+		  		messageHTML = _.template(this.messagePartial)({timeStamp : messTimestampHTML,userClass : userClassName,userName:m.User,messageText:m.Content,messageClass:messageClassName});
 			    if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
 			    {
 			      $("#newMessageSound").get(0).play();
@@ -53,9 +52,10 @@ ChatWindowPartial = Backbone.View.extend({
 		  }
 		  else
 		  {
-		  		var messageHTML = _.template(this.messagePartial)({timeStamp : '',userClass : '',userName:'',messageText:messTimestampHTML + m,messageClass:messageClassName});
-			    $chatLog.append(messageHTML);
+		  		messageHTML = _.template(this.messagePartial)({timeStamp : '',userClass : '',userName:'',messageText:messTimestampHTML + m,messageClass:messageClassName});
 		  }
+
+		  $chatLog.append(messageHTML);
 		},
 		addImageMessage : function(m,messageClassName,userClassName,timestamp) {
 		  	var $chatLog =  $("#chatlog");
@@ -63,7 +63,7 @@ ChatWindowPartial = Backbone.View.extend({
 		  	var formattedMessTimestamp = (timestamp) ? new Date(timestamp).toString("hh:mm tt") : new Date().toString("hh:mm tt");
 		  	var messTimestampHTML = _.template(this.messTimestampPartial)({timeStamp : formattedMessTimestamp,toggleTimestampClass : toggleTimestampClass});
 
-		  	var messageHTML = _.template(this.imageMessagePartial)({timeStamp : messTimestampHTML,userClass : userClassName,userName:m.User,messageClass:messageClassName,url:m.URL});
+		  	var messageHTML = _.template(this.imageMessagePartial)({timeStamp : messTimestampHTML,userClass : userClassName,userName:m.User,messageClass:messageClassName,url:m.ImageUrl});
 		 	$chatLog.append(messageHTML);
 		 	if(userClassName == "userNameMessage" && $("#chkBoxSounds").is(":checked"))
 		    {

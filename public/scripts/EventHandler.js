@@ -5,29 +5,24 @@ EventHandler.unbind('userLocationFound').on('userLocationFound', function (locat
 });
 
 EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
-  ChatView.chatWindowPartial.addMessage(data,'message','myNameMessage');
+    console.log("self message received")
+ if(typeof data.ImageUrl != 'undefined'){
+      ChatView.chatWindowPartial.addImageMessage(data,'message','myNameMessage');
+  }else{
+      ChatView.chatWindowPartial.addMessage(data,'message','myNameMessage');
+  }
 });
 
 EventHandler.unbind('message').on('message', function (data) {
-  ChatView.chatWindowPartial.addMessage(data,'message','userNameMessage');
+  console.log("message received")
+ if(typeof data.ImageUrl != 'undefined'){
+      ChatView.chatWindowPartial.addImageMessage(data,'message','userNameMessage');
+  }else{
+    ChatView.chatWindowPartial.addMessage(data,'message','userNameMessage');
+  }
   ChatView.updateTitle();
 });
 
-EventHandler.unbind('selfImageMessage').on('selfImageMessage', function (data) {
-  ChatView.chatWindowPartial.addImageMessage(data,'message','myNameMessage');
-});
-
-EventHandler.unbind('imageMessage').on('imageMessage', function (data) {
-  ChatView.chatWindowPartial.addImageMessage(data,'message','userNameMessage');
-});
-
-EventHandler.unbind('selfLightMessage').on('selfLightMessage', function (data) {
-  ChatView.chatWindowPartial.addLightMessage(data,'message','myNameLightMessage');
-});
-
-EventHandler.unbind('lightMessage').on('lightMessage', function (data) {
-  ChatView.chatWindowPartial.addLightMessage(data,'message','userNameLightMessage');
-});
 
 EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
   ChatView.chatWindowPartial.addMessage(data,'roomMessage','');
@@ -63,13 +58,13 @@ EventHandler.unbind('userError').on('userError', function (data) {
 
 EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 	data.forEach(function(mess){
-    if(mess.IsImage == false)
+    if(typeof data.ImageUrl != 'undefined')
     {
-		  ChatView.chatWindowPartial.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
+        ChatView.chatWindowPartial.addImageMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
     }
     else
     {
-      ChatView.chatWindowPartial.addImageMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
+        ChatView.chatWindowPartial.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
     }
 	});
 });

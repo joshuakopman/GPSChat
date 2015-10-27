@@ -1,6 +1,8 @@
-function Message(content,timestamp,isImage){
+function Message(content,timestamp,imageUrl,user){
 	this.Content = content;
 	this.Timestamp = timestamp;
-	this.IsImage = isImage;
+	this.ImageUrl = imageUrl;
+	this.User = user;
 }
+
 module.exports = Message;

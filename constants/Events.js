@@ -16,11 +16,6 @@ Events.SelfJoined = 'selfjoined';
 Events.SelfLeft = 'selfLeft';
 
 Events.Message = 'message';
-Events.ImageMessage = 'imageMessage';
-Events.LightsMessage = 'lightMessage';
-
 Events.SelfMessage = 'selfMessage';
-Events.SelfImageMessage = 'selfImageMessage';
-Events.SelfLightsMessage = 'selfLightMessage';
 
 module.exports = Events;

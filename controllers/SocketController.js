@@ -92,14 +92,15 @@ SocketController.prototype.RegisterTypingEvents = function(socket,Room,userName)
 }
 
 SocketController.prototype.RegisterMessageEvent = function(socket,Room,userName){
-     socket.on(ClientEvents.OnMessageReceived, function(data,timestamp){
-        data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+     socket.on(ClientEvents.OnMessageReceived, function(clientMessage,timestamp){
+        clientMessage = clientMessage.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         var messageHelper = new MessageHelper();
-        if(data.indexOf('&lt;script') < 0)
+        if(clientMessage.indexOf('&lt;script') < 0)
         {
-           messageHelper.HandleSpecialMessage(data, function(result){
-                var mess =  messageHelper.EmitSpecialMessageEvent(socket,Room.Name,data,timestamp,result);
-                rooms[Room.Key].Messages.push(mess);
+           messageHelper.HandleSpecialMessage(clientMessage, timestamp, function(result){
+                socket.broadcast.to(Room.Name).emit(Events.Message, result);
+                socket.emit(Events.SelfMessage,result);
+                rooms[Room.Key].Messages.push(result);
            });
         }
         else

@@ -1,11 +1,11 @@
 var https = require('https');
 var http = require('http');
 
-function ServiceController(){
+function ServiceManager(){
 
 }
 
-ServiceController.prototype.GetWeather = function(lat,lon,callback){
+ServiceManager.prototype.GetWeather = function(lat,lon,callback){
 var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+ lon +'&units=imperial&APPID=cc76249b31be5896cffcb3696b7d1db2';
     http.get(url, function(res) {
         var body = '';
@@ -34,7 +34,7 @@ var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+
     });
 }
 
-ServiceController.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
+ServiceManager.prototype.GetNeighborhoodByCoords = function(lat,lon,callback){
     var url = 'https://api.flickr.com/services/rest/?method=flickr.places.findByLatLon&api_key=58c6594cbce90ae5daaa7ae687e1149f&lat='+lat+'&lon='+lon+'&format=json&nojsoncallback=1';
     https.get(url, function(res) {
         var body = '';
@@ -52,7 +52,7 @@ ServiceController.prototype.GetNeighborhoodByCoords = function(lat,lon,callback)
     });
 }
 
-ServiceController.prototype.CheckImageIntegrity = function(url,callback){
+ServiceManager.prototype.CheckImageIntegrity = function(url,callback){
     if(url.indexOf('https')> -1)
     {
         https.get(url, function(response) {
@@ -71,7 +71,7 @@ ServiceController.prototype.CheckImageIntegrity = function(url,callback){
     }
 }
 
-ServiceController.prototype.SetLightState = function(lightSwitchObj){
+ServiceManager.prototype.SetLightState = function(lightSwitchObj){
  this.options = {
         host: 'huetube.info',
         path: '/groups/0',
@@ -103,4 +103,4 @@ ServiceController.prototype.SetLightState = function(lightSwitchObj){
     req.end();
 }
 
-module.exports = ServiceController;
+module.exports = ServiceManager;

@@ -1,10 +1,10 @@
-var ServiceController = require('../controllers/ServiceController');
-var serviceController;
+var ServiceManager = require('../managers/ServiceManager');
+var serviceManager;
 var Message = require('../models/Message');
 var Events = require('../constants/Events');
 
 function MessageHelper(){
-	serviceController = new ServiceController();
+	serviceManager = new ServiceManager();
 }
 
 MessageHelper.prototype.HandleSpecialMessage = function(messageFromClient, timestamp, callback){
@@ -16,7 +16,7 @@ MessageHelper.prototype.HandleSpecialMessage = function(messageFromClient, times
 		if(messageFromClient.indexOf('/img ') > -1)
 		{
 			var imageURL =  messageFromClient.substring(messageFromClient.indexOf('/img ') + 5,messageFromClient.length);
-			serviceController.CheckImageIntegrity(imageURL, function(code){
+			serviceManager.CheckImageIntegrity(imageURL, function(code){
 				if(code == 200)
 				{
 					createdMessage.ImageUrl = imageURL;
@@ -35,7 +35,7 @@ MessageHelper.prototype.HandleSpecialMessage = function(messageFromClient, times
 			{
 			    var lightSwitchObj = {};
 	    		lightSwitchObj.state = lightCommand;
-				serviceController.SetLightState(lightCommand);
+				serviceManager.SetLightState(lightCommand);
 				createdMessage.Content = "has turned the lights " + lightCommand;
 
 				return callback(createdMessage);

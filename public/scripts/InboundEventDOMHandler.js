@@ -1,10 +1,10 @@
-var EventHandler = _.extend({}, Backbone.Events);
+var InboundEventDomHandler = _.extend({}, Backbone.Events);
 
-EventHandler.unbind('userLocationFound').on('userLocationFound', function (location) {
+InboundEventDomHandler.off('userLocationFound').on('userLocationFound', function (location) {
   NameEntryView.showStartButton();
 });
 
-EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
+InboundEventDomHandler.off('selfMessage').on('selfMessage', function (data) {
  if(typeof data.ImageUrl != 'undefined'){
       ChatView.chatWindowPartial.addImageMessage(data,'message','myNameMessage');
   }else{
@@ -12,7 +12,7 @@ EventHandler.unbind('selfMessage').on('selfMessage', function (data) {
   }
 });
 
-EventHandler.unbind('message').on('message', function (data) {
+InboundEventDomHandler.off('message').on('message', function (data) {
  if(typeof data.ImageUrl != 'undefined'){
       ChatView.chatWindowPartial.addImageMessage(data,'message','userNameMessage');
   }else{
@@ -22,39 +22,39 @@ EventHandler.unbind('message').on('message', function (data) {
 });
 
 
-EventHandler.unbind('injectMessage').on('injectMessage', function (data) {
+InboundEventDomHandler.off('injectMessage').on('injectMessage', function (data) {
   ChatView.chatWindowPartial.addMessage(data,'roomMessage','');
 });
 
-EventHandler.unbind('title').on('title', function (data) {
+InboundEventDomHandler.off('title').on('title', function (data) {
   ChatView.displayChatTemplate(data);
 });
 
-EventHandler.unbind('joined').on('joined', function (data) {
+InboundEventDomHandler.off('joined').on('joined', function (data) {
   ChatView.chatWindowPartial.addMessage(data + " has joined",'roomMessage','');
 });
 
-EventHandler.unbind('selfjoined').on('selfjoined', function (data) {
+InboundEventDomHandler.off('selfjoined').on('selfjoined', function (data) {
   ChatView.chatWindowPartial.addMessage("You have joined the room '" + data + "'",'roomMessage','');
 });
 
-EventHandler.unbind('left').on('left', function (data) {
+InboundEventDomHandler.off('left').on('left', function (data) {
   ChatView.chatWindowPartial.addMessage(data +" has left the room",'roomMessage','');
 });
 
-EventHandler.unbind('selfLeft').on('selfLeft', function (data) {
+InboundEventDomHandler.off('selfLeft').on('selfLeft', function (data) {
   ChatView.chatWindowPartial.addMessage("You left the room " + data,'roomMessage','');
 });
 
-EventHandler.unbind('usersInRoomUpdate').on('usersInRoomUpdate', function (data) {
+InboundEventDomHandler.off('usersInRoomUpdate').on('usersInRoomUpdate', function (data) {
  ChatView.memberListPartial.refreshUserList(data);
 });
 
-EventHandler.unbind('userError').on('userError', function (data) {
+InboundEventDomHandler.off('userError').on('userError', function (data) {
   ChatView.displayUserError(data);
 });
 
-EventHandler.unbind('messageHistory').on('messageHistory', function(data){
+InboundEventDomHandler.off('messageHistory').on('messageHistory', function(data){
 	data.forEach(function(mess){
     if(typeof data.ImageUrl != 'undefined')
     {
@@ -67,21 +67,21 @@ EventHandler.unbind('messageHistory').on('messageHistory', function(data){
 	});
 });
 
-EventHandler.unbind('userBooted').on('userBooted', function (data) {
+InboundEventDomHandler.off('userBooted').on('userBooted', function (data) {
   ChatView.chatWindowPartial.addMessage("You have been booted from the room",'roomMessage','');
   ChatView.disconnectTime = Date.now();
   ChatView.displayNameEntryTemplate();
 });
 
-EventHandler.unbind('typing').on('typing', function (userName) {
+InboundEventDomHandler.off('typing').on('typing', function (userName) {
   ChatView.chatWindowPartial.startedTyping(userName);
 });
 
-EventHandler.unbind('stopTyping').on('stopTyping', function (userName) {
+InboundEventDomHandler.unbind('stopTyping').on('stopTyping', function (userName) {
   ChatView.chatWindowPartial.stoppedTyping(userName);
 });
 
-EventHandler.unbind('weather').on('weather', function (data) {
+InboundEventDomHandler.unbind('weather').on('weather', function (data) {
   ChatView.chatWindowPartial.setWeather(data);
-  setTimeout(function(){  EventHandler.trigger('getWeather');},60000);
+  setTimeout(function(){  OutboundEventHandler.trigger('getWeather');},60000);
 });

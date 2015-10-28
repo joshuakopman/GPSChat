@@ -20,7 +20,7 @@ MemberListPartial = Backbone.View.extend({
 		},
 		handleBoot : function(event){
 		  var $socketElement = $(event.currentTarget).next();
-		  EventHandler.trigger('bootUser',{ UserName : $socketElement.attr("id"), SocketID : $socketElement.html()});
+		  OutboundEventHandler.trigger('bootUser',{ UserName : $socketElement.attr("id"), SocketID : $socketElement.html()});
 		},
 		refreshUserList : function(data){
 		    var self = this;

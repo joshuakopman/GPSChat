@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var path = require('path');
-var SocketController = require('./controllers/SocketController');
+var SocketManager = require('./managers/SocketManager');
 var Events = require('./constants/Events');
 var ClientEvents = require('./constants/ClientEvents');
 
@@ -27,5 +27,5 @@ app.get('/clientevents', function(req, res){
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (newSocket){
-	new SocketController(io).OnConnection(newSocket);
+	new SocketManager(io).OnConnection(newSocket);
 });

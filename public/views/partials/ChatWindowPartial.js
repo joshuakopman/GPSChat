@@ -99,7 +99,7 @@ ChatWindowPartial = Backbone.View.extend({
 			}
 		},
 		handleDisconnect: function(){
-	      EventHandler.trigger('leave');
+	      OutboundEventHandler.trigger('leave');
 	      ChatView.disconnectTime = Date.now();
 	      ChatView.displayNameEntryTemplate();
 		},
@@ -109,15 +109,15 @@ ChatWindowPartial = Backbone.View.extend({
 	            event.preventDefault();
 	        }else{
         		clearTimeout(this.typingTimeout);
-        		EventHandler.trigger('notifyTyping');
-        		this.typingTimeout = setTimeout(function(){EventHandler.trigger('stoppedTyping',NameEntryView.userName);}, 500);
+        		OutboundEventHandler.trigger('notifyTyping');
+        		this.typingTimeout = setTimeout(function(){OutboundEventHandler.trigger('stoppedTyping',NameEntryView.userName);}, 500);
 
 	        } 
 		},
 		sendMsg : function(){
 			var $msgBox = $("#msgbox");
 		    var messageText = $msgBox.val();
-		    EventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText);
+		    OutboundEventHandler.trigger('sendMessage',NameEntryView.userName + ": " + messageText);
 		    $msgBox.val('');
 		},
 		setWeather : function(data){

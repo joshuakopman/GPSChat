@@ -2,6 +2,7 @@ NameEntryView = Backbone.View.extend({
         el: "#userTemplate",
         initialize: function(){
           this.userName = '';
+          this.socketHandler = new SocketHandler();
           this.render();
         },
         render: function(){
@@ -9,7 +10,9 @@ NameEntryView = Backbone.View.extend({
             $.get('/templates/NameEntryTemplate.html', function (data) {
               template = _.template(data, {  });
               self.$el.html(template);  
-              new SocketHandler();
+              self.socketHandler.DetermineLocationAndEstablishSocketConnection(function(){
+                self.readyToEnterChat();
+              });
             }, 'html');
         },
         events:{
@@ -17,7 +20,7 @@ NameEntryView = Backbone.View.extend({
           'keypress #txtUserName':'startChat',
           'click #btnSendUser':'startChat'
         },
-        showStartButton:function(){
+        readyToEnterChat:function(){
             $("#entryLoader").hide();
             $("#txtUserName").show();
             $("#btnSendUser").show();
@@ -37,8 +40,8 @@ NameEntryView = Backbone.View.extend({
             {       
                 $("#btnSendUser,#txtUserName").prop('disabled',true);
                 this.userName = enteredUserName; 
-                $txtUserName.removeClass("invalid").addClass("valid");       
-                EventHandler.trigger('connect');
+                $txtUserName.removeClass("invalid").addClass("valid");
+                this.socketHandler.ConnectToChatRoom(ChatView.disconnectTime);
             }
             else
             {

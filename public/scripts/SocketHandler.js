@@ -1,8 +1,10 @@
+
 function SocketHandler(){
-  navigator.geolocation.getCurrentPosition(SocketHandler.RegisterEventListenersAndInitializeChat,SocketHandler.errorCallback,{timeout:10000});
+  this.socket = '';
+  this.gpsLocation = '';
 }
 
-SocketHandler.errorCallback = function(err){
+SocketHandler.prototype.errorCallback = function(err){
  if(err.code == 1) {
     alert("Error: Access is denied!");
   }else if( err.code == 2) {
@@ -10,22 +12,28 @@ SocketHandler.errorCallback = function(err){
   }
 }
 
-SocketHandler.RegisterEventListenersAndInitializeChat = function(location){
-  EventHandler.trigger('userLocationFound');
-  var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
-               { 
-                  forceNew : true 
-               });
-  EventHandler.unbind('connect').on('connect',function(){
-        SocketHandler.GetServerEventNames(function(eventsList){
-           SocketHandler.RegisterServerEventListeners(socket,eventsList);
-           SocketHandler.RegisterClientEventListeners(socket);
-           socket.emit('initialize',{ UserName : NameEntryView.userName , Lat : location.coords.latitude , Lon : location.coords.longitude });
-        });
-  });
+SocketHandler.prototype.DetermineLocationAndEstablishSocketConnection = function(cb){
+  var self = this;
+  navigator.geolocation.getCurrentPosition(function(location){
+              self.gpsLocation = location;
+              self.socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
+                            { 
+                              forceNew : true 
+                            });
+              cb();
+  },this.errorCallback,{timeout:10000});
+
 }
 
-SocketHandler.GetServerEventNames = function(callback){
+SocketHandler.prototype.ConnectToChatRoom = function(timeLastDisconnected){
+  var self = this;
+  this.GetServerEventNames(function(eventsList){
+           self.FireBackboneEventsOnInboundSocketEvents(eventsList);
+           OutboundEventHandler.RegisterOutboundEvents(self.socket);
+           self.socket.emit('enterChatRoom',{ UserName : NameEntryView.userName , Lat : self.gpsLocation.coords.latitude , Lon : self.gpsLocation.coords.longitude, TimeDisconnected: timeLastDisconnected });
+     });
+}
+SocketHandler.prototype.GetServerEventNames = function(cb){
     var eventList = [];
      $.getJSON('/events',function(receivedSocketEvents){
         for (var property in receivedSocketEvents) {
@@ -33,44 +41,17 @@ SocketHandler.GetServerEventNames = function(callback){
                 eventList.push(receivedSocketEvents[property]);
             }
         }
-        callback(eventList);
+        cb(eventList);
       }); 
 }
 
-SocketHandler.RegisterServerEventListeners = function(socket, serverEvents){
+SocketHandler.prototype.FireBackboneEventsOnInboundSocketEvents = function(serverEvents){
+   var self = this;
     serverEvents.forEach(function(eventName){
-      socket.on(eventName, function (data) {
-        EventHandler.trigger(eventName,data);
+      self.socket.on(eventName, function (data) {
+        InboundEventDomHandler.trigger(eventName,data);
       });
     });
 }
 
-SocketHandler.RegisterClientEventListeners = function(socket){
-    EventHandler.unbind('sendMessage').on('sendMessage', function (mess) {  
-      socket.emit('message', mess, Date.now());
-    });
-    
-    EventHandler.unbind('leave').on('leave', function () {  
-       socket.emit('leave');
-    });
 
-    EventHandler.unbind('chatLoaded').on('chatLoaded',function(){
-      socket.emit('getMessageHistory',ChatView.disconnectTime);
-    });
-
-    EventHandler.unbind('bootUser').on('bootUser', function (bootedUserInfo) {  
-      socket.emit('bootUser', bootedUserInfo);
-    });
-
-    EventHandler.unbind('notifyTyping').on('notifyTyping', function (socketID) {  
-      socket.emit('notifyTyping',NameEntryView.userName);
-    });
-
-    EventHandler.unbind('stoppedTyping').on('stoppedTyping', function (user) {  
-      socket.emit('stoppedTyping',NameEntryView.userName);
-    });
-
-    EventHandler.unbind('getWeather').on('getWeather', function () { 
-       socket.emit('getWeather');
-    });
-}

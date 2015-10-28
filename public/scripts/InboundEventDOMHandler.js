@@ -35,7 +35,6 @@ InboundEventDomHandler.off('joined').on('joined', function (data) {
 });
 
 InboundEventDomHandler.off('selfjoined').on('selfjoined', function (data) {
-  console.log("You have joined");
   ChatView.chatWindowPartial.addMessage("You have joined the room '" + data + "'",'roomMessage','');
 });
 

@@ -1,6 +1,5 @@
 var Events = {};
 
-Events.Loaded = 'chatLoaded';
 Events.SendRoomTitle = 'title';
 Events.SendWeather = 'weather';
 Events.SendUpdatedMemberList = 'usersInRoomUpdate';

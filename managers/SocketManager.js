@@ -11,6 +11,7 @@ var SocketManager = function(io,socket,rooms){
 
     var socketHelper = new SocketHelper(io.sockets);
     var serviceManager = new ServiceManager();
+    var eventsRegistered = false;
 
     return{
         onConnection : function(){
@@ -19,12 +20,16 @@ var SocketManager = function(io,socket,rooms){
                 self.findAndJoinChatRoom(userInformation,function(room,userName){
                     if(room)
                     {
+                      if(!eventsRegistered){
                         self.registerLeaveEvent(room,userName);
                         self.registerDisconnectEvent(room,userName);
                         self.registerMessageEvent(room,userName);
                         self.registerBootEvent(room,userName);
                         self.registerTypingEvents(room);
                         self.registerWeatherEvent(userInformation);
+                        eventsRegistered = true;
+                      }
+                      
                         self.initializeChatRoom(room,userInformation);
 
                         if(room.Clients.length > Config.RoomCapacity){
@@ -42,8 +47,7 @@ var SocketManager = function(io,socket,rooms){
             this.sendMissedMessageHistory(room,userInformation);
             socket.emit(Events.SelfJoined,socketHelper.getRoomTitle(room.Neighborhood,room.Name));
             serviceManager.getWeather(userInformation.Lat,userInformation.Lon,function(data){
-                     socket.emit(Events.SendWeather,data);
-                     socket.emit(Events.Loaded);
+                socket.emit(Events.SendWeather,data);
             });
         },
         findAndJoinChatRoom : function(userInformation,callback){
@@ -94,6 +98,7 @@ var SocketManager = function(io,socket,rooms){
                  messageHelper.handleSpecialMessage(clientMessage, timestamp, function(result){
                       socket.broadcast.to(Room.Name).emit(Events.Message, result);
                       socket.emit(Events.SelfMessage,result);
+                      console.log("message event fired...");
                       rooms[Room.Key].Messages.push(result);
                  });
               }

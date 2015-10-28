@@ -24,7 +24,8 @@ var SocketHandler = function (){
     connectToChatRoom : function(timeLastDisconnected){
       var self = this;
       this.getServerEventNames(function(serverEventsList){
-            if(EventsRegistered == false){
+            if(!EventsRegistered){
+                console.log("events registered");
                  self.fireBackboneEventsOnInboundSocketEvents(serverEventsList);
                  OutboundEventHandler.registerOutboundEvents(socket);
             }

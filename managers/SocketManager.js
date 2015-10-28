@@ -44,6 +44,7 @@ SocketManager.prototype.InitializeChatRoom = function(socket,room,initialObj,use
     socket.broadcast.to(room.Name).emit(Events.NewUserJoined, user);
     this.SendMissedMessageHistory(socket,room,initialObj);
     socket.emit(Events.SelfJoined,socketHelper.GetRoomTitle(room.Neighborhood,room.Name));
+    console.log("You have joined");
     new ServiceManager().GetWeather(initialObj.Lat,initialObj.Lon,function(data){
              socket.emit(Events.SendWeather,data);
              socket.emit(Events.Loaded);

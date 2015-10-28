@@ -59,11 +59,11 @@ InboundEventDomHandler.off('messageHistory').on('messageHistory', function(data)
 	data.forEach(function(mess){
     if(typeof data.ImageUrl != 'undefined')
     {
-        ChatView.chatWindowPartial.addImageMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
+        ChatView.chatWindowPartial.addImageMessage(mess,'missedMessage','userNameMissedMessage', mess.Timestamp);
     }
     else
     {
-        ChatView.chatWindowPartial.addMessage(mess.Content,'missedMessage','userNameMissedMessage', mess.Timestamp);
+        ChatView.chatWindowPartial.addMessage(mess,'missedMessage','userNameMissedMessage', mess.Timestamp);
     }
 	});
 });

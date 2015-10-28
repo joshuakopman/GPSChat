@@ -25,7 +25,8 @@ app.get('/clientevents', function(req, res){
 });
 
 var io = require('socket.io').listen(server);
+var rooms = [];
 
 io.sockets.on('connection', function (newSocket){
-	new SocketManager(io).OnConnection(newSocket);
+	new SocketManager(io,newSocket,rooms).onConnection();
 });

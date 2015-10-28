@@ -1,6 +1,6 @@
 var OutboundEventHandler = _.extend({}, Backbone.Events);
 
-OutboundEventHandler.RegisterOutboundEvents = function(socket){
+OutboundEventHandler.registerOutboundEvents = function(socket){
 
 OutboundEventHandler.off('sendMessage').on('sendMessage', function (mess) {  
       socket.emit('message', mess, Date.now());

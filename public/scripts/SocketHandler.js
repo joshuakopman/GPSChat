@@ -15,23 +15,23 @@ var SocketHandler = function (){
         alert("Error: Position is unavailable!");
       }
     },
-    DetermineLocationAndEstablishSocketConnection : function(cb){
+    determineLocationAndEstablishSocketConnection : function(cb){
       navigator.geolocation.getCurrentPosition(function(location){
                   gpsLocation = location;
                   cb();
       },this.errorCallback,{timeout:10000});
     },
-    ConnectToChatRoom : function(timeLastDisconnected){
+    connectToChatRoom : function(timeLastDisconnected){
       var self = this;
-      this.GetServerEventNames(function(serverEventsList){
+      this.getServerEventNames(function(serverEventsList){
             if(EventsRegistered == false){
-                 self.FireBackboneEventsOnInboundSocketEvents(serverEventsList);
-                 OutboundEventHandler.RegisterOutboundEvents(socket);
+                 self.fireBackboneEventsOnInboundSocketEvents(serverEventsList);
+                 OutboundEventHandler.registerOutboundEvents(socket);
             }
             socket.emit('enterChatRoom',{ UserName : NameEntryView.userName , Lat : gpsLocation.coords.latitude , Lon : gpsLocation.coords.longitude, TimeDisconnected: timeLastDisconnected });
        });
     },
-    GetServerEventNames : function(cb){
+    getServerEventNames : function(cb){
       var eventList = [];
        $.getJSON('/events',function(receivedSocketEvents){
           for (var property in receivedSocketEvents) {
@@ -42,7 +42,7 @@ var SocketHandler = function (){
           cb(eventList);
         }); 
     },
-    FireBackboneEventsOnInboundSocketEvents : function(serverEvents){
+    fireBackboneEventsOnInboundSocketEvents : function(serverEvents){
         serverEvents.forEach(function(eventName){
           socket.removeAllListeners(eventName).on(eventName, function (data) {
             InboundEventDomHandler.trigger(eventName,data);

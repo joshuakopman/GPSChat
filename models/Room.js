@@ -1,10 +1,12 @@
-function Room(name,neighborhood,clients,radius){
-    this.Name = name;
-    this.Key = name.replace(/[\s\-\.]/g, '').toString();
-    this.Neighborhood = neighborhood;
-    this.Clients = (clients)?clients:[];
-    this.Messages = [];
-    this.Radius = (radius) ? radius : 0.9;
+var Room = function(name,neighborhood,clients,radius){
+	return{
+	    Name : name,
+	    Key : name.replace(/[\s\-\.]/g, '').toString(),
+	    Neighborhood : neighborhood,
+	    Clients : (clients)?clients:[],
+	    Messages : [],
+	    Radius : (radius) ? radius : 0.9
+	}
 }
 
 module.exports = Room;

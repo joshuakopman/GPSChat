@@ -2,7 +2,7 @@ var ServiceManager = require('../managers/ServiceManager');
 var Message = require('../models/Message');
 var Events = require('../constants/Events');
 
-function MessageHelper(){
+var MessageHelper = function(){
 	var serviceManager = new ServiceManager();
 	return{
 		handleSpecialMessage : function(messageFromClient, timestamp, callback){
@@ -14,7 +14,7 @@ function MessageHelper(){
 				if(messageFromClient.indexOf('/img ') > -1)
 				{
 					var imageURL =  messageFromClient.substring(messageFromClient.indexOf('/img ') + 5,messageFromClient.length);
-					serviceManager.CheckImageIntegrity(imageURL, function(code){
+					serviceManager.checkImageIntegrity(imageURL, function(code){
 						if(code == 200)
 						{
 							createdMessage.ImageUrl = imageURL;
@@ -33,7 +33,7 @@ function MessageHelper(){
 					{
 					    var lightSwitchObj = {};
 			    		lightSwitchObj.state = lightCommand;
-						serviceManager.SetLightState(lightCommand);
+						serviceManager.setLightState(lightCommand);
 						createdMessage.Content = "has turned the lights " + lightCommand;
 
 						return callback(createdMessage);

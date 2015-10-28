@@ -41,7 +41,7 @@ var SocketManager = function(io,socket,rooms){
             this.sendMissedMessageHistory(room,initialObj);
             socket.emit(Events.SelfJoined,socketHelper.getRoomTitle(room.Neighborhood,room.Name));
             console.log("You have joined");
-            new ServiceManager().GetWeather(initialObj.Lat,initialObj.Lon,function(data){
+            new ServiceManager().getWeather(initialObj.Lat,initialObj.Lon,function(data){
                      socket.emit(Events.SendWeather,data);
                      socket.emit(Events.Loaded);
             });
@@ -66,7 +66,7 @@ var SocketManager = function(io,socket,rooms){
              }
              else
              {
-                new ServiceManager().GetNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
+                new ServiceManager().getNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
                        var newRoom = new Room(latNum + " " + lonNum,neighborhood);
                        rooms[newRoom.Key] = newRoom;
                        socket.join(newRoom.Name);
@@ -141,7 +141,7 @@ var SocketManager = function(io,socket,rooms){
       },
       registerWeatherEvent : function(initialObject){
           socket.on(ClientEvents.OnWeatherRequested,function(){
-              new ServiceManager().GetWeather(initialObject.Lat,initialObject.Lon,function(data){
+              new ServiceManager().getWeather(initialObject.Lat,initialObject.Lon,function(data){
                    socket.emit(Events.SendWeather,data);
               });
           });

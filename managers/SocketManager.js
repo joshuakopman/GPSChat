@@ -1,20 +1,21 @@
 var Room = require('../models/Room');
 var Client = require('../models/Client');
 var SocketHelper = require('../helpers/SocketHelper');
-var MessageHelper = require('../helpers/MessageHelper');
+var messageHelper = require('../helpers/MessageHelper');
 var ServiceManager = require('./ServiceManager');
 var Config = require('../Config');
 var Events = require('../constants/Events');
 var ClientEvents = require('../constants/ClientEvents');
 
 var SocketManager = function(io,socket,rooms){
+
     var socketHelper = new SocketHelper(io.sockets);
 
     return{
         onConnection : function(){
             var self = this;
-            socket.on(ClientEvents.OnEnterChatRoom,function(initialObject){
-                self.findAndJoinChatRoom(initialObject,function(room,userName){
+            socket.on(ClientEvents.OnEnterChatRoom,function(userInformation){
+                self.findAndJoinChatRoom(userInformation,function(room,userName){
                     if(room)
                     {
                         self.registerLeaveEvent(rooms[room.Key],room.Name,userName);
@@ -22,8 +23,8 @@ var SocketManager = function(io,socket,rooms){
                         self.registerMessageEvent(room,userName);
                         self.registerBootEvent(room,userName);
                         self.registerTypingEvents(room,userName);
-                        self.registerWeatherEvent(initialObject,socket);
-                        self.initializeChatRoom(room,initialObject,userName);
+                        self.registerWeatherEvent(userInformation,socket);
+                        self.initializeChatRoom(room,userInformation,userName);
 
                         if(room.Clients.length > Config.RoomCapacity){
                             room.Radius = room.Radius - Config.RadiusInterval;
@@ -38,21 +39,21 @@ var SocketManager = function(io,socket,rooms){
             this.pushUpdatedMemberList(room.Name,rooms[room.Key].Clients,user);
             socket.broadcast.to(room.Name).emit(Events.NewUserJoined, user);
             this.sendMissedMessageHistory(room,initialObj);
-            socket.emit(Events.SelfJoined,socketHelper.GetRoomTitle(room.Neighborhood,room.Name));
+            socket.emit(Events.SelfJoined,socketHelper.getRoomTitle(room.Neighborhood,room.Name));
             console.log("You have joined");
             new ServiceManager().GetWeather(initialObj.Lat,initialObj.Lon,function(data){
                      socket.emit(Events.SendWeather,data);
                      socket.emit(Events.Loaded);
             });
         },
-        findAndJoinChatRoom : function(initializeObject,callback){
-             var UserName = initializeObject.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-             var latNum = parseFloat(initializeObject.Lat).toFixed(2);
-             var lonNum = parseFloat(initializeObject.Lon).toFixed(2);
-             var existingRoom = socketHelper.FindExistingRoom(latNum,lonNum,rooms);
+        findAndJoinChatRoom : function(userInformation,callback){
+             var UserName = userInformation.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+             var latNum = parseFloat(userInformation.Lat).toFixed(2);
+             var lonNum = parseFloat(userInformation.Lon).toFixed(2);
+             var existingRoom = socketHelper.findExistingRoom(latNum,lonNum,rooms);
              if(existingRoom)
              {
-                if(socketHelper.CheckIfNameTaken(existingRoom.Clients,UserName) == false)
+                if(socketHelper.checkIfNameTaken(existingRoom.Clients,UserName) == false)
                 {
                     socket.join(existingRoom.Name);
                     return callback(existingRoom,UserName);
@@ -74,7 +75,7 @@ var SocketManager = function(io,socket,rooms){
                 });
              }
 
-             console.log("User Joined | Name: '" + initializeObject.UserName + "' | IP: '" + socket.handshake.address + "'");
+             console.log("User Joined | Name: '" + userInformation.UserName + "' | IP: '" + socket.handshake.address + "'");
         },
         registerTypingEvents : function(Room,userName){
             socket.on(ClientEvents.OnNotifyTyping, function(userType){
@@ -88,10 +89,9 @@ var SocketManager = function(io,socket,rooms){
         registerMessageEvent : function(Room,userName){
            socket.on(ClientEvents.OnMessageReceived, function(clientMessage,timestamp){
               clientMessage = clientMessage.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-              var messageHelper = new MessageHelper();
               if(clientMessage.indexOf('&lt;script') < 0)
               {
-                 messageHelper.HandleSpecialMessage(clientMessage, timestamp, function(result){
+                 messageHelper.handleSpecialMessage(clientMessage, timestamp, function(result){
                       socket.broadcast.to(Room.Name).emit(Events.Message, result);
                       socket.emit(Events.SelfMessage,result);
                       rooms[Room.Key].Messages.push(result);
@@ -151,7 +151,7 @@ var SocketManager = function(io,socket,rooms){
           io.to(CurrentRoomName).emit(Events.UserLeft,userName); //tell everyone i left
           if(notBoot)
           {
-            socket.emit(Events.SelfLeft,socketHelper.GetRoomTitle(CurrentRoom.Neighborhood,CurrentRoom.Name)); //let myself know i left
+            socket.emit(Events.SelfLeft,socketHelper.getRoomTitle(CurrentRoom.Neighborhood,CurrentRoom.Name)); //let myself know i left
           }
           if(typeof CurrentRoom.Clients != 'undefined')
           {

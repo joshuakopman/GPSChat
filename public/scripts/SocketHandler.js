@@ -1,6 +1,9 @@
 
 function SocketHandler(){
-  this.socket = '';
+  this.socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
+                { 
+                  forceNew : true 
+                });
   this.gpsLocation = '';
 }
 
@@ -16,10 +19,6 @@ SocketHandler.prototype.DetermineLocationAndEstablishSocketConnection = function
   var self = this;
   navigator.geolocation.getCurrentPosition(function(location){
               self.gpsLocation = location;
-              self.socket = io.connect(window.location.protocol + '//' + window.location.hostname + ":" + 3000,
-                            { 
-                              forceNew : true 
-                            });
               cb();
   },this.errorCallback,{timeout:10000});
 
@@ -27,8 +26,8 @@ SocketHandler.prototype.DetermineLocationAndEstablishSocketConnection = function
 
 SocketHandler.prototype.ConnectToChatRoom = function(timeLastDisconnected){
   var self = this;
-  this.GetServerEventNames(function(eventsList){
-           self.FireBackboneEventsOnInboundSocketEvents(eventsList);
+  this.GetServerEventNames(function(serverEventsList){
+           self.FireBackboneEventsOnInboundSocketEvents(serverEventsList);
            OutboundEventHandler.RegisterOutboundEvents(self.socket);
            self.socket.emit('enterChatRoom',{ UserName : NameEntryView.userName , Lat : self.gpsLocation.coords.latitude , Lon : self.gpsLocation.coords.longitude, TimeDisconnected: timeLastDisconnected });
      });

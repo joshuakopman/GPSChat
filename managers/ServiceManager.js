@@ -1,5 +1,5 @@
-var https = require('https');
-var http = require('http');
+var https = require('https'),
+    http = require('http');
 
 var ServiceManager = function(){
     return{

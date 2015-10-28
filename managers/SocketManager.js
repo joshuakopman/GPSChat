@@ -1,17 +1,17 @@
-var Room = require('../models/Room');
-var Client = require('../models/Client');
-var SocketHelper = require('../helpers/SocketHelper');
-var messageHelper = require('../helpers/MessageHelper');
-var ServiceManager = require('./ServiceManager');
-var Config = require('../Config');
-var Events = require('../constants/Events');
-var ClientEvents = require('../constants/ClientEvents');
+var Room = require('../models/Room'),
+    Client = require('../models/Client'),
+    SocketHelper = require('../helpers/SocketHelper'),
+    messageHelper = require('../helpers/MessageHelper'),
+    ServiceManager = require('./ServiceManager'),
+    Config = require('../Config'),
+    Events = require('../constants/Events'),
+    ClientEvents = require('../constants/ClientEvents');
 
 var SocketManager = function(io,socket,rooms){
 
-    var socketHelper = new SocketHelper(io.sockets);
-    var serviceManager = new ServiceManager();
-    var eventsRegistered = false;
+    var socketHelper = new SocketHelper(io.sockets),
+        serviceManager = new ServiceManager(),
+        eventsRegistered = false;
 
     return{
         onConnection : function(){
@@ -29,7 +29,7 @@ var SocketManager = function(io,socket,rooms){
                         self.registerWeatherEvent(userInformation);
                         eventsRegistered = true;
                       }
-                      
+
                         self.initializeChatRoom(room,userInformation);
 
                         if(room.Clients.length > Config.RoomCapacity){
@@ -52,9 +52,9 @@ var SocketManager = function(io,socket,rooms){
         },
         findAndJoinChatRoom : function(userInformation,callback){
              userInformation.UserName = userInformation.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-             var latNum = parseFloat(userInformation.Lat).toFixed(2);
-             var lonNum = parseFloat(userInformation.Lon).toFixed(2);
-             var existingRoom = socketHelper.findExistingRoom(latNum,lonNum,rooms);
+             var latNum = parseFloat(userInformation.Lat).toFixed(2),
+                 lonNum = parseFloat(userInformation.Lon).toFixed(2),
+                 existingRoom = socketHelper.findExistingRoom(latNum,lonNum,rooms);
              if(existingRoom)
              {
                 if(socketHelper.checkIfNameTaken(existingRoom.Clients,userInformation.UserName) == false)
@@ -98,7 +98,6 @@ var SocketManager = function(io,socket,rooms){
                  messageHelper.handleSpecialMessage(clientMessage, timestamp, function(result){
                       socket.broadcast.to(Room.Name).emit(Events.Message, result);
                       socket.emit(Events.SelfMessage,result);
-                      console.log("message event fired...");
                       rooms[Room.Key].Messages.push(result);
                  });
               }
@@ -195,7 +194,7 @@ var SocketManager = function(io,socket,rooms){
           {
               rooms[key].Messages = rooms[key].Messages.slice(-100); //make sure to not store more than 100 messages back
               var allMessages = rooms[key].Messages;
-              var recentMessages=[];
+              var recentMessages = [];
               allMessages.forEach( function (mess){
                 if(mess.Timestamp > timestamp){
                   recentMessages.push(mess);

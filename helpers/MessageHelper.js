@@ -1,6 +1,6 @@
-var ServiceManager = require('../managers/ServiceManager');
-var Message = require('../models/Message');
-var Events = require('../constants/Events');
+var ServiceManager = require('../managers/ServiceManager'),
+    Message = require('../models/Message'),
+    Events = require('../constants/Events');
 
 var MessageHelper = function(){
 	var serviceManager = new ServiceManager();
@@ -33,7 +33,7 @@ var MessageHelper = function(){
 					{
 					    var lightSwitchObj = {};
 			    		lightSwitchObj.state = lightCommand;
-						serviceManager.setLightState(lightCommand);
+						serviceManager.etLightState(lightCommand);
 						createdMessage.Content = "has turned the lights " + lightCommand;
 
 						return callback(createdMessage);

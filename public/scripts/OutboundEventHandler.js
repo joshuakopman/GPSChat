@@ -3,7 +3,6 @@ var OutboundEventHandler = _.extend({}, Backbone.Events);
 OutboundEventHandler.registerOutboundEvents = function(socket){
 
 OutboundEventHandler.off('sendMessage').on('sendMessage', function (mess) {  
-console.log("client firing message");
       socket.emit('message', mess, Date.now());
     });
     

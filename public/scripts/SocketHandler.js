@@ -25,7 +25,6 @@ var SocketHandler = function (){
       var self = this;
       this.getServerEventNames(function(serverEventsList){
             if(!EventsRegistered){
-                console.log("events registered");
                  self.fireBackboneEventsOnInboundSocketEvents(serverEventsList);
                  OutboundEventHandler.registerOutboundEvents(socket);
             }

@@ -21,7 +21,7 @@ var MessageHelper = function(){
 						}
 						else
 						{
-							createdMessage.ImageUrl = "http://maxcdn.thedesigninspiration.com/wp-content/uploads/2010/03/fail-whale/Fail-Whale-15.jpg";
+							createdMessage.ImageUrl = "http://www.yiyinglu.com/wp-content/uploads/2013/11/lifting-a-dreamer-2009.jpg";
 						}
 						return callback(createdMessage);
 					});
@@ -33,7 +33,7 @@ var MessageHelper = function(){
 					{
 					    var lightSwitchObj = {};
 			    		lightSwitchObj.state = lightCommand;
-						serviceManager.etLightState(lightCommand);
+						serviceManager.setLightState(lightCommand);
 						createdMessage.Content = "has turned the lights " + lightCommand;
 
 						return callback(createdMessage);

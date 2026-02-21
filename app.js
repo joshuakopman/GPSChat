@@ -5,16 +5,17 @@ var SocketManager = require('./managers/SocketManager');
 var Events = require('./constants/Events');
 var ClientEvents = require('./constants/ClientEvents');
 var rooms = [];
+var port = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.disable('etag');
 
-var server = app.listen(3000, function() {
-    console.log("server started on port 3000");
+var server = app.listen(port, function() {
+    console.log("server started on port " + port);
 });
 
 app.get('/', function(req, res){
-  res.sendfile('index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/events', function(req, res){

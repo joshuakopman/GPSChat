@@ -113,9 +113,9 @@ var SocketManager = function(io,socket,rooms){
                     self.handleLeave(rooms[currentRoom.Key], currentRoom.Name,userName,true);
              })
         },
-        registerDisconnectEvent : function(currentRoom,userName){
+      registerDisconnectEvent : function(currentRoom,userName){
           var self = this;
-           socket.on(ClientEvents.OnDisconnect, function() {
+           var onSocketDisconnected = function() {
                var isUserInRoom = false;
                var existingRoom = rooms[currentRoom.Key];
                if(typeof existingRoom != 'undefined' && typeof existingRoom.Clients != 'undefined' )
@@ -132,7 +132,13 @@ var SocketManager = function(io,socket,rooms){
                       isUserInRoom = false;
                   }
                }
-          });
+          };
+
+          // Handle real socket teardown (tab close, browser close, network drop).
+          socket.on('disconnect', onSocketDisconnected);
+
+          // Keep legacy client-emitted disconnect event support.
+          socket.on(ClientEvents.OnDisconnect, onSocketDisconnected);
       },
       registerBootEvent : function(Room,myUserName){
           var self = this;

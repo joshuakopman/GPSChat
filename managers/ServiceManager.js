@@ -4,8 +4,8 @@ var https = require('https'),
 var ServiceManager = function(){
     return{
         getWeather : function(lat,lon,callback){
-            var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon='+ lon +'&units=imperial&APPID=cc76249b31be5896cffcb3696b7d1db2';
-            http.get(url, function(res) {
+            var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,weather_code&temperature_unit=fahrenheit';
+            https.get(url, function(res) {
                 var body = '';
 
                 res.on('data', function(chunk) {
@@ -18,8 +18,33 @@ var ServiceManager = function(){
                     weatherObj.Temp = '';
                     try {
                         var data = JSON.parse(body);
-                        weatherObj.Weather = data.weather[0].main;
-                        weatherObj.Temp = data.main.temp.toFixed(0) + "°F";
+                        var weatherCodeMap = {
+                            0: 'Clear',
+                            1: 'Mainly Clear',
+                            2: 'Partly Cloudy',
+                            3: 'Cloudy',
+                            45: 'Fog',
+                            48: 'Rime Fog',
+                            51: 'Light Drizzle',
+                            53: 'Drizzle',
+                            55: 'Heavy Drizzle',
+                            61: 'Light Rain',
+                            63: 'Rain',
+                            65: 'Heavy Rain',
+                            71: 'Light Snow',
+                            73: 'Snow',
+                            75: 'Heavy Snow',
+                            80: 'Rain Showers',
+                            81: 'Rain Showers',
+                            82: 'Heavy Rain Showers',
+                            95: 'Thunderstorm'
+                        };
+
+                        if (data && data.current) {
+                            var code = data.current.weather_code;
+                            weatherObj.Weather = weatherCodeMap.hasOwnProperty(code) ? weatherCodeMap[code] : 'Unknown';
+                            weatherObj.Temp = Math.round(data.current.temperature_2m) + "°F";
+                        }
                     }
                     catch(err){
                         console.log(err);
@@ -28,12 +53,20 @@ var ServiceManager = function(){
                 });
             }).on('error', function(e) {
                   console.log("Got error from weather service: ", e);
-                  return callback(weatherObj); 
+                  return callback({ Weather: '', Temp: '' }); 
             });
         },
         getNeighborhoodByCoords : function(lat,lon,callback){
-            var url = 'https://api.flickr.com/services/rest/?method=flickr.places.findByLatLon&api_key=58c6594cbce90ae5daaa7ae687e1149f&lat='+lat+'&lon='+lon+'&format=json&nojsoncallback=1';
-            https.get(url, function(res) {
+            var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=10&lat=' + lat + '&lon=' + lon;
+            var requestOptions = {
+                headers: {
+                    // Nominatim usage policy requires a valid app-identifying user agent.
+                    'User-Agent': 'GPSChat/1.0 (legacy-demo)',
+                    'Accept-Language': 'en-US,en;q=0.9'
+                }
+            };
+
+            https.get(url, requestOptions, function(res) {
                 var body = '';
 
                 res.on('data', function(chunk) {
@@ -41,11 +74,35 @@ var ServiceManager = function(){
                 });
 
                 res.on('end', function() {
-                    var data = JSON.parse(body)
-                    return callback(data.places.place[0].woe_name);
+                    try {
+                        var data = JSON.parse(body);
+                        if (data) {
+                            var address = data.address || {};
+                            var label = address.neighbourhood ||
+                                address.suburb ||
+                                address.city_district ||
+                                address.city ||
+                                address.town ||
+                                address.village ||
+                                address.county ||
+                                address.state;
+
+                            if (label) {
+                                return callback(label);
+                            }
+
+                            if (data.display_name) {
+                                return callback(data.display_name.split(',')[0]);
+                            }
+                        }
+                    } catch (err) {
+                        console.log("Neighborhood parse error:", err);
+                    }
+                    return callback("Local Room " + lat + "," + lon);
                 });
             }).on('error', function(e) {
                   console.log("Got error: ", e);
+                  return callback("Local Room " + lat + "," + lon);
             });
         },
         checkImageIntegrity : function(url,callback){

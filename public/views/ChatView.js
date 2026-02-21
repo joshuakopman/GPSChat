@@ -10,7 +10,7 @@ ChatView = Backbone.View.extend({
         render: function(){
             var self = this;;
             $(window).on("focus",function(){
-		      document.title = "Yosaaaa.ly";
+		      document.title = "GPS Chat";
 		      self.messageCount = 0;
 		   });
         },
@@ -35,7 +35,7 @@ ChatView = Backbone.View.extend({
 		  if(!document.hasFocus())
 		  {
 		    this.messageCount++;
-		    document.title = "Yosaaaa.ly ("+ this.messageCount + ")"; 
+		    document.title = "GPS Chat ("+ this.messageCount + ")"; 
 		  }
 		}
       });

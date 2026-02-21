@@ -1,5 +1,7 @@
 # GPSChat
 
+![GPSChat Screenshot](docs/images/gpschat-screenshot.png)
+
 GPSChat is a location-based real-time chat app built with Node.js + Socket.IO.
 
 Users are grouped into rooms based on their GPS coordinates. If no nearby room exists, a new one is created. If a room reaches capacity, room assignment becomes more geographically specific (progressive granularity) so dense areas split into closer sub-rooms.

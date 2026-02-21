@@ -56,8 +56,19 @@ var ServiceManager = function(){
                   return callback({ Weather: '', Temp: '' }); 
             });
         },
-        getNeighborhoodByCoords : function(lat,lon,callback){
-            var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=10&lat=' + lat + '&lon=' + lon;
+        getNeighborhoodByCoords : function(lat,lon,zoomOrCallback,callbackOverride){
+            var callback = callbackOverride;
+            var zoom = 10;
+            if(typeof zoomOrCallback === 'function')
+            {
+                callback = zoomOrCallback;
+            }
+            else if(typeof zoomOrCallback !== 'undefined')
+            {
+                zoom = zoomOrCallback;
+            }
+
+            var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=' + zoom + '&lat=' + lat + '&lon=' + lon;
             var requestOptions = {
                 headers: {
                     // Nominatim usage policy requires a valid app-identifying user agent.

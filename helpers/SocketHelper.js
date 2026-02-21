@@ -1,29 +1,34 @@
 var SocketHelper = function(sockets){
     return {
-        findExistingRoom : function(mylat,mylon,rooms){
-            var existingRoomFound;
-
-            if(rooms.length < 1)
-            {
-                return null;
-            }
-
-            rooms.some(function(currRoom){
-                var roomKey = currRoom.Key;
-                var roomCoordinates = currRoom.Name.split(" ");
-                if(!isNaN(parseFloat(roomCoordinates[0])) && !isNaN(parseFloat(roomCoordinates[1])))
-                { 
-                  var currentRadius = rooms[roomKey].Radius;
-                  if(Math.abs(parseFloat(roomCoordinates[0]).toFixed(2) - mylat) < currentRadius && Math.abs(parseFloat(roomCoordinates[1]).toFixed(2) - mylon) < currentRadius)
-                  {
-                    existingRoomFound = rooms[roomKey];
-                    return true;
-                  }
-                }   
-            });
-
-            return existingRoomFound;
-
+        getBucketDecimals : function(bucketSize){
+            var asString = bucketSize.toString();
+            return asString.indexOf('.') > -1 ? asString.split('.')[1].length : 0;
+        },
+        getBucketedCoordinate : function(value, bucketSize){
+            var decimals = this.getBucketDecimals(bucketSize);
+            var numericValue = parseFloat(value);
+            var bucketed = Math.floor(numericValue / bucketSize) * bucketSize;
+            return parseFloat(bucketed.toFixed(decimals));
+        },
+        getRoomPlacement : function(lat,lon,level,bucketSizes){
+            var maxLevelIndex = bucketSizes.length - 1;
+            var boundedLevel = (level > maxLevelIndex) ? maxLevelIndex : level;
+            var bucketSize = bucketSizes[boundedLevel];
+            var bucketLat = this.getBucketedCoordinate(lat, bucketSize);
+            var bucketLon = this.getBucketedCoordinate(lon, bucketSize);
+            var roomName = bucketLat.toFixed(this.getBucketDecimals(bucketSize)) + " " + bucketLon.toFixed(this.getBucketDecimals(bucketSize));
+            var key = "L" + boundedLevel + "_" + roomName.replace(/[\s\-\.]/g, '');
+            return {
+                Level: boundedLevel,
+                BucketSize: bucketSize,
+                BucketLat: bucketLat,
+                BucketLon: bucketLon,
+                RoomName: roomName,
+                Key: key
+            };
+        },
+        findRoomByPlacement : function(rooms,placement){
+            return rooms[placement.Key] || null;
         },
         checkIfNameTaken : function(roomList,user){
             var isFound = false;

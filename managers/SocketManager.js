@@ -31,11 +31,6 @@ var SocketManager = function(io,socket,rooms){
                       }
 
                         self.initializeChatRoom(room,userInformation);
-
-                        if(room.Clients.length > Config.RoomCapacity){
-                            room.Radius = room.Radius - Config.RadiusInterval;
-                        }
-
                     }
                 });
             });
@@ -52,34 +47,49 @@ var SocketManager = function(io,socket,rooms){
         },
         findAndJoinChatRoom : function(userInformation,callback){
              userInformation.UserName = userInformation.UserName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-             var latNum = parseFloat(userInformation.Lat).toFixed(2),
-                 lonNum = parseFloat(userInformation.Lon).toFixed(2),
-                 existingRoom = socketHelper.findExistingRoom(latNum,lonNum,rooms);
-             if(existingRoom)
+             var latNum = parseFloat(userInformation.Lat);
+             var lonNum = parseFloat(userInformation.Lon);
+             var maxGranularityIndex = Config.RoomBucketSizes.length - 1;
+             var zoomLevels = Config.ReverseGeocodeZoomLevels || [];
+             var self = this;
+
+             if(isNaN(latNum) || isNaN(lonNum))
              {
-                if(socketHelper.checkIfNameTaken(existingRoom.Clients,userInformation.UserName) == false)
+                socket.emit(Events.UserError,'Invalid geolocation coordinates.');
+                return callback(null);
+             }
+
+             var tryJoinAtLevel = function(level){
+                var placement = socketHelper.getRoomPlacement(latNum,lonNum,level,Config.RoomBucketSizes);
+                var existingRoom = socketHelper.findRoomByPlacement(rooms,placement);
+
+                if(existingRoom)
                 {
+                    if(socketHelper.checkIfNameTaken(existingRoom.Clients,userInformation.UserName) == true)
+                    {
+                        socket.emit(Events.UserError,'A user with that name is already in the room.');
+                        return callback(null);
+                    }
+
+                    if(existingRoom.Clients.length >= Config.RoomCapacity && placement.Level < maxGranularityIndex)
+                    {
+                        return tryJoinAtLevel(placement.Level + 1);
+                    }
+
                     socket.join(existingRoom.Name);
                     return callback(existingRoom,userInformation.UserName);
                 }
-                else
-                {   
-                    socket.emit(Events.UserError,'A user with that name is already in the room.');
-                    return callback(null);
-                }
-             }
-             else
-             {
-                serviceManager.getNeighborhoodByCoords(latNum,lonNum,function(neighborhood){
-                       var newRoom = new Room(latNum + " " + lonNum,neighborhood);
+
+                var zoom = zoomLevels[placement.Level] || zoomLevels[zoomLevels.length - 1] || 10;
+                serviceManager.getNeighborhoodByCoords(latNum,lonNum,zoom,function(neighborhood){
+                       var newRoom = new Room(placement.RoomName, neighborhood, [], 0.9, placement.Key, placement.Level, placement.BucketSize);
                        rooms[newRoom.Key] = newRoom;
                        socket.join(newRoom.Name);
-
                        return callback(newRoom,userInformation.UserName);
                 });
-             }
+             };
 
-             console.log("User Joined | Name: '" + userInformation.UserName + "' | IP: '" + socket.handshake.address + "'");
+             tryJoinAtLevel(0);
         },
         registerTypingEvents : function(Room){
             socket.on(ClientEvents.OnNotifyTyping, function(userType){
@@ -143,10 +153,14 @@ var SocketManager = function(io,socket,rooms){
       registerBootEvent : function(Room,myUserName){
           var self = this;
           socket.on(ClientEvents.OnBootUser, function(data) {
-              if(typeof io.sockets.connected[data.SocketID] != 'undefined' && socket.id != data.SocketID)
+              var targetSocket = (io.sockets && io.sockets.sockets && io.sockets.sockets.get)
+                ? io.sockets.sockets.get(data.SocketID)
+                : undefined;
+
+              if(typeof targetSocket != 'undefined' && socket.id != data.SocketID)
               {
-                   self.handleLeave(io.sockets.connected[data.SocketID],rooms[Room.Key],Room.Name,data.UserName,false);
-                   io.sockets.connected[data.SocketID].emit(Events.BootedUser);
+                   self.handleLeave(rooms[Room.Key], Room.Name, data.UserName, false);
+                   targetSocket.emit(Events.BootedUser);
               }
           });
       },

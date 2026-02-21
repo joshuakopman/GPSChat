@@ -26,8 +26,8 @@ app.get('/clientevents', function(req, res){
   res.send(ClientEvents);
 });
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 
-io.sockets.on('connection', function (newSocket){
+io.on('connection', function (newSocket){
 	new SocketManager(io,newSocket,rooms).onConnection();
 });

@@ -181,6 +181,18 @@ input[type='button']{
 #txtUserName{
     display:none;
 }
+#geoError{
+    display:none;
+    margin-top:20px;
+    margin-bottom:10px;
+    color:#B22222;
+    font-size:18px;
+    font-weight:bold;
+    max-width:500px;
+}
+#btnRetryGeo{
+    display:none;
+}
 
 #entryLoader{
     height:100px;

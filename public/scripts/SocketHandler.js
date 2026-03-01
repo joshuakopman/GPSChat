@@ -8,18 +8,33 @@ var SocketHandler = function (){
   var EventsRegistered = false;
 
   return {
+    showGeoError : function(message){
+      $("#entryLoader").hide();
+      $("#geoError").html(message).show();
+      $("#btnRetryGeo").show();
+      $("#txtUserName,#btnSendUser").hide().prop('disabled',true);
+    },
+    clearGeoError : function(){
+      $("#geoError,#btnRetryGeo").hide();
+    },
     errorCallback : function(err){
-     if(err.code == 1) {
-        alert("Error: Access is denied!");
-      }else if( err.code == 2) {
-        alert("Error: Position is unavailable!");
+      if(err.code == 1) {
+        this.showGeoError("Location access is blocked. Please allow location permissions for this site, then click Retry Location.");
+      } else if( err.code == 2) {
+        this.showGeoError("Location is currently unavailable. Please turn on location services and click Retry Location.");
+      } else {
+        this.showGeoError("Unable to get your location right now. Please check location settings and click Retry Location.");
       }
     },
     determineLocationAndEstablishSocketConnection : function(cb){
+      var self = this;
+      self.clearGeoError();
       navigator.geolocation.getCurrentPosition(function(location){
                   gpsLocation = location;
                   cb();
-      },this.errorCallback,{timeout:10000});
+      },function(err){
+        self.errorCallback(err);
+      },{timeout:10000});
     },
     connectToChatRoom : function(timeLastDisconnected){
       var self = this;

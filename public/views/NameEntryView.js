@@ -18,12 +18,21 @@ NameEntryView = Backbone.View.extend({
         events:{
           'focus #txtUserName':'hideErrors',
           'keypress #txtUserName':'startChat',
-          'click #btnSendUser':'startChat'
+          'click #btnSendUser':'startChat',
+          'click #btnRetryGeo':'retryLocation'
         },
         readyToEnterChat:function(){
+            this.socketHandler.clearGeoError();
             $("#entryLoader").hide();
+            $("#txtUserName,#btnSendUser").prop('disabled',false);
             $("#txtUserName").show();
             $("#btnSendUser").show();
+        },
+        retryLocation:function(){
+            var self = this;
+            this.socketHandler.determineLocationAndEstablishSocketConnection(function(){
+              self.readyToEnterChat();
+            });
         },
         hideErrors:function(){
            $("#error").hide();
@@ -53,4 +62,3 @@ NameEntryView = Backbone.View.extend({
   });
 
 var NameEntryView = new NameEntryView();
-

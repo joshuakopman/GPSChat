@@ -177,21 +177,43 @@ input[type='button']{
    font-family:cursive;
    color:red;
    font-size:72px;
+   text-align:center;
+}
+.bannerLabel{
+    display:block;
+    margin-bottom:10px;
 }
 #txtUserName{
     display:none;
 }
 #geoError{
     display:none;
-    margin-top:20px;
-    margin-bottom:10px;
+    margin:20px auto 12px auto;
     color:#B22222;
-    font-size:18px;
+    font-size:16px;
     font-weight:bold;
-    max-width:500px;
+    line-height:1.35;
+    max-width:560px;
+    padding:0 16px;
 }
 #btnRetryGeo{
     display:none;
+    margin:8px auto 16px auto;
+    padding:8px 14px;
+    border:1px solid #9f9f9f;
+    border-radius:4px;
+    background-color:#f6f6f6;
+    color:#5a5a5a;
+    font-size:24px;
+    font-family:'Century Gothic', sans-serif;
+    cursor:pointer;
+}
+#btnRetryGeo:hover{
+    background-color:#ececec;
+}
+#btnRetryGeo:active{
+    position:relative;
+    top:1px;
 }
 
 #entryLoader{
